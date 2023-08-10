@@ -1,4 +1,4 @@
-package gov.cabinetoffice.gapfindapiadmin.Controllers;
+package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

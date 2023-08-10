@@ -1,4 +1,4 @@
-package gov.cabinetoffice.gapfindapiadmin.Controllers;
+package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
