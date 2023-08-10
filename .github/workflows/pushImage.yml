@@ -48,7 +48,7 @@ jobs:
           path: ${{github.workspace}}/reports
 
       - name: Unit tests
-          run: mvn test
+        run: mvn test
 
   imageBuild:
     needs: build
