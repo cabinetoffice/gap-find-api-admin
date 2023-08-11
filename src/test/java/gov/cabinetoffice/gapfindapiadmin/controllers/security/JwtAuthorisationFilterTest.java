@@ -23,8 +23,7 @@ import java.io.IOException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -72,6 +71,25 @@ public class JwtAuthorisationFilterTest {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         verify(filterChain).doFilter(request, response);
+        verify(jwtService, times(1)).getPayloadFromJwt(decodedJWT);
+        assertThat(authentication).isNotNull();
+        assertThat(authentication.isAuthenticated()).isTrue();
+        assertThat(authentication.getPrincipal()).isEqualTo(jwtPayload.getSub());
+    }
+
+    @Test
+    void doFilterInternal_validToken_JwtPayloadV2() throws ServletException, IOException {
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
+        when(jwtService.verifyToken(jwt)).thenReturn(decodedJWT);
+        when(jwtService.getPayloadFromJwtV2(decodedJWT)).thenReturn(jwtPayload);
+        when(oneLoginConfig.isOneLoginEnabled()).thenReturn(true);
+
+        jwtAuthorisationFilter.doFilterInternal(request, response, filterChain);
+
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        verify(filterChain).doFilter(request, response);
+        verify(jwtService, times(1)).getPayloadFromJwtV2(decodedJWT);
         assertThat(authentication).isNotNull();
         assertThat(authentication.isAuthenticated()).isTrue();
         assertThat(authentication.getPrincipal()).isEqualTo(jwtPayload.getSub());
