@@ -27,7 +27,6 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    // TODO check if we need this
     @Value("${feature.onelogin.enabled}")
     private boolean oneLoginEnabled;
 

@@ -7,6 +7,8 @@ import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidJwtException;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,9 +22,14 @@ import java.util.Arrays;
 @Service
 public class JwtService {
 
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
+    }
+
     private final UserServiceConfig userServiceConfig;
 
-    private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public DecodedJWT verifyToken(final String jwt) {
         final String url = userServiceConfig.getDomain() + "/is-user-logged-in";
