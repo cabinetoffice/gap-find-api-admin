@@ -2,6 +2,7 @@ package gov.cabinetoffice.gapfindapiadmin.controllers.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import gov.cabinetoffice.gapfindapiadmin.config.OneLoginConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
 import gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter;
@@ -35,6 +36,9 @@ public class JwtAuthorisationFilterTest {
     private JwtService jwtService;
 
     @Mock
+    private OneLoginConfig oneLoginConfig;
+
+    @Mock
     private HttpServletRequest request;
 
     @Mock
@@ -54,7 +58,7 @@ public class JwtAuthorisationFilterTest {
 
     @BeforeEach
     void setup() {
-        jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService);
+        jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, oneLoginConfig);
     }
 
     @Test

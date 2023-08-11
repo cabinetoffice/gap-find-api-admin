@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.security;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import gov.cabinetoffice.gapfindapiadmin.config.OneLoginConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
@@ -10,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,8 +27,7 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    @Value("${feature.onelogin.enabled}")
-    private boolean oneLoginEnabled;
+    private final OneLoginConfig oneLoginConfig;
 
 
     @Override
@@ -43,7 +42,7 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
         final DecodedJWT decodedJWT = this.jwtService.verifyToken(jwtBase64);
 
         JwtPayload JWTPayload;
-        if (oneLoginEnabled) {
+        if (oneLoginConfig.isOneLoginEnabled()) {
             JWTPayload = this.jwtService.getPayloadFromJwtV2(decodedJWT);
         }
         else {

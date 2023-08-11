@@ -1,5 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.security;
 
+import gov.cabinetoffice.gapfindapiadmin.config.OneLoginConfig;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +18,8 @@ public class SecurityConfig {
     private static final String[] WHITE_LIST = {"/health"};
     private final JwtAuthorisationFilter jwtAuthorisationFilter;
 
-    public SecurityConfig(final JwtService jwtService) {
-        this.jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService);
+    public SecurityConfig(final JwtService jwtService, final OneLoginConfig oneLoginConfig) {
+        this.jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, oneLoginConfig);
     }
 
 
