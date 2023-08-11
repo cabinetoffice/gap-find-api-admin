@@ -51,6 +51,8 @@ class JwtServiceTest {
 
     private String encodedJwt;
 
+    private String encodedJwtV2;
+
     @Nested
     class validJWTTests {
 
@@ -70,6 +72,14 @@ class JwtServiceTest {
                         .withClaim("given_name", "Test").withClaim("family_name", "User")
                         .withClaim("email", "test.user@and.digital")
                         .sign(Algorithm.RSA256(null, (RSAPrivateKey) keyPair.getPrivate()));
+
+                encodedJwtV2 = JWT.create().withExpiresAt(tomorrowDate).withIssuer("TEST_DOMAIN")
+                        .withKeyId(keyPair.getPublic().toString()).withSubject("106b1a34-cd3a-45d7-924f-beedc33acc70")
+                        .withClaim("roles", "[TECHNICAL_SUPPORT]")
+                        .withClaim("email", "test.user@and.digital")
+                        .withClaim("department", "Cabinet Office")
+                        .withClaim("iat", 1234567890)
+                        .sign(Algorithm.RSA256(null, (RSAPrivateKey) keyPair.getPrivate()));
             }
             catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
@@ -84,6 +94,15 @@ class JwtServiceTest {
             assertThat(payloadFromJwt.getGivenName()).isEqualTo("Test");
             assertThat(payloadFromJwt.getFamilyName()).isEqualTo("User");
             assertThat(payloadFromJwt.getEmailAddress()).isEqualTo("test.user@and.digital");
+            assertThat(payloadFromJwt.getSub()).isEqualTo("106b1a34-cd3a-45d7-924f-beedc33acc70");
+        }
+
+        @Test
+        void getPayloadFromJwtV2_HappyPathTest() {
+            JwtPayload payloadFromJwt = jwtService.getPayloadFromJwtV2(JWT.decode(encodedJwtV2));
+            assertThat(payloadFromJwt.getDepartmentName()).isEqualTo("Cabinet Office");
+            assertThat(payloadFromJwt.getEmailAddress()).isEqualTo("test.user@and.digital");
+            assertThat(payloadFromJwt.getRoles()).contains("TECHNICAL_SUPPORT");
             assertThat(payloadFromJwt.getSub()).isEqualTo("106b1a34-cd3a-45d7-924f-beedc33acc70");
         }
 
