@@ -12,15 +12,21 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 public class SecurityConfig {
 
-    private static final String[] WHITE_LIST = {"/health"};
+    private static final String[] WHITE_LIST = {
+            "/webjars/**",
+            "/health",
+            "/api-keys/**"
+    };
 
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        (request) -> request.requestMatchers(HttpMethod.GET, WHITE_LIST)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(request ->
+                        request.requestMatchers(HttpMethod.GET, WHITE_LIST)
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())
