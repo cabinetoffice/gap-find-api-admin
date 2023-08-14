@@ -43,17 +43,6 @@ public class ApiGatewayService {
         return response.value();
     }
 
-    public void deleteApiKeys(String keyName) {
-        apiGatewayClient.getApiKeys().items()
-                .stream()
-                .filter(k -> k.name() != null && k.name().equals(keyName))
-                .findFirst()
-                .ifPresentOrElse(k -> apiGatewayClient.deleteApiKey(builder -> builder.apiKey(k.id())), () -> {
-                    throw new ApiKeyDoesNotExistException("API Key with name " + keyName + " does not exist");
-                });
-    }
-
-
     void checkIfKeyExistAlready(String keyName) {
         apiGatewayClient.getApiKeys().items()
                 .stream()
