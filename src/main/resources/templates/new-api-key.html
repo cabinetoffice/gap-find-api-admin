@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>New API Key</title>
-
+    <script type="text/javascript" th:src="@{/js/copy-to-clipboard.js}"></script>
     <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}" />
 </head>
 
@@ -18,7 +18,7 @@
                 <p class="govuk-heading-l">Your API key:</p>
                 <p class="govuk-heading-l" th:text="${keyValue}"></p>
 
-                <button class="govuk-button govuk-button--secondary govuk-!-margin-bottom-4" data-module="govuk-button">
+                <button id="copyButton" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-4" data-module="govuk-button">
                     Copy to clipboard
                 </button>
                 <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-4">
