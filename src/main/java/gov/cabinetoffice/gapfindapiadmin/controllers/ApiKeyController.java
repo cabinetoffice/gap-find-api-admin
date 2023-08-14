@@ -11,7 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 @RequiredArgsConstructor
 public class ApiKeyController {
 
-    @GetMapping
+    @GetMapping("/organisation-api-keys")
     public ModelAndView showKeys() {
         return new ModelAndView("organisation-api-keys");
     }
