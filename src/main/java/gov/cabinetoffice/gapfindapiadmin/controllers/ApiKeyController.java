@@ -38,7 +38,7 @@ public class ApiKeyController {
     @PostMapping("/create-api-key")
     public ModelAndView createKey(final @Valid @ModelAttribute CreateApiKeyDTO createApiKeyDTO, final BindingResult bindingResult) {
         if (StringUtils.isEmptyOrWhitespace(createApiKeyDTO.getKeyName())) {
-            return new ModelAndView(CREATE_API_KEY_FORM_PAGE).addObject("createApiKeyDTO", createApiKeyDTO).addObject("error", bindingResult.getFieldError());
+            return new ModelAndView(CREATE_API_KEY_FORM_PAGE).addObject("createApiKeyDTO", createApiKeyDTO).addObject("error", bindingResult.getFieldError()).addObject("backButtonValue", ORGANISATION_API_KEYS_PAGE);
         }
         ModelAndView newApiKey = new ModelAndView(NEW_API_KEY_PAGE);
         String apiKeyValue = apiGatewayService.createApiKeys(createApiKeyDTO.getKeyName());
