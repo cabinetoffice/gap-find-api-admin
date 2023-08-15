@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create API Key</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}" />
+</head>
+
+<body class="govuk-template__body">
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="govuk-width-container">
+    <a th:href="@{/api-keys}" class="govuk-back-link">Back</a>
+    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <form th:action="@{/api-keys/create-api-key}" th:object="${createApiKeyDTO}" method="post" novalidate>
+                    <div class="govuk-form-group">
+                        <h1 class="govuk-label-wrapper">
+                            <label class="govuk-label govuk-label--xl" for="api-key-name">
+                                Name your API key
+                            </label>
+                        </h1>
+                        <div id="create-api-key-hint" class="govuk-hint">
+                            <p> This name will be shown in your list of API keys to make it easier to find.
+                                We recommend using the name of the service you will be using the API key to integrate with.</p>
+                        </div>
+                        <input th:field="*{keyName}" class="govuk-input"  id="api-key-name" name="api-key-name" type="text">
+                    </div>
+                    <button class="govuk-button" data-module="govuk-button" >
+                        Continue
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

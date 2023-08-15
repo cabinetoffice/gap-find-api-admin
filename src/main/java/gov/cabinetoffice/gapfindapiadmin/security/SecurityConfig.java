@@ -15,7 +15,8 @@ public class SecurityConfig {
     private static final String[] WHITE_LIST = {
             "/webjars/**",
             "/health",
-            "/api-keys/**"
+            "/api-keys/**",
+            "/js/**"
     };
 
 
@@ -27,6 +28,8 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(HttpMethod.GET, WHITE_LIST)
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, WHITE_LIST)
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())
