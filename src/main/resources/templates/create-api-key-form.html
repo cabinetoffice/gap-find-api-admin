@@ -49,7 +49,7 @@
                             </p>
                             <div class="govuk-form-group" id="create-api-key">
 
-                                <input th:class="'govuk-input govuk-input--width-20 ' +${error != null ?'govuk-input--error' : '' }"
+                                <input th:class="'govuk-input ' +${error != null ?'govuk-input--error' : '' }"
                                        th:field="*{keyName}" id="keyName" name="api-key-name" type="text">
 
                             </div>
