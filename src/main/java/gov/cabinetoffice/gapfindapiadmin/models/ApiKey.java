@@ -2,7 +2,6 @@ package gov.cabinetoffice.gapfindapiadmin.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.*;
 
 @Getter
@@ -24,7 +23,6 @@ public class ApiKey {
     private String apiKeyName;
 
     private String apiKeyDescription;
-
     //TODO: see how this is actually done in the database
     private boolean isRevoked;
 }

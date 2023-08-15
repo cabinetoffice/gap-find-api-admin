@@ -1,7 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
-import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
-import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
+import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -17,11 +16,13 @@ public class ApiKeyController {
 
     public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
 
-    private ApiKeyService apiKeyService;
+    private final ApiKeyService apiKeyService;
+
+    private final ApiGatewayService apiGatewayService;
 
     @GetMapping
     public ModelAndView showKeys() {
-        return new ModelAndView("organisation-api-keys");
+        return new ModelAndView(ORGANISATION_API_KEYS_PAGE);
     }
 
     @GetMapping("/revoke-api-key-confirmation")
@@ -33,8 +34,8 @@ public class ApiKeyController {
 
     @PostMapping("/remove-api-key")
     public ModelAndView removeApiKey(@ModelAttribute Integer apiKeyId) {
-        //TODO: set revoked to true based on how it is saved in database
         apiKeyService.revokeApiKey(apiKeyId);
+        apiGatewayService.deleteApiKey(apiKeyService.getApiKeyName(apiKeyId));
         return new ModelAndView(ORGANISATION_API_KEYS_PAGE);
     }
 }
