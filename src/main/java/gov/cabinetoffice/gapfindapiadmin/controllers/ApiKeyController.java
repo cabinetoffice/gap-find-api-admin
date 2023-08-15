@@ -30,7 +30,7 @@ public class ApiKeyController {
 
     @GetMapping("/create-api-key-form")
     public ModelAndView showCreateKeyForm() {
-        ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE);
+        final ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE);
         createApiKey.addObject("createApiKeyDTO", new CreateApiKeyDTO());
         return createApiKey;
     }
@@ -38,11 +38,11 @@ public class ApiKeyController {
     @PostMapping("/create-api-key")
     public ModelAndView createKey(final @Valid @ModelAttribute CreateApiKeyDTO createApiKeyDTO, final BindingResult bindingResult) {
         if (bindingResult.getErrorCount() > 0 && bindingResult.getFieldError() != null) {
-            FieldError fieldError = FieldError.builder().field("#" + bindingResult.getFieldError().getField()).message(bindingResult.getFieldError().getDefaultMessage()).build();
+            final FieldError fieldError = FieldError.builder().field("#" + bindingResult.getFieldError().getField()).message(bindingResult.getFieldError().getDefaultMessage()).build();
             return new ModelAndView(CREATE_API_KEY_FORM_PAGE).addObject("createApiKeyDTO", createApiKeyDTO).addObject("error", fieldError);
         }
-        ModelAndView newApiKey = new ModelAndView(NEW_API_KEY_PAGE);
-        String apiKeyValue = apiGatewayService.createApiKeys(createApiKeyDTO.getKeyName());
+        final ModelAndView newApiKey = new ModelAndView(NEW_API_KEY_PAGE);
+        final String apiKeyValue = apiGatewayService.createApiKeys(createApiKeyDTO.getKeyName());
         newApiKey.addObject("keyValue", apiKeyValue);
         return newApiKey;
     }
