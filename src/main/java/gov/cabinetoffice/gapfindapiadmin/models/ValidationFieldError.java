@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Builder
-public class FieldError {
+public class ValidationFieldError {
 
         private String field;
         private String message;

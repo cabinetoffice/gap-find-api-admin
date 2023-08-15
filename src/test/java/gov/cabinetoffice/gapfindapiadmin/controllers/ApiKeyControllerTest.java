@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.models.ValidationFieldError;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,11 +52,13 @@ class ApiKeyControllerTest {
     void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyDtoIsEmpty(){
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().build();
         final FieldError fieldError = new FieldError("createApiKeyDTO", "keyName", "keyName is required");
+        final ValidationFieldError expectedFieldError = ValidationFieldError.builder().field("#keyName").message("keyName is required").build();
+        when(bindingResult.getErrorCount()).thenReturn(1);
         when(bindingResult.getFieldError()).thenReturn(fieldError);
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
         assertThat(methodResponse.getModel().get("createApiKeyDTO")).isInstanceOf(CreateApiKeyDTO.class);
-        assertThat(methodResponse.getModel()).containsEntry("error", fieldError);
+        assertThat(methodResponse.getModel()).containsEntry("error", expectedFieldError);
 
     }
 }

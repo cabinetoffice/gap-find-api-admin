@@ -1,7 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
-import gov.cabinetoffice.gapfindapiadmin.models.FieldError;
+import gov.cabinetoffice.gapfindapiadmin.models.ValidationFieldError;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class ApiKeyController {
     @PostMapping("/create-api-key")
     public ModelAndView createKey(final @Valid @ModelAttribute CreateApiKeyDTO createApiKeyDTO, final BindingResult bindingResult) {
         if (bindingResult.getErrorCount() > 0 && bindingResult.getFieldError() != null) {
-            final FieldError fieldError = FieldError.builder().field("#" + bindingResult.getFieldError().getField()).message(bindingResult.getFieldError().getDefaultMessage()).build();
+            final ValidationFieldError fieldError = ValidationFieldError.builder().field("#" + bindingResult.getFieldError().getField()).message(bindingResult.getFieldError().getDefaultMessage()).build();
             return new ModelAndView(CREATE_API_KEY_FORM_PAGE).addObject("createApiKeyDTO", createApiKeyDTO).addObject("error", fieldError);
         }
         final ModelAndView newApiKey = new ModelAndView(NEW_API_KEY_PAGE);
