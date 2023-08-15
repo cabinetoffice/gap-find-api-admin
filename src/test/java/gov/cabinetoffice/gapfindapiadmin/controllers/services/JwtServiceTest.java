@@ -3,7 +3,6 @@ package gov.cabinetoffice.gapfindapiadmin.controllers.services;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import gov.cabinetoffice.gapfindapiadmin.config.OneLoginConfig;
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
@@ -40,9 +39,6 @@ class JwtServiceTest {
     private UserServiceConfig userServiceConfig;
 
     @Mock
-    private OneLoginConfig oneLoginConfig;
-
-    @Mock
     private RestTemplate restTemplate;
 
     @Spy
@@ -50,8 +46,6 @@ class JwtServiceTest {
     private JwtService jwtService;
 
     private String encodedJwt;
-
-    private String encodedJwtV2;
 
     @Nested
     class validJWTTests {
@@ -68,13 +62,6 @@ class JwtServiceTest {
 
                 encodedJwt = JWT.create().withExpiresAt(tomorrowDate).withIssuer("TEST_DOMAIN")
                         .withKeyId(keyPair.getPublic().toString()).withSubject("106b1a34-cd3a-45d7-924f-beedc33acc70")
-                        .withClaim("custom:features", "dept=Cabinet Office,user=administrator,user=ordinary_user")
-                        .withClaim("given_name", "Test").withClaim("family_name", "User")
-                        .withClaim("email", "test.user@and.digital")
-                        .sign(Algorithm.RSA256(null, (RSAPrivateKey) keyPair.getPrivate()));
-
-                encodedJwtV2 = JWT.create().withExpiresAt(tomorrowDate).withIssuer("TEST_DOMAIN")
-                        .withKeyId(keyPair.getPublic().toString()).withSubject("106b1a34-cd3a-45d7-924f-beedc33acc70")
                         .withClaim("roles", "[TECHNICAL_SUPPORT]")
                         .withClaim("email", "test.user@and.digital")
                         .withClaim("department", "Cabinet Office")
@@ -84,22 +71,11 @@ class JwtServiceTest {
             catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @Test
         void getPayloadFromJwt_HappyPathTest() {
             JwtPayload payloadFromJwt = jwtService.getPayloadFromJwt(JWT.decode(encodedJwt));
-            assertThat(payloadFromJwt.getDepartmentName()).isEqualTo("Cabinet Office");
-            assertThat(payloadFromJwt.getGivenName()).isEqualTo("Test");
-            assertThat(payloadFromJwt.getFamilyName()).isEqualTo("User");
-            assertThat(payloadFromJwt.getEmailAddress()).isEqualTo("test.user@and.digital");
-            assertThat(payloadFromJwt.getSub()).isEqualTo("106b1a34-cd3a-45d7-924f-beedc33acc70");
-        }
-
-        @Test
-        void getPayloadFromJwtV2_HappyPathTest() {
-            JwtPayload payloadFromJwt = jwtService.getPayloadFromJwtV2(JWT.decode(encodedJwtV2));
             assertThat(payloadFromJwt.getDepartmentName()).isEqualTo("Cabinet Office");
             assertThat(payloadFromJwt.getEmailAddress()).isEqualTo("test.user@and.digital");
             assertThat(payloadFromJwt.getRoles()).contains("TECHNICAL_SUPPORT");

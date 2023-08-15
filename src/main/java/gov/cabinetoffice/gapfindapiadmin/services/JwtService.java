@@ -14,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-
 @RequiredArgsConstructor
 @Service
 public class JwtService {
@@ -38,24 +36,6 @@ public class JwtService {
     }
 
     public JwtPayload getPayloadFromJwt(DecodedJWT decodedJWT) throws IllegalArgumentException {
-        String sub = decodedJWT.getSubject();
-        String givenName = decodedJWT.getClaim("given_name").asString();
-        String familyName = decodedJWT.getClaim("family_name").asString();
-        String[] jwtFeatures = decodedJWT.getClaims().get("custom:features").asString().split(",");
-        String deptName = Arrays.stream(jwtFeatures).filter(feature -> feature.startsWith("dept=")).findFirst()
-                .orElseThrow(() -> new InvalidJwtException("JWT is missing expected properties"));
-        deptName = deptName.split("=")[1];
-        String emailAddress = decodedJWT.getClaim("email").asString();
-
-        if (givenName == null || familyName == null || emailAddress == null) {
-            throw new InvalidJwtException("JWT is missing expected properties");
-        }
-
-        return JwtPayload.builder().sub(sub).givenName(givenName).familyName(familyName).departmentName(deptName)
-                .emailAddress(emailAddress).build();
-    }
-
-    public JwtPayload getPayloadFromJwtV2(DecodedJWT decodedJWT) throws IllegalArgumentException {
         String sub = decodedJWT.getSubject();
         String roles = decodedJWT.getClaim("roles").asString();
         String department = decodedJWT.getClaim("department").asString();

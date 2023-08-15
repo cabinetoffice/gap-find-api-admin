@@ -1,7 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.security;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import gov.cabinetoffice.gapfindapiadmin.config.OneLoginConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
@@ -27,9 +26,6 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    private final OneLoginConfig oneLoginConfig;
-
-
     @Override
     public void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String header = request.getHeader("Authorization");
@@ -41,13 +37,7 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
 
         final DecodedJWT decodedJWT = this.jwtService.verifyToken(jwtBase64);
 
-        JwtPayload JWTPayload;
-        if (oneLoginConfig.isOneLoginEnabled()) {
-            JWTPayload = this.jwtService.getPayloadFromJwtV2(decodedJWT);
-        }
-        else {
-            JWTPayload = this.jwtService.getPayloadFromJwt(decodedJWT);
-        }
+        final JwtPayload JWTPayload = this.jwtService.getPayloadFromJwt(decodedJWT);
 
         if (!JWTPayload.getRoles().contains("TECHNICAL_SUPPORT")) {
             throw new UnauthorizedException("User is not a technical support user");

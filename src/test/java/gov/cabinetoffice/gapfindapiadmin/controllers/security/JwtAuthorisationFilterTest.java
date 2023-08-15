@@ -2,7 +2,6 @@ package gov.cabinetoffice.gapfindapiadmin.controllers.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import gov.cabinetoffice.gapfindapiadmin.config.OneLoginConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
 import gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter;
@@ -35,9 +34,6 @@ public class JwtAuthorisationFilterTest {
     private JwtService jwtService;
 
     @Mock
-    private OneLoginConfig oneLoginConfig;
-
-    @Mock
     private HttpServletRequest request;
 
     @Mock
@@ -57,11 +53,11 @@ public class JwtAuthorisationFilterTest {
 
     @BeforeEach
     void setup() {
-        jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, oneLoginConfig);
+        jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService);
     }
 
     @Test
-    void doFilterInternal_validToken() throws ServletException, IOException {
+    void doFilterInternal_validToken_JwtPayload() throws ServletException, IOException {
         when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
         when(jwtService.verifyToken(jwt)).thenReturn(decodedJWT);
         when(jwtService.getPayloadFromJwt(decodedJWT)).thenReturn(jwtPayload);
@@ -72,24 +68,6 @@ public class JwtAuthorisationFilterTest {
 
         verify(filterChain).doFilter(request, response);
         verify(jwtService, times(1)).getPayloadFromJwt(decodedJWT);
-        assertThat(authentication).isNotNull();
-        assertThat(authentication.isAuthenticated()).isTrue();
-        assertThat(authentication.getPrincipal()).isEqualTo(jwtPayload.getSub());
-    }
-
-    @Test
-    void doFilterInternal_validToken_JwtPayloadV2() throws ServletException, IOException {
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
-        when(jwtService.verifyToken(jwt)).thenReturn(decodedJWT);
-        when(jwtService.getPayloadFromJwtV2(decodedJWT)).thenReturn(jwtPayload);
-        when(oneLoginConfig.isOneLoginEnabled()).thenReturn(true);
-
-        jwtAuthorisationFilter.doFilterInternal(request, response, filterChain);
-
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        verify(filterChain).doFilter(request, response);
-        verify(jwtService, times(1)).getPayloadFromJwtV2(decodedJWT);
         assertThat(authentication).isNotNull();
         assertThat(authentication.isAuthenticated()).isTrue();
         assertThat(authentication.getPrincipal()).isEqualTo(jwtPayload.getSub());
@@ -115,7 +93,6 @@ public class JwtAuthorisationFilterTest {
         assertThatExceptionOfType(UnauthorizedException.class)
                 .isThrownBy(() -> jwtAuthorisationFilter.doFilterInternal(request, response, filterChain))
                 .withMessage("User is not a technical support user");
-
     }
 
 }

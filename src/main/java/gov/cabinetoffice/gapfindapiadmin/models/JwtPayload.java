@@ -13,10 +13,6 @@ public class JwtPayload {
 
     private String sub;
 
-    private String givenName;
-
-    private String familyName;
-
     private String departmentName;
 
     private String emailAddress;
