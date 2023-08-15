@@ -38,7 +38,7 @@ public class ApiGatewayService {
                 .build();
 
         apiGatewayClient.createUsagePlanKey(planRequest);
-
+        //TODO create apiKey into db table
         return response.value();
     }
 
