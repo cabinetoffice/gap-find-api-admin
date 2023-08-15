@@ -13,24 +13,33 @@
 <div class="govuk-width-container">
     <a th:href="@{/api-keys}" class="govuk-back-link">Back</a>
     <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <div class="govuk-error-summary" data-module="govuk-error-summary" th:if="${error}">
-                    <div role="alert">
-                        <h2 class="govuk-error-summary__title">
+        <form th:action="@{/api-keys/create-api-key-form}" th:object="${createApiKeyDTO}" method="post" novalidate>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <div th:if="${#fields.hasErrors('*')}"
+                         class="govuk-error-summary"
+                         aria-labelledby="error-summary-title"
+                         role="alert"
+                         data-module="govuk-error-summary"
+                         data-cy="cyErrorBanner"
+                         id="error-summary"
+                         tabIndex="-1"
+                    >
+                        <h2 class="govuk-error-summary__title" id="error-summary-title" data-cy="cyErrorBannerHeading">
                             There is a problem
                         </h2>
+
                         <div class="govuk-error-summary__body">
-                            <ul th:object="${error}" class="govuk-list govuk-error-summary__list">
-                                <li>
-                                    <a th:href="${error.field}" th:text="${error.message}"></a>
+                            <ul class="govuk-list govuk-error-summary__list" data-cy="cyError-summary-list">
+                                <li th:each="err : ${#fields.detailedErrors()}">
+                                    <a th:href="${err.global ? '' : '#' + err.fieldName}" aria-label="something"
+                                       data-cy="something">[[${err.message}]]</a>
                                 </li>
                             </ul>
                         </div>
                     </div>
-                </div>
-                <form th:action="@{/api-keys/create-api-key-form}" th:object="${createApiKeyDTO}" method="post" novalidate>
-                    <div th:class="'govuk-form-group ' + ${error != null ?' govuk-form-group--error' : '' }">
+
+                    <div th:class="'govuk-form-group ' + ${#fields.hasErrors('keyName') ?' govuk-form-group--error' : '' }">
                         <fieldset class="govuk-fieldset" role="group"
                                   aria-describedby="create-api-key-hint create-api-key-error">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
@@ -39,28 +48,41 @@
                                 </h1>
                             </legend>
                             <div id="create-api-key-hint" class="govuk-hint">
-                                <p class="govuk-!-margin-bottom-0"> This name will be shown in your list of API keys to make it easier to find.</p>
-                                <p class="govuk-!-margin-top-0"> We recommend using the name of the service you will be using the API key to
+                                <p class="govuk-!-margin-bottom-0"> This name will be shown in your list of API keys to
+                                    make it easier to find.</p>
+                                <p class="govuk-!-margin-top-0"> We recommend using the name of the service you will be
+                                    using the API key to
                                     integrate with.</p>
-                            </div>
-                            <p th:if="${error}" id="create-api-key-error" class="govuk-error-message"
-                               th:text="${error.message}">
-                                <span class="govuk-visually-hidden">Error:</span>
-                            </p>
-                            <div class="govuk-form-group" id="create-api-key">
+                                <div class="govuk-form-group"
+                                     th:classappend="${#fields.hasErrors('keyName') ? 'govuk-form-group--error' : ''}">
+                                    <p th:id="keyName-error"
+                                       th:class="govuk-error-message"
+                                       data-cy="cy-email-input-validation-error-details"
+                                       data-testid="error-message-test-id"
+                                       th:errors="*{keyName}"
+                                    >
+                                        <span className="govuk-visually-hidden">Error: </span>
+                                    </p>
 
-                                <input th:class="'govuk-input ' +${error != null ?'govuk-input--error' : '' }"
-                                       th:field="*{keyName}" id="keyName" name="api-key-name" type="text">
-
+                                    <input th:field="*{keyName}"
+                                           th:value="${keyName}"
+                                           class="govuk-input"
+                                           th:classappend="${#fields.hasErrors('keyName') ? 'govuk-input--error' : ''}"
+                                           id="keyName"
+                                           name="keyName"
+                                           type="text"
+                                    />
+                                </div>
                             </div>
                         </fieldset>
                     </div>
                     <button class="govuk-button" data-module="govuk-button">
                         Continue
                     </button>
-                </form>
+
+                </div>
             </div>
-        </div>
+        </form>
     </main>
 </div>
 

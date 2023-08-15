@@ -2,7 +2,6 @@ package gov.cabinetoffice.gapfindapiadmin.controllers.controller_advice;
 
 
 import gov.cabinetoffice.gapfindapiadmin.controllers.ApiKeyController;
-import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyAlreadyExistException;
 import gov.cabinetoffice.gapfindapiadmin.models.ErrorMessage;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,13 +22,4 @@ public class ControllerExceptionsHandler extends ResponseEntityExceptionHandler 
         return handleExceptionInternal(ex, ErrorMessage.builder().message(ex.getMessage()).build(), new HttpHeaders(),
                 HttpStatus.BAD_REQUEST, request);
     }
-
-    @ExceptionHandler(value = {ApiKeyAlreadyExistException.class})
-    protected ResponseEntity<Object> handleException(ApiKeyAlreadyExistException ex, WebRequest request) {
-        return handleExceptionInternal(ex, ErrorMessage.builder().message(ex.getMessage()).build(), new HttpHeaders(),
-                HttpStatus.BAD_REQUEST, request);
-    }
-
-
-
 }

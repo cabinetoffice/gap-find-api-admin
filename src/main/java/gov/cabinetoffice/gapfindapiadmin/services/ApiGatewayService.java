@@ -2,7 +2,6 @@ package gov.cabinetoffice.gapfindapiadmin.services;
 
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
-import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyAlreadyExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.apigateway.ApiGatewayClient;
@@ -19,9 +18,7 @@ public class ApiGatewayService {
     private final ApiGatewayClient apiGatewayClient;
 
     public String createApiKeys(String keyName) {
-        checkIfKeyExistAlready(keyName);
-
-        final CreateApiKeyRequest apiKeyRequest = CreateApiKeyRequest.builder()
+           final CreateApiKeyRequest apiKeyRequest = CreateApiKeyRequest.builder()
                 .name(keyName)
                 .enabled(true)
                 .generateDistinctId(true)
@@ -42,14 +39,11 @@ public class ApiGatewayService {
         return response.value();
     }
 
-    void checkIfKeyExistAlready(String keyName) {
-        apiGatewayClient.getApiKeys().items()
+    public boolean doesKeyExist(String keyName) {
+        return apiGatewayClient.getApiKeys().items()
                 .stream()
-                .filter(key -> key.name()!= null && !key.name().isEmpty() && key.name().equals(keyName))
-                .findFirst()
-                .ifPresent(key -> {
-                    throw new ApiKeyAlreadyExistException("API Key with name " + keyName + " already exists");
-                });
+                .anyMatch(key -> key.name()!= null && !key.name().isEmpty() && key.name().equals(keyName));
+
     }
 
 }

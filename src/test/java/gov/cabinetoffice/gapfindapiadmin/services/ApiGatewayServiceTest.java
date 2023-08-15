@@ -1,7 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
-import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyAlreadyExistException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +18,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,8 +37,6 @@ class ApiGatewayServiceTest {
 
     @Test
     void createApiKeys() {
-        when(apiGatewayClient.getApiKeys()).thenReturn(GetApiKeysResponse.builder().build());
-
         CreateApiKeyResponse apiKeyRequest = CreateApiKeyResponse.builder().name(API_KEY_NAME).value("apiKeyValue").build();
         when(apiGatewayClient.createApiKey(any(CreateApiKeyRequest.class))).thenReturn(apiKeyRequest);
 
@@ -54,15 +50,9 @@ class ApiGatewayServiceTest {
     }
 
     @Test
-    void checkIfKeyExistAlready_throwsApiKeyAlreadyExistException() {
-        when(apiGatewayClient.getApiKeys()).thenReturn(getApiKeysResponse);
-        assertThrows(ApiKeyAlreadyExistException.class, () -> apiGatewayService.checkIfKeyExistAlready(API_KEY_NAME));
-    }
-
-    @Test
     void checkIfKeyExistAlready_doesNotThrowException() {
         when(apiGatewayClient.getApiKeys()).thenReturn(getApiKeysResponse);
-        assertDoesNotThrow(() -> apiGatewayService.checkIfKeyExistAlready("anotherKeyName"));
+        assertDoesNotThrow(() -> apiGatewayService.doesKeyExist("anotherKeyName"));
     }
 
 }
