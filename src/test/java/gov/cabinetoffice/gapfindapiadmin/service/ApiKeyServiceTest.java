@@ -26,7 +26,7 @@ public class ApiKeyServiceTest {
     @Test
     public void getApiKeysForFundingOrganisation_resultsReturned(){
 
-        final Integer fundingOrgId = 1;
+        final int fundingOrgId = 1;
 
         final String apiKeyName = "Key Name";
 

@@ -13,7 +13,7 @@ public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
 
-    public List<ApiKey> getApiKeysForFundingOrganisation(Integer fundingOrgId){
+    public List<ApiKey> getApiKeysForFundingOrganisation(int fundingOrgId){
         return apiKeyRepository.findByFundingOrganisationId(fundingOrgId);
     }
 
