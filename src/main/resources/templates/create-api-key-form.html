@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Create API Key</title>
 
-    <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}" />
+    <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}"/>
 </head>
 
 <body class="govuk-template__body">
@@ -15,20 +15,47 @@
     <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <form th:action="@{/api-keys/create-api-key}" th:object="${createApiKeyDTO}" method="post" novalidate>
-                    <div class="govuk-form-group">
-                        <h1 class="govuk-label-wrapper">
-                            <label class="govuk-label govuk-label--xl" for="api-key-name">
-                                Name your API key
-                            </label>
-                        </h1>
-                        <div id="create-api-key-hint" class="govuk-hint">
-                            <p> This name will be shown in your list of API keys to make it easier to find.
-                                We recommend using the name of the service you will be using the API key to integrate with.</p>
+                <div class="govuk-error-summary" data-module="govuk-error-summary" th:if="${error}">
+                    <div role="alert">
+                        <h2 class="govuk-error-summary__title">
+                            There is a problem
+                        </h2>
+                        <div class="govuk-error-summary__body">
+                            <ul th:object="${error}" class="govuk-list govuk-error-summary__list">
+                                <li>
+                                    <a th:href="${error.field}" th:text="${error.message}"></a>
+                                </li>
+                            </ul>
                         </div>
-                        <input th:field="*{keyName}" class="govuk-input"  id="api-key-name" name="api-key-name" type="text">
                     </div>
-                    <button class="govuk-button" data-module="govuk-button" >
+                </div>
+                <form th:action="@{/api-keys/create-api-key}" th:object="${createApiKeyDTO}" method="post" novalidate>
+                    <div th:class="'govuk-form-group ' + ${error != null ?' govuk-form-group--error' : '' }">
+                        <fieldset class="govuk-fieldset" role="group"
+                                  aria-describedby="create-api-key-hint create-api-key-error">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                                <h1 class="govuk-fieldset__heading">
+                                    Name Your API key
+                                </h1>
+                            </legend>
+                            <div id="create-api-key-hint" class="govuk-hint">
+                                <p> This name will be shown in your list of API keys to make it easier to find.
+                                    We recommend using the name of the service you will be using the API key to
+                                    integrate with.</p>
+                            </div>
+                            <p th:if="${error}" id="create-api-key-error" class="govuk-error-message"
+                               th:text="${error.message}">
+                                <span class="govuk-visually-hidden">Error:</span>
+                            </p>
+                            <div class="govuk-form-group" id="create-api-key">
+
+                                <input th:class="'govuk-input govuk-input--width-20 ' +${error != null ?'govuk-input--error' : '' }"
+                                       th:field="*{keyName}" id="keyName" name="api-key-name" type="text">
+
+                            </div>
+                        </fieldset>
+                    </div>
+                    <button class="govuk-button" data-module="govuk-button">
                         Continue
                     </button>
                 </form>

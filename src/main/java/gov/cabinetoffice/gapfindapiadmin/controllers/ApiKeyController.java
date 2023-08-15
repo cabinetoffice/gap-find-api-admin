@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.models.FieldError;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.thymeleaf.util.StringUtils;
 
 @Controller
 @RequestMapping("/api-keys")
@@ -37,8 +37,9 @@ public class ApiKeyController {
 
     @PostMapping("/create-api-key")
     public ModelAndView createKey(final @Valid @ModelAttribute CreateApiKeyDTO createApiKeyDTO, final BindingResult bindingResult) {
-        if (StringUtils.isEmptyOrWhitespace(createApiKeyDTO.getKeyName())) {
-            return new ModelAndView(CREATE_API_KEY_FORM_PAGE).addObject("createApiKeyDTO", createApiKeyDTO).addObject("error", bindingResult.getFieldError());
+        if (bindingResult.getErrorCount() > 0 && bindingResult.getFieldError() != null) {
+            FieldError fieldError = FieldError.builder().field("#" + bindingResult.getFieldError().getField()).message(bindingResult.getFieldError().getDefaultMessage()).build();
+            return new ModelAndView(CREATE_API_KEY_FORM_PAGE).addObject("createApiKeyDTO", createApiKeyDTO).addObject("error", fieldError);
         }
         ModelAndView newApiKey = new ModelAndView(NEW_API_KEY_PAGE);
         String apiKeyValue = apiGatewayService.createApiKeys(createApiKeyDTO.getKeyName());
