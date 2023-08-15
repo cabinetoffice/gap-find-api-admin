@@ -31,18 +31,18 @@ public class ApiKeyController {
     @GetMapping("/create-api-key-form")
     public ModelAndView showCreateKeyForm() {
         ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE);
-        createApiKey.addObject("createApiKeyDTO", new CreateApiKeyDTO()).addObject("backButtonValue", ORGANISATION_API_KEYS_PAGE);
+        createApiKey.addObject("createApiKeyDTO", new CreateApiKeyDTO());
         return createApiKey;
     }
 
     @PostMapping("/create-api-key")
     public ModelAndView createKey(final @Valid @ModelAttribute CreateApiKeyDTO createApiKeyDTO, final BindingResult bindingResult) {
         if (StringUtils.isEmptyOrWhitespace(createApiKeyDTO.getKeyName())) {
-            return new ModelAndView(CREATE_API_KEY_FORM_PAGE).addObject("createApiKeyDTO", createApiKeyDTO).addObject("error", bindingResult.getFieldError()).addObject("backButtonValue", ORGANISATION_API_KEYS_PAGE);
+            return new ModelAndView(CREATE_API_KEY_FORM_PAGE).addObject("createApiKeyDTO", createApiKeyDTO).addObject("error", bindingResult.getFieldError());
         }
         ModelAndView newApiKey = new ModelAndView(NEW_API_KEY_PAGE);
         String apiKeyValue = apiGatewayService.createApiKeys(createApiKeyDTO.getKeyName());
-        newApiKey.addObject("keyValue", apiKeyValue).addObject("backButtonValue", ORGANISATION_API_KEYS_PAGE);
+        newApiKey.addObject("keyValue", apiKeyValue);
         return newApiKey;
     }
 }

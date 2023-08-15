@@ -36,7 +36,6 @@ class ApiKeyControllerTest {
         final ModelAndView methodResponse = controllerUnderTest.showCreateKeyForm();
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
         assertThat(methodResponse.getModel().get("createApiKeyDTO")).isInstanceOf(CreateApiKeyDTO.class);
-        assertThat(methodResponse.getModel()).containsEntry("backButtonValue", ApiKeyController.ORGANISATION_API_KEYS_PAGE);
     }
 
     @Test
@@ -46,7 +45,6 @@ class ApiKeyControllerTest {
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.NEW_API_KEY_PAGE);
         assertThat(methodResponse.getModel()).containsEntry("keyValue", "keyValue");
-        assertThat(methodResponse.getModel()).containsEntry("backButtonValue", ApiKeyController.ORGANISATION_API_KEYS_PAGE);
     }
 
     @Test
@@ -57,7 +55,6 @@ class ApiKeyControllerTest {
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
         assertThat(methodResponse.getModel().get("createApiKeyDTO")).isInstanceOf(CreateApiKeyDTO.class);
-        assertThat(methodResponse.getModel()).containsEntry("backButtonValue", ApiKeyController.ORGANISATION_API_KEYS_PAGE);
         assertThat(methodResponse.getModel()).containsEntry("error", fieldError);
 
     }
