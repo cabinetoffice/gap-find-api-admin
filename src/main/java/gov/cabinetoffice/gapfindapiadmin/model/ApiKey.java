@@ -24,7 +24,7 @@ public class ApiKey {
 
     @ManyToOne
     @JoinColumn(name = "funder_id")
-    private FundingOrganisation funderId;
+    private FundingOrganisation fundingOrganisation;
 
     @Column(name = "api_key_value")
     private String apiKey;
@@ -35,6 +35,9 @@ public class ApiKey {
     @Column(name = "api_key_description")
     private String description;
 
+    @Column(name="created_date")
+    private ZonedDateTime createdDate;
+
     @Column(name = "is_revoked", nullable = false)
     private boolean isRevoked;
 
@@ -42,5 +45,5 @@ public class ApiKey {
     private ZonedDateTime revocationDate;
 
     @Column(name = "revoked_by", nullable = false)
-    private int revokedBy;
+    private String revokedBy;
 }
