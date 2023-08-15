@@ -43,7 +43,9 @@ class ApiKeyControllerTest {
     void createKey_ShouldShowTheCorrectViewAndAttachedObject(){
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
         when(apiGatewayService.createApiKeys(createApiKeyDTO.getKeyName())).thenReturn("keyValue");
+
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
+
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.NEW_API_KEY_PAGE);
         assertThat(methodResponse.getModel()).containsEntry("keyValue", "keyValue");
     }
@@ -53,9 +55,12 @@ class ApiKeyControllerTest {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().build();
         final FieldError fieldError = new FieldError("createApiKeyDTO", "keyName", "keyName is required");
         final ValidationFieldError expectedFieldError = ValidationFieldError.builder().field("#keyName").message("keyName is required").build();
+
         when(bindingResult.getErrorCount()).thenReturn(1);
         when(bindingResult.getFieldError()).thenReturn(fieldError);
+
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
+
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
         assertThat(methodResponse.getModel().get("createApiKeyDTO")).isInstanceOf(CreateApiKeyDTO.class);
         assertThat(methodResponse.getModel()).containsEntry("error", expectedFieldError);

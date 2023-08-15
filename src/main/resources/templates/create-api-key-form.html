@@ -29,7 +29,7 @@
                         </div>
                     </div>
                 </div>
-                <form th:action="@{/api-keys/create-api-key}" th:object="${createApiKeyDTO}" method="post" novalidate>
+                <form th:action="@{/api-keys/create-api-key-form}" th:object="${createApiKeyDTO}" method="post" novalidate>
                     <div th:class="'govuk-form-group ' + ${error != null ?' govuk-form-group--error' : '' }">
                         <fieldset class="govuk-fieldset" role="group"
                                   aria-describedby="create-api-key-hint create-api-key-error">

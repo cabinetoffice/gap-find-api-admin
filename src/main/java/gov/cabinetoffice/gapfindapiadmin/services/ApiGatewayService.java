@@ -21,17 +21,17 @@ public class ApiGatewayService {
     public String createApiKeys(String keyName) {
         checkIfKeyExistAlready(keyName);
 
-        CreateApiKeyRequest apiKeyRequest = CreateApiKeyRequest.builder()
+        final CreateApiKeyRequest apiKeyRequest = CreateApiKeyRequest.builder()
                 .name(keyName)
                 .enabled(true)
                 .generateDistinctId(true)
                 .build();
 
         // Creating a api key
-        CreateApiKeyResponse response = apiGatewayClient.createApiKey(apiKeyRequest);
+        final CreateApiKeyResponse response = apiGatewayClient.createApiKey(apiKeyRequest);
 
         // set the usage plan for the created api key.
-        CreateUsagePlanKeyRequest planRequest = CreateUsagePlanKeyRequest.builder()
+        final CreateUsagePlanKeyRequest planRequest = CreateUsagePlanKeyRequest.builder()
                 .usagePlanId(apiGatewayConfigProperties.getApiGatewayUsagePlanId())
                 .keyId(response.id())
                 .keyType("API_KEY")
@@ -45,7 +45,7 @@ public class ApiGatewayService {
     void checkIfKeyExistAlready(String keyName) {
         apiGatewayClient.getApiKeys().items()
                 .stream()
-                .filter(key -> key.name().equals(keyName))
+                .filter(key -> key.name()!= null && !key.name().isEmpty() && key.name().equals(keyName))
                 .findFirst()
                 .ifPresent(key -> {
                     throw new ApiKeyAlreadyExistException("API Key with name " + keyName + " already exists");

@@ -1,7 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers.controller_advice;
 
 import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyAlreadyExistException;
-import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyDoesNotExistException;
 import gov.cabinetoffice.gapfindapiadmin.models.ErrorMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,9 +29,6 @@ class ControllerExceptionsHandlerTest {
     private ApiKeyAlreadyExistException apiKeyAlreadyExistException;
 
     @Mock
-    private ApiKeyDoesNotExistException apiKeyDoesNotExistException;
-
-    @Mock
     private ApiGatewayException apiGatewayException;
 
     @Mock
@@ -49,22 +45,6 @@ class ControllerExceptionsHandlerTest {
 
         final ResponseEntity<Object> responseEntity = controllerExceptionsHandler
                 .handleException(apiKeyAlreadyExistException, webRequest);
-
-        final String errorMessageFromResponse = ((ErrorMessage) Objects.requireNonNull(responseEntity.getBody()))
-                .getMessage();
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(errorMessageFromResponse).isEqualTo(errorMessage);
-    }
-
-    @Test
-    void testHandleException_ApiKeyDoesNotExist() {
-        final String errorMessage = "Api does not exist";
-
-        when(apiKeyDoesNotExistException.getMessage()).thenReturn(errorMessage);
-
-        final ResponseEntity<Object> responseEntity = controllerExceptionsHandler
-                .handleException(apiKeyDoesNotExistException, webRequest);
 
         final String errorMessageFromResponse = ((ErrorMessage) Objects.requireNonNull(responseEntity.getBody()))
                 .getMessage();

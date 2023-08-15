@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyAlreadyExistException;
 import gov.cabinetoffice.gapfindapiadmin.models.ValidationFieldError;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import jakarta.validation.Valid;
@@ -31,19 +32,35 @@ public class ApiKeyController {
     @GetMapping("/create-api-key-form")
     public ModelAndView showCreateKeyForm() {
         final ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE);
-        createApiKey.addObject("createApiKeyDTO", new CreateApiKeyDTO());
-        return createApiKey;
+        return createApiKey.addObject("createApiKeyDTO", new CreateApiKeyDTO());
     }
 
-    @PostMapping("/create-api-key")
+    @PostMapping("/create-api-key-form")
     public ModelAndView createKey(final @Valid @ModelAttribute CreateApiKeyDTO createApiKeyDTO, final BindingResult bindingResult) {
         if (bindingResult.getErrorCount() > 0 && bindingResult.getFieldError() != null) {
-            final ValidationFieldError fieldError = ValidationFieldError.builder().field("#" + bindingResult.getFieldError().getField()).message(bindingResult.getFieldError().getDefaultMessage()).build();
-            return new ModelAndView(CREATE_API_KEY_FORM_PAGE).addObject("createApiKeyDTO", createApiKeyDTO).addObject("error", fieldError);
+            final ValidationFieldError fieldError = ValidationFieldError.builder()
+                    .field("#" + bindingResult.getFieldError().getField())
+                    .message(bindingResult.getFieldError().getDefaultMessage())
+                    .build();
+            return new ModelAndView(CREATE_API_KEY_FORM_PAGE)
+                    .addObject("createApiKeyDTO", createApiKeyDTO)
+                    .addObject("error", fieldError);
         }
+
         final ModelAndView newApiKey = new ModelAndView(NEW_API_KEY_PAGE);
-        final String apiKeyValue = apiGatewayService.createApiKeys(createApiKeyDTO.getKeyName());
-        newApiKey.addObject("keyValue", apiKeyValue);
-        return newApiKey;
+
+        try {
+            final String apiKeyValue = apiGatewayService.createApiKeys(createApiKeyDTO.getKeyName());
+            return newApiKey.addObject("keyValue", apiKeyValue);
+
+        } catch (ApiKeyAlreadyExistException e) {
+            final ValidationFieldError fieldError = ValidationFieldError.builder()
+                    .field("#" + "keyName")
+                    .message(e.getMessage())
+                    .build();
+            return new ModelAndView(CREATE_API_KEY_FORM_PAGE)
+                    .addObject("createApiKeyDTO", createApiKeyDTO)
+                    .addObject("error", fieldError);
+        }
     }
 }
