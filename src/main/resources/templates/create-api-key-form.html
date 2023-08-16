@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Create API Key</title>
+    <title>Create API key</title>
 
     <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}"/>
 </head>
@@ -44,7 +44,7 @@
                                   aria-describedby="create-api-key-hint create-api-key-error">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                                 <h1 class="govuk-fieldset__heading">
-                                    Name Your API key
+                                    Name your API key
                                 </h1>
                             </legend>
                             <div id="create-api-key-hint" class="govuk-hint">
@@ -61,7 +61,7 @@
                                        data-testid="error-message-test-id"
                                        th:errors="*{keyName}"
                                     >
-                                        <span className="govuk-visually-hidden">Error: </span>
+                                        <span class="govuk-visually-hidden">Error: </span>
                                     </p>
 
                                     <input th:field="*{keyName}"
