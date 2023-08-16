@@ -25,8 +25,8 @@ public class ApiKeyServiceTest {
 
     private final Integer API_KEY_ID = 1;
     private final ApiKey apiKey = ApiKey.builder()
-            .apiKeyId(API_KEY_ID)
-            .apiKeyName("Test API Key")
+            .name("Test API Key name")
+            .apiKey("Test API Key")
             .isRevoked(false)
             .build();
 
@@ -37,7 +37,7 @@ public class ApiKeyServiceTest {
         final String response = apiKeyService.getApiKeyName(API_KEY_ID);
 
         verify(apiKeyRepository).findById(API_KEY_ID);
-        assertThat(response).isEqualTo(apiKey.getApiKeyName());
+        assertThat(response).isEqualTo(apiKey.getName());
     }
 
     @Test

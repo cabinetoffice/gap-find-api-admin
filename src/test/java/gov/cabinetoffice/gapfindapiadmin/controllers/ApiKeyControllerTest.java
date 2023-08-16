@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
+import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,13 +64,13 @@ public class ApiKeyControllerTest {
 
     @Test
     void showRevokeApiKeyConfirmationPage_showsCorrectView() {
-        final ModelAndView response = apiKeyController.showRevokeApiKeyConfirmation(API_KEY_ID);
+        final ModelAndView response = controllerUnderTest.showRevokeApiKeyConfirmation(API_KEY_ID);
         assertThat(response.getViewName()).isEqualTo("revoke-api-key-confirmation");
     }
 
     @Test
     void removeApiKey_returnsExpectedResponse() {
-        final ModelAndView response = apiKeyController.removeApiKey(API_KEY_ID);
+        final ModelAndView response = controllerUnderTest.removeApiKey(API_KEY_ID);
         assertThat(response.getViewName()).isEqualTo(ORGANISATION_API_KEYS_PAGE);
     }
 
