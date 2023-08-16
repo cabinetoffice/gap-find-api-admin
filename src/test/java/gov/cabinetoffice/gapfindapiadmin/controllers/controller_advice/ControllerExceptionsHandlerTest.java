@@ -1,7 +1,5 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers.controller_advice;
 
-import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyAlreadyExistException;
-import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyDoesNotExistException;
 import gov.cabinetoffice.gapfindapiadmin.models.ErrorMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,12 +25,6 @@ class ControllerExceptionsHandlerTest {
     private MethodArgumentTypeMismatchException methodArgumentTypeMismatchException;
 
     @Mock
-    private ApiKeyAlreadyExistException apiKeyAlreadyExistException;
-
-    @Mock
-    private ApiKeyDoesNotExistException apiKeyDoesNotExistException;
-
-    @Mock
     private ApiGatewayException apiGatewayException;
 
     @Mock
@@ -40,38 +32,6 @@ class ControllerExceptionsHandlerTest {
 
     @InjectMocks
     private ControllerExceptionsHandler controllerExceptionsHandler;
-
-    @Test
-    void testHandleException_ApiKeyAlreadyExists() {
-        final String errorMessage = "Api key already exist";
-
-        when(apiKeyAlreadyExistException.getMessage()).thenReturn(errorMessage);
-
-        final ResponseEntity<Object> responseEntity = controllerExceptionsHandler
-                .handleException(apiKeyAlreadyExistException, webRequest);
-
-        final String errorMessageFromResponse = ((ErrorMessage) Objects.requireNonNull(responseEntity.getBody()))
-                .getMessage();
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(errorMessageFromResponse).isEqualTo(errorMessage);
-    }
-
-    @Test
-    void testHandleException_ApiKeyDoesNotExist() {
-        final String errorMessage = "Api does not exist";
-
-        when(apiKeyDoesNotExistException.getMessage()).thenReturn(errorMessage);
-
-        final ResponseEntity<Object> responseEntity = controllerExceptionsHandler
-                .handleException(apiKeyDoesNotExistException, webRequest);
-
-        final String errorMessageFromResponse = ((ErrorMessage) Objects.requireNonNull(responseEntity.getBody()))
-                .getMessage();
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(errorMessageFromResponse).isEqualTo(errorMessage);
-    }
 
     @Test
     void testHandleException_ApiGatewayException() {

@@ -17,5 +17,12 @@ public class ApiKeyService {
         return apiKeyRepository.findByFundingOrganisationId(fundingOrgId);
     }
 
+    public void saveApiKey(ApiKey apiKey) {
+        apiKeyRepository.save(apiKey);
+    }
+
+    public boolean doesApiKeyExist(String name) {
+        return apiKeyRepository.findByName(name).isPresent();
+    }
 
 }

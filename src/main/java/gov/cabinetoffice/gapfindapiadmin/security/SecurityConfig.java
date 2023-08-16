@@ -1,5 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.security;
 
+import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,11 +15,14 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 public class SecurityConfig {
 
-    private static final String[] WHITE_LIST = {"/health"};
+    private static final String[] WHITE_LIST = {
+            "/webjars/**",
+            "/health",
+            "/js/**"
+    };
     private final JwtAuthorisationFilter jwtAuthorisationFilter;
-
-    public SecurityConfig(final JwtService jwtService) {
-        this.jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService);
+    public SecurityConfig(final JwtService jwtService, final GrantAdminService grantAdminService ) {
+        this.jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, grantAdminService);
     }
 
     @Bean
@@ -29,6 +33,8 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(HttpMethod.GET, WHITE_LIST)
+                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, WHITE_LIST)
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())

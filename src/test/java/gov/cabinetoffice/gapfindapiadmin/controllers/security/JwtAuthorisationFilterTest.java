@@ -3,8 +3,10 @@ package gov.cabinetoffice.gapfindapiadmin.controllers.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
+import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
 import gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter;
+import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,9 +15,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
@@ -36,6 +41,8 @@ class JwtAuthorisationFilterTest {
             .sub("sub")
             .roles("TECHNICAL_SUPPORT")
             .build();
+    @Captor
+    ArgumentCaptor<Authentication> authenticationCaptor;
     private JwtAuthorisationFilter jwtAuthorisationFilter;
     @Mock
     private JwtService jwtService;
@@ -45,10 +52,14 @@ class JwtAuthorisationFilterTest {
     private HttpServletResponse response;
     @Mock
     private FilterChain filterChain;
+    @Mock
+    private GrantAdminService grantAdminService;
+    @Mock
+    private SecurityContext securityContext;
 
     @BeforeEach
     void setup() {
-        jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService);
+        jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, grantAdminService);
     }
 
     @Test
@@ -56,16 +67,17 @@ class JwtAuthorisationFilterTest {
         when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
         when(jwtService.verifyToken(jwt)).thenReturn(decodedJWT);
         when(jwtService.getPayloadFromJwt(decodedJWT)).thenReturn(jwtPayload);
+        final GrantAdmin grantAdmin = GrantAdmin.builder().id(1).build();
+        when(grantAdminService.getGrantAdminForUser(jwtPayload.getSub())).thenReturn(grantAdmin);
+        SecurityContextHolder.setContext(securityContext);
 
         jwtAuthorisationFilter.doFilterInternal(request, response, filterChain);
 
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        verify(filterChain).doFilter(request, response);
+        verify(grantAdminService, times(1)).getGrantAdminForUser(jwtPayload.getSub());
         verify(jwtService, times(1)).getPayloadFromJwt(decodedJWT);
-        assertThat(authentication).isNotNull();
-        assertThat(authentication.isAuthenticated()).isTrue();
-        assertThat(authentication.getPrincipal()).isEqualTo(jwtPayload.getSub());
+        verify(securityContext).setAuthentication(authenticationCaptor.capture());
+
+        assertThat(authenticationCaptor.getValue().getPrincipal()).isEqualTo(grantAdmin);
     }
 
     @Test

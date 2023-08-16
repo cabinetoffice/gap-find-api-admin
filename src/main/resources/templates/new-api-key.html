@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New API key</title>
+    <script type="text/javascript" th:src="@{/js/copy-to-clipboard.js}"></script>
+    <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}" />
+</head>
+
+<body class="govuk-template__body">
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-xl">New API key</h1>
+                <p class="govuk-heading-l">Your API key:</p>
+                <p class="govuk-heading-l" th:text="${keyValue}" id="apiKeyValue"></p>
+
+                <button id="copyButton" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-4" data-module="govuk-button">
+                    Copy to clipboard
+                </button>
+                <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-4">
+
+                <p class="govuk-body">You should keep a copy of this API key somewhere safe.</p>
+                <p class="govuk-body">When you leave this screen, you will not be able to see this API key again.</p>
+
+                <a th:href="@{/api-keys}" class="govuk-link govuk-link--no-visited-state govuk-!-font-size-19">Back to your API keys</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
