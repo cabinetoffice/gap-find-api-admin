@@ -26,7 +26,6 @@ public class ApiKeyController {
     public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
-    private final GrantAdminService grantAdminService;
 
     @GetMapping
     public ModelAndView showKeys() {
