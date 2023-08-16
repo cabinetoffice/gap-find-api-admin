@@ -2,6 +2,7 @@ package gov.cabinetoffice.gapfindapiadmin.controllers.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
@@ -10,6 +11,7 @@ import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,11 +24,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,19 +58,28 @@ class JwtAuthorisationFilterTest {
     private FilterChain filterChain;
     @Mock
     private GrantAdminService grantAdminService;
+
+    @Mock
+    private UserServiceConfig userServiceConfig;
     @Mock
     private SecurityContext securityContext;
 
+    @Mock
+    private WebUtils webUtils;
+
     @BeforeEach
     void setup() {
-        jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, grantAdminService);
+        jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, grantAdminService, userServiceConfig);
     }
 
     @Test
     void doFilterInternal_validToken_JwtPayload() throws ServletException, IOException {
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
+        Cookie cookie = new Cookie("cookieName", jwt);
+        when(userServiceConfig.getCookieName()).thenReturn("cookieName");
+        doReturn(new Cookie[]{cookie}).when(request).getCookies();
         when(jwtService.verifyToken(jwt)).thenReturn(decodedJWT);
         when(jwtService.getPayloadFromJwt(decodedJWT)).thenReturn(jwtPayload);
+
         final GrantAdmin grantAdmin = GrantAdmin.builder().id(1).build();
         when(grantAdminService.getGrantAdminForUser(jwtPayload.getSub())).thenReturn(grantAdmin);
         SecurityContextHolder.setContext(securityContext);
@@ -82,18 +95,20 @@ class JwtAuthorisationFilterTest {
 
     @Test
     void doFilterInternal_unexpected_header() {
-        when(request.getHeader("Authorization")).thenReturn("");
+        doReturn(new Cookie[]{}).when(request).getCookies();
 
         assertThatExceptionOfType(UnauthorizedException.class)
                 .isThrownBy(() -> jwtAuthorisationFilter.doFilterInternal(request, response, filterChain))
-                .withMessage("Expected Authorization header not provided");
+                .withMessage("Expected JWT cookie not provided");
     }
 
     @Test
     void doFilterInternal_non_technical_support() {
         jwtPayload.setRoles("ADMIN");
 
-        when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);
+        Cookie cookie = new Cookie("cookieName", jwt);
+        when(userServiceConfig.getCookieName()).thenReturn("cookieName");
+        doReturn(new Cookie[]{cookie}).when(request).getCookies();
         when(jwtService.verifyToken(jwt)).thenReturn(decodedJWT);
         when(jwtService.getPayloadFromJwt(decodedJWT)).thenReturn(jwtPayload);
 
