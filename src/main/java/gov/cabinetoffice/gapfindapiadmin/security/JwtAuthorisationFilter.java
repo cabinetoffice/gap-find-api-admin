@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.Collections;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
-import static org.springframework.web.util.WebUtils.getCookie;
 
 @RequiredArgsConstructor
 public class JwtAuthorisationFilter extends OncePerRequestFilter {
@@ -42,13 +41,13 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
         }
         final DecodedJWT decodedJWT = this.jwtService.verifyToken(customJWTCookie.getValue());
 
-        final JwtPayload JWTPayload = this.jwtService.getPayloadFromJwt(decodedJWT);
+        final JwtPayload jwtPayload = this.jwtService.getPayloadFromJwt(decodedJWT);
 
-        if (!JWTPayload.getRoles().contains("TECHNICAL_SUPPORT")) {
+        if (!jwtPayload.getRoles().contains("TECHNICAL_SUPPORT")) {
             throw new UnauthorizedException("User is not a technical support user");
         }
 
-        final GrantAdmin grantAdmin = this.grantAdminService.getGrantAdminForUser(JWTPayload.getSub());
+        final GrantAdmin grantAdmin = this.grantAdminService.getGrantAdminForUser(jwtPayload.getSub());
 
         final Authentication auth = new UsernamePasswordAuthenticationToken(grantAdmin, null,
                 Collections.singletonList(new SimpleGrantedAuthority("TECHNICAL_SUPPORT")));
