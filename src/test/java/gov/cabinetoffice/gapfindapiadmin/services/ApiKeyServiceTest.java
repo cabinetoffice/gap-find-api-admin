@@ -16,7 +16,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ApiKeyServiceTest {
+class ApiKeyServiceTest {
 
     @Mock
     private ApiKeyRepository apiKeyRepository;
@@ -25,7 +25,7 @@ public class ApiKeyServiceTest {
     private ApiKeyService serviceUnderTest;
 
     @Test
-    public void getApiKeysForFundingOrganisation_resultsReturned() {
+    void getApiKeysForFundingOrganisation_resultsReturned() {
 
         final int fundingOrgId = 1;
 

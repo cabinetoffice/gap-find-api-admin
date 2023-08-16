@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ApiKeyControllerTest {
+class ApiKeyControllerTest {
 
     @Mock
     private ApiKeyService apiKeyService;
@@ -35,7 +35,7 @@ public class ApiKeyControllerTest {
     private ApiKeyController controllerUnderTest;
 
     @Test
-    public void showKeys_expectedResponse() {
+     void showKeys_expectedResponse() {
 
         final String apiKey = "Key";
         final List<ApiKey> expectedApiKeys = List.of(ApiKey.builder().apiKey(apiKey).build());
@@ -52,7 +52,7 @@ public class ApiKeyControllerTest {
     }
 
     @Test
-    public void showKeys_expectedResponse_emptyList() {
+    void showKeys_expectedResponse_emptyList() {
 
         List<ApiKey> expectedApiKeys = new ArrayList<>();
 

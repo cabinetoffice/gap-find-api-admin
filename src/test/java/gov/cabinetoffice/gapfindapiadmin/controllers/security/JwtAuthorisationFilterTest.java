@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
-public class JwtAuthorisationFilterTest {
+class JwtAuthorisationFilterTest {
 
     private final String jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmdW5kZXJfaWQiOiIxIn0.NbYwfVIpqalW1gM204pQXM7o6voNoO7EyFwl1XjXEQQ";
     private final DecodedJWT decodedJWT = JWT.decode(jwt);
@@ -69,7 +69,7 @@ public class JwtAuthorisationFilterTest {
     }
 
     @Test
-    public void doFilterInternal_unexpected_header() {
+    void doFilterInternal_unexpected_header() {
         when(request.getHeader("Authorization")).thenReturn("");
 
         assertThatExceptionOfType(UnauthorizedException.class)
@@ -78,7 +78,7 @@ public class JwtAuthorisationFilterTest {
     }
 
     @Test
-    public void doFilterInternal_non_technical_support() {
+    void doFilterInternal_non_technical_support() {
         jwtPayload.setRoles("ADMIN");
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + jwt);

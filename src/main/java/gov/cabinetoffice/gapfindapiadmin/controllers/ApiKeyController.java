@@ -29,7 +29,7 @@ public class ApiKeyController {
     //TODO Make sure this takes the id from the request or the logged in user, rather than the hardcoded value
     @GetMapping
     public ModelAndView showKeys() {
-        ModelAndView mav = new ModelAndView("organisation-api-keys");
+        ModelAndView mav = new ModelAndView(ORGANISATION_API_KEYS_PAGE);
         mav.addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(2));
         return mav;
     }
