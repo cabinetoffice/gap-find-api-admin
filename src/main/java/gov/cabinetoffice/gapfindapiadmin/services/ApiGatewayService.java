@@ -40,6 +40,7 @@ public class ApiGatewayService {
     }
 
     public boolean doesKeyExist(String keyName) {
+        //TODO check in the database
         return apiGatewayClient.getApiKeys().items()
                 .stream()
                 .anyMatch(key -> key.name()!= null && !key.name().isEmpty() && key.name().equals(keyName));
