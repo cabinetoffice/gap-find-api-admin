@@ -1,10 +1,9 @@
-package gov.cabinetoffice.gapfindapiadmin.controllers.security;
+package gov.cabinetoffice.gapfindapiadmin.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
-import gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

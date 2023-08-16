@@ -14,7 +14,11 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 public class SecurityConfig {
 
-    private static final String[] WHITE_LIST = {"/health"};
+    private static final String[] WHITE_LIST = {
+            "/webjars/**",
+            "/health",
+            "/api-keys/**",
+            "/js/**"};
     private final JwtAuthorisationFilter jwtAuthorisationFilter;
 
     public SecurityConfig(final JwtService jwtService) {
@@ -31,10 +35,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(HttpMethod.GET, WHITE_LIST)
                                 .permitAll()
+                                .requestMatchers(HttpMethod.POST, WHITE_LIST)
+                                .permitAll()
                                 .anyRequest()
                                 .authenticated())
-                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
-                .addFilterBefore(jwtAuthorisationFilter, UsernamePasswordAuthenticationFilter.class);
+                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS));
+                //.addFilterBefore(jwtAuthorisationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

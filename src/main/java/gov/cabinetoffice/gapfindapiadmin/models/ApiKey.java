@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "api_key", indexes = {
@@ -45,5 +46,5 @@ public class ApiKey {
     private ZonedDateTime revocationDate;
 
     @Column(name = "revoked_by", nullable = false)
-    private String revokedBy;
+    private UUID revokedBy;
 }

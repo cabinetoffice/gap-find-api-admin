@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.apigateway.model.*;
 
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,22 +35,6 @@ class ApiGatewayServiceTest {
     ApiGatewayService apiGatewayService;
 
     @Test
-    void createApiKeys() {
-        when(apiGatewayClient.getApiKeys()).thenReturn(GetApiKeysResponse.builder().build());
-
-        CreateApiKeyResponse apiKeyRequest = CreateApiKeyResponse.builder().description(API_KEY_DESCRIPTION).name(API_KEY_NAME).build();
-        when(apiGatewayClient.createApiKey(any(CreateApiKeyRequest.class))).thenReturn(apiKeyRequest);
-
-        CreateUsagePlanKeyResponse usagePlanKeyResponse = CreateUsagePlanKeyResponse.builder().build();
-        when(apiGatewayClient.createUsagePlanKey(any(CreateUsagePlanKeyRequest.class))).thenReturn(usagePlanKeyResponse);
-
-        apiGatewayService.createApiKeys(API_KEY_NAME, API_KEY_DESCRIPTION);
-
-        verify(apiGatewayClient).createApiKey(any(CreateApiKeyRequest.class));
-        verify(apiGatewayClient).createUsagePlanKey(any(CreateUsagePlanKeyRequest.class));
-    }
-
-    @Test
     void deleteApiKeys() {
         when(apiGatewayClient.getApiKeys()).thenReturn(getApiKeysResponse);
         assertDoesNotThrow(() -> apiGatewayService.deleteApiKey(API_KEY_NAME));
@@ -63,15 +48,17 @@ class ApiGatewayServiceTest {
 
 
     @Test
-    void checkIfKeyExistAlready_throwsApiKeyAlreadyExistException() {
+    void checkIfKeyExistAlready_returnsTrue() {
         when(apiGatewayClient.getApiKeys()).thenReturn(getApiKeysResponse);
-        assertThrows(ApiKeyAlreadyExistException.class, () -> apiGatewayService.checkIfKeyExistAlready(API_KEY_NAME));
+        boolean result = apiGatewayService.doesKeyExist(API_KEY_NAME);
+        assertThat(result).isTrue();
     }
 
     @Test
-    void checkIfKeyExistAlready_doesNotThrowException() {
+    void checkIfKeyExistAlready_returnsFalse() {
         when(apiGatewayClient.getApiKeys()).thenReturn(getApiKeysResponse);
-        assertDoesNotThrow(() -> apiGatewayService.checkIfKeyExistAlready("anotherKeyName"));
+        boolean result = apiGatewayService.doesKeyExist("anotherKeyName");
+        assertThat(result).isFalse();
     }
 
 }

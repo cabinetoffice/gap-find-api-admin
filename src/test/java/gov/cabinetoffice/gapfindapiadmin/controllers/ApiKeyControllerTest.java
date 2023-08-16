@@ -31,7 +31,16 @@ public class ApiKeyControllerTest {
 
     private static final Integer API_KEY_ID = 1;
 
-    public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
+    private static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
+
+    private static final String REVOKE_API_KEY_CONFIRMATION_PAGE = "revoke-api-key-confirmation";
+
+    private final ApiKey apiKey = ApiKey.builder()
+            .id(API_KEY_ID)
+            .name("Test API Key name")
+            .apiKey("Test API Key")
+            .isRevoked(false)
+            .build();
 
     @Test
     public void showKeys_expectedResponse(){
@@ -65,12 +74,12 @@ public class ApiKeyControllerTest {
     @Test
     void showRevokeApiKeyConfirmationPage_showsCorrectView() {
         final ModelAndView response = controllerUnderTest.showRevokeApiKeyConfirmation(API_KEY_ID);
-        assertThat(response.getViewName()).isEqualTo("revoke-api-key-confirmation");
+        assertThat(response.getViewName()).isEqualTo(REVOKE_API_KEY_CONFIRMATION_PAGE);
     }
 
     @Test
-    void removeApiKey_returnsExpectedResponse() {
-        final ModelAndView response = controllerUnderTest.removeApiKey(API_KEY_ID);
+    void revokeApiKey_returnsExpectedResponse() {
+        final ModelAndView response = controllerUnderTest.revokeApiKey(apiKey);
         assertThat(response.getViewName()).isEqualTo(ORGANISATION_API_KEYS_PAGE);
     }
 
