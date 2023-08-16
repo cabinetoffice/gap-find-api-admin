@@ -14,10 +14,10 @@ import software.amazon.awssdk.services.apigateway.model.CreateUsagePlanKeyReques
 import software.amazon.awssdk.services.apigateway.model.CreateUsagePlanKeyResponse;
 import software.amazon.awssdk.services.apigateway.model.GetApiKeysResponse;
 
+
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,11 +49,30 @@ class ApiGatewayServiceTest {
         verify(apiGatewayClient).createUsagePlanKey(any(CreateUsagePlanKeyRequest.class));
     }
 
-    //TODO change this test
     @Test
-    void checkIfKeyExistAlready_doesNotThrowException() {
-        when(apiGatewayClient.getApiKeys()).thenReturn(getApiKeysResponse);
-        assertDoesNotThrow(() -> apiGatewayService.doesKeyExist("anotherKeyName"));
+    void doesKeyExist_KeyExists() {
+        final String keyName = "existingKey";
+        final ApiKey existingKey = ApiKey.builder().name(keyName).build();
+        final GetApiKeysResponse response = GetApiKeysResponse.builder()
+                .items(List.of(existingKey))
+                .build();
+
+        when(apiGatewayClient.getApiKeys()).thenReturn(response);
+        final boolean result = apiGatewayService.doesKeyExist(keyName);
+
+        assertThat(result).isTrue();
     }
 
+    @Test
+    void doesKeyExist_KeyDoesNotExist() {
+        final String keyName = "nonExistingKey";
+        final GetApiKeysResponse response = GetApiKeysResponse.builder()
+                .items(List.of())
+                .build();
+
+        when(apiGatewayClient.getApiKeys()).thenReturn(response);
+        final boolean result = apiGatewayService.doesKeyExist(keyName);
+
+        assertThat(result).isFalse();
+    }
 }
