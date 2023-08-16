@@ -16,13 +16,13 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "aws")
 public class AwsClientConfig {
 
-	@NotNull
-	private String secretKey;
+    @NotNull
+    private String secretKey;
 
-	@NotNull
-	private String accessKeyId;
+    @NotNull
+    private String accessKeyId;
 
-	@NotNull
-	private String region;
+    @NotNull
+    private String region;
 
 }

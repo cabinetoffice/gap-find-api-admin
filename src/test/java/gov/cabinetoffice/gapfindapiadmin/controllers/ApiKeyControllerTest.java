@@ -1,14 +1,16 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
-import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
-import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
+import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
@@ -18,13 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.servlet.ModelAndView;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ApiKeyControllerTest {
 
@@ -40,7 +35,7 @@ public class ApiKeyControllerTest {
     private ApiKeyController controllerUnderTest;
 
     @Test
-    public void showKeys_expectedResponse(){
+    public void showKeys_expectedResponse() {
 
         final String apiKey = "Key";
         final List<ApiKey> expectedApiKeys = List.of(ApiKey.builder().apiKey(apiKey).build());
@@ -57,7 +52,7 @@ public class ApiKeyControllerTest {
     }
 
     @Test
-    public void showKeys_expectedResponse_emptyList(){
+    public void showKeys_expectedResponse_emptyList() {
 
         List<ApiKey> expectedApiKeys = new ArrayList<>();
 
@@ -67,6 +62,7 @@ public class ApiKeyControllerTest {
         assertThat(actualResponse.getModel().get("apiKeys")).isEqualTo(expectedApiKeys);
 
     }
+
     @Test
     void showCreateApiKeyFormPage_ShouldShowTheCorrectViewAndAttachedObject() {
         final ModelAndView methodResponse = controllerUnderTest.showCreateKeyForm();
@@ -75,7 +71,7 @@ public class ApiKeyControllerTest {
     }
 
     @Test
-    void createKey_ShouldShowTheCorrectViewAndAttachedObject(){
+    void createKey_ShouldShowTheCorrectViewAndAttachedObject() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
         when(apiGatewayService.createApiKeys(createApiKeyDTO.getKeyName())).thenReturn("keyValue");
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
@@ -84,7 +80,7 @@ public class ApiKeyControllerTest {
     }
 
     @Test
-    void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyDtoIsEmpty(){
+    void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyDtoIsEmpty() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().build();
         final FieldError fieldError = new FieldError("createApiKeyDTO", "keyName", "keyName is required");
         when(bindingResult.getFieldError()).thenReturn(fieldError);

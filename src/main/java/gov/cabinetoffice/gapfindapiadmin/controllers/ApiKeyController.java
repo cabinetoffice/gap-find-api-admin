@@ -1,8 +1,8 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
-import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
+import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -19,14 +19,12 @@ import org.thymeleaf.util.StringUtils;
 @RequiredArgsConstructor
 public class ApiKeyController {
 
-    private final ApiKeyService apiKeyService;
-    private final ApiGatewayService apiGatewayService;
-
     //TODO Make sure this takes the id from the request or the logged in user, rather than the hardcoded value
     public static final String CREATE_API_KEY_FORM_PAGE = "create-api-key-form";
     public static final String NEW_API_KEY_PAGE = "new-api-key";
     public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
-
+    private final ApiKeyService apiKeyService;
+    private final ApiGatewayService apiGatewayService;
 
     //TODO Make sure this takes the id from the request or the logged in user, rather than the hardcoded value
     @GetMapping

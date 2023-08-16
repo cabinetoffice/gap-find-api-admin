@@ -3,7 +3,6 @@ package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyAlreadyExistException;
-import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.apigateway.ApiGatewayClient;

@@ -22,34 +22,29 @@ import java.io.IOException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
 public class JwtAuthorisationFilterTest {
 
-    private JwtAuthorisationFilter jwtAuthorisationFilter;
-
-    @Mock
-    private JwtService jwtService;
-
-    @Mock
-    private HttpServletRequest request;
-
-    @Mock
-    private HttpServletResponse response;
-
-    @Mock
-    private FilterChain filterChain;
-
     private final String jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmdW5kZXJfaWQiOiIxIn0.NbYwfVIpqalW1gM204pQXM7o6voNoO7EyFwl1XjXEQQ";
     private final DecodedJWT decodedJWT = JWT.decode(jwt);
-
-
     private final JwtPayload jwtPayload = JwtPayload.builder()
             .sub("sub")
             .roles("TECHNICAL_SUPPORT")
             .build();
+    private JwtAuthorisationFilter jwtAuthorisationFilter;
+    @Mock
+    private JwtService jwtService;
+    @Mock
+    private HttpServletRequest request;
+    @Mock
+    private HttpServletResponse response;
+    @Mock
+    private FilterChain filterChain;
 
     @BeforeEach
     void setup() {

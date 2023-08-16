@@ -43,7 +43,7 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
             throw new UnauthorizedException("User is not a technical support user");
         }
 
-        final Authentication auth = new UsernamePasswordAuthenticationToken(JWTPayload.getSub(),null,
+        final Authentication auth = new UsernamePasswordAuthenticationToken(JWTPayload.getSub(), null,
                 Collections.singletonList(new SimpleGrantedAuthority("TECHNICAL_SUPPORT")));
         SecurityContextHolder.getContext().setAuthentication(auth);
 

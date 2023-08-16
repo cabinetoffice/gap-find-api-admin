@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateApiKeyDTO {
 
-	@NotBlank(message = "Enter a key name")
-	private String keyName;
+    @NotBlank(message = "Enter a key name")
+    private String keyName;
 
 }

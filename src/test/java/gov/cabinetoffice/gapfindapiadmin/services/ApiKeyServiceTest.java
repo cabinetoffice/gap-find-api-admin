@@ -1,4 +1,4 @@
-package gov.cabinetoffice.gapfindapiadmin.service;
+package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
@@ -25,7 +25,7 @@ public class ApiKeyServiceTest {
     private ApiKeyService serviceUnderTest;
 
     @Test
-    public void getApiKeysForFundingOrganisation_resultsReturned(){
+    public void getApiKeysForFundingOrganisation_resultsReturned() {
 
         final int fundingOrgId = 1;
 
@@ -40,7 +40,6 @@ public class ApiKeyServiceTest {
         assertThat(actualApiKeys).isEqualTo(expectedApiKeys);
 
     }
-
 
 
 }
