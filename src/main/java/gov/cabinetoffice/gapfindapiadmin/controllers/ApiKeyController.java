@@ -1,6 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
-import gov.cabinetoffice.gapfindapiadmin.service.ApiKeyService;
+import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

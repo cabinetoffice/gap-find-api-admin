@@ -1,4 +1,4 @@
-package gov.cabinetoffice.gapfindapiadmin.model;
+package gov.cabinetoffice.gapfindapiadmin.models;
 
 import jakarta.persistence.*;
 import lombok.*;

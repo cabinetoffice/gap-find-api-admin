@@ -1,7 +1,7 @@
-package gov.cabinetoffice.gapfindapiadmin.service;
+package gov.cabinetoffice.gapfindapiadmin.services;
 
-import gov.cabinetoffice.gapfindapiadmin.model.ApiKey;
-import gov.cabinetoffice.gapfindapiadmin.repository.ApiKeyRepository;
+import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
+import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

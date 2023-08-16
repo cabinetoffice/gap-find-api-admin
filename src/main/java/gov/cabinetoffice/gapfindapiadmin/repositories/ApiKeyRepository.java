@@ -1,6 +1,6 @@
-package gov.cabinetoffice.gapfindapiadmin.repository;
+package gov.cabinetoffice.gapfindapiadmin.repositories;
 
-import gov.cabinetoffice.gapfindapiadmin.model.ApiKey;
+import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
