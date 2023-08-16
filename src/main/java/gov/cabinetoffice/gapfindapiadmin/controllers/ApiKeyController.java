@@ -31,21 +31,24 @@ public class ApiKeyController {
         return mav;
     }
 
-    @GetMapping("/revoke-api-key-confirmation/{apiKeyId}")
+    @GetMapping("/revoke/{apiKeyId}")
     public ModelAndView showRevokeApiKeyConfirmation(@PathVariable int apiKeyId) {
         Optional<ApiKey> apiKey = apiKeyService.getApiKeyById(apiKeyId);
 
+        if(!apiKey.isPresent()) {
+            return new ModelAndView("redirect:/api-keys");
+        }
         ModelAndView modelAndView = new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE);
         modelAndView.addObject("apiKey", apiKey);
 
         return modelAndView;
     }
 
-    // TODO change mapping to match getMapping
-    @PostMapping("/revoke-api-key")
-    public ModelAndView revokeApiKey(@ModelAttribute ApiKey apiKey) {
+    @PostMapping("/revoke")
+    public String revokeApiKey(@ModelAttribute ApiKey apiKey) {
         apiKeyService.revokeApiKey(apiKey.getId());
-        apiGatewayService.deleteApiKey(apiKey.getName());
-        return new ModelAndView(ORGANISATION_API_KEYS_PAGE);
+        // TODO uncomment when createAPIKey is here
+        //apiGatewayService.deleteApiKey(apiKey.getName());
+        return "redirect:/api-keys";
     }
 }

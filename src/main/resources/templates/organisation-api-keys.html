@@ -45,15 +45,12 @@
                             </dt>
                             <dd class="govuk-summary-list__value" th:text=" ${ 'Created ' + #temporals.format(apiKey.createdDate, 'd MMMM yyyy')}">
                             </dd>
-                            <dd class="govuk-summary-list__actions">
-                                <th:block th:if="${!apiKey.isRevoked}">
-                                    <a class="govuk-link govuk-link--no-visited-state" th:href="@{'/api-keys/revoke-api-key-confirmation/' + ${apiKey.id}}">
-                                        Revoke<span class="govuk-visually-hidden"> API key</span>
-                                    </a>
-                                </th:block>
-                                <th:block th:if="${apiKey.isRevoked}">
-                                    <span th:text=" ${'Revoked ' + #temporals.format(apiKey.revocationDate, 'd MMMM yyyy')}"> </span>
-                                </th:block>
+                            <dd th:if="${!apiKey.isRevoked}" class="govuk-summary-list__actions">
+                                <a class="govuk-link govuk-link--no-visited-state" th:href="@{'/api-keys/revoke/' + ${apiKey.id}}">
+                                    Revoke<span class="govuk-visually-hidden"> API key</span>
+                                </a>
+                            </dd>
+                            <dd th:if="${apiKey.isRevoked}" class="govuk-summary-list__value govuk-!-text-align-right govuk-hint" th:text=" ${'Revoked ' + #temporals.format(apiKey.revocationDate, 'd MMMM yyyy')}">
                             </dd>
                         </div>
                     </dl>

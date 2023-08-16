@@ -20,24 +20,24 @@ public class ApiKeyService {
     public List<ApiKey> getApiKeysForFundingOrganisation(int fundingOrgId){
         return apiKeyRepository.findByFundingOrganisationId(fundingOrgId);
     }
-    // TODO: should we return null instead of throwing an exception?
+
     public String getApiKeyName(int apiKeyId) {
-        ApiKey apiKey = apiKeyRepository.findById(apiKeyId).orElseThrow(() -> new ApiKeyDoesNotExistException("API Key with id " + apiKeyId + " does not exist"));
-        return apiKey.getName();
+        Optional<ApiKey> apiKey = apiKeyRepository.findById(apiKeyId);
+        return apiKey.map(ApiKey::getName).orElse(null);
     }
 
     public void revokeApiKey(int apiKeyId) {
-        ApiKey apiKey = apiKeyRepository.findById(apiKeyId).orElseThrow(() -> new ApiKeyDoesNotExistException("API Key with id " + apiKeyId + " does not exist"));
+        Optional<ApiKey> apiKey = apiKeyRepository.findById(apiKeyId);
 
-        if(apiKey!=null) {
+        if(apiKey.isPresent()) {
             final ZonedDateTime zonedDateTime = ZonedDateTime.now();
 
             UUID uuid = UUID.randomUUID();
-            apiKey.setRevocationDate(zonedDateTime);
-            apiKey.setRevokedBy(uuid); // TODO set to logged in user
-            apiKey.setRevoked(true);
+            apiKey.get().setRevocationDate(zonedDateTime);
+            apiKey.get().setRevokedBy(uuid); // TODO set to logged in user
+            apiKey.get().setRevoked(true);
 
-            apiKeyRepository.save(apiKey);
+            apiKeyRepository.save(apiKey.get());
         }
     }
 

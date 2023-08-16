@@ -67,12 +67,11 @@ public class ApiKeyServiceTest {
     @Test
     void getApiKey_doesNotExist() {
         when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(java.util.Optional.empty());
-        final Throwable exception = assertThrows(ApiKeyDoesNotExistException.class,
-                () -> serviceUnderTest.getApiKeyName(API_KEY_ID));
+
+        final String response = serviceUnderTest.getApiKeyName(API_KEY_ID);
 
         verify(apiKeyRepository).findById(API_KEY_ID);
-        assertThat(exception.getMessage()).isEqualTo("API Key with id " + API_KEY_ID + " does not exist");
-
+        assertThat(response).isNull();
     }
 
     @Test
@@ -88,11 +87,11 @@ public class ApiKeyServiceTest {
     @Test
     void revokeApiKey_doesNotExist() {
         when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(java.util.Optional.empty());
-        final Throwable exception = assertThrows(ApiKeyDoesNotExistException.class,
-                () -> serviceUnderTest.getApiKeyName(API_KEY_ID));
+
+        final String response = serviceUnderTest.getApiKeyName(API_KEY_ID);
 
         verify(apiKeyRepository).findById(API_KEY_ID);
-        assertThat(exception.getMessage()).isEqualTo("API Key with id " + API_KEY_ID + " does not exist");
+        assertThat(response).isNull();
     }
 
     @Test

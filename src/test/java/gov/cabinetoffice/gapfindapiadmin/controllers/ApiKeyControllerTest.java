@@ -73,14 +73,15 @@ public class ApiKeyControllerTest {
 
     @Test
     void showRevokeApiKeyConfirmationPage_showsCorrectView() {
+        when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(java.util.Optional.ofNullable(apiKey));
         final ModelAndView response = controllerUnderTest.showRevokeApiKeyConfirmation(API_KEY_ID);
         assertThat(response.getViewName()).isEqualTo(REVOKE_API_KEY_CONFIRMATION_PAGE);
     }
 
     @Test
     void revokeApiKey_returnsExpectedResponse() {
-        final ModelAndView response = controllerUnderTest.revokeApiKey(apiKey);
-        assertThat(response.getViewName()).isEqualTo(ORGANISATION_API_KEYS_PAGE);
+        final String response = controllerUnderTest.revokeApiKey(apiKey);
+        assertThat(response).isEqualTo("redirect:/api-keys");
     }
 
 }
