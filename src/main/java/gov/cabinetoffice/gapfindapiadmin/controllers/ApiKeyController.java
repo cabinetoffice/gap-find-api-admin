@@ -1,10 +1,13 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
+import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -18,19 +21,18 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/api-keys")
 @RequiredArgsConstructor
 public class ApiKeyController {
-
-    //TODO Make sure this takes the id from the request or the logged in user, rather than the hardcoded value
     public static final String CREATE_API_KEY_FORM_PAGE = "create-api-key-form";
     public static final String NEW_API_KEY_PAGE = "new-api-key";
     public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
+    private final GrantAdminService grantAdminService;
 
-    //TODO Make sure this takes the id from the request or the logged in user, rather than the hardcoded value
     @GetMapping
     public ModelAndView showKeys() {
+        GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         ModelAndView mav = new ModelAndView(ORGANISATION_API_KEYS_PAGE);
-        mav.addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(2));
+        mav.addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()));
         return mav;
     }
 
@@ -42,7 +44,7 @@ public class ApiKeyController {
 
     @PostMapping("/create-api-key-form")
     public ModelAndView createKey(final @Valid @ModelAttribute CreateApiKeyDTO createApiKeyDTO, final BindingResult bindingResult) {
-        if (apiGatewayService.doesKeyExist(createApiKeyDTO.getKeyName())) {
+        if (apiKeyService.doesApiKeyExist(createApiKeyDTO.getKeyName())) {
             final FieldError duplicateKey = new FieldError("createApiKeyDTO",
                     "keyName",
                     createApiKeyDTO.getKeyName(),
@@ -58,7 +60,7 @@ public class ApiKeyController {
         }
 
         final ModelAndView newApiKey = new ModelAndView(NEW_API_KEY_PAGE);
-        final String apiKeyValue = apiGatewayService.createApiKeys(createApiKeyDTO.getKeyName());
+        final String apiKeyValue = apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName());
         return newApiKey.addObject("keyValue", apiKeyValue);
     }
 }

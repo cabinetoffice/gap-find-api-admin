@@ -2,6 +2,9 @@ package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
 import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
+import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
+import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
+import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import org.junit.jupiter.api.Test;
@@ -9,14 +12,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,19 +38,33 @@ class ApiKeyControllerTest {
     @Mock
     private ApiGatewayService apiGatewayService;
 
+    @Mock
+    private Principal principal;
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private Authentication authentication;
+
     @InjectMocks
     private ApiKeyController controllerUnderTest;
 
+    private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder().id(1).build();
+    private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
+
+    private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
+
     @Test
-     void showKeys_expectedResponse() {
+    @WithMockUser()
+    void showKeys_expectedResponse() {
 
         final String apiKey = "Key";
         final List<ApiKey> expectedApiKeys = List.of(ApiKey.builder().apiKey(apiKey).build());
+        prepareAuthentication();
 
-        when(apiKeyService.getApiKeysForFundingOrganisation(any(Integer.class))).thenReturn(expectedApiKeys);
+        when(apiKeyService.getApiKeysForFundingOrganisation(eq(grantAdmin.getFunder().getId()))).thenReturn(expectedApiKeys);
 
         ModelAndView actualResponse = controllerUnderTest.showKeys();
-
 
         List<ApiKey> actualApiKeys = (List<ApiKey>) actualResponse.getModel().get("apiKeys");
 
@@ -50,12 +72,14 @@ class ApiKeyControllerTest {
         assertThat(actualApiKeys.get(0).getApiKey()).isEqualTo(apiKey);
     }
 
+
+
     @Test
     void showKeys_expectedResponse_emptyList() {
 
         List<ApiKey> expectedApiKeys = new ArrayList<>();
-
-        when(apiKeyService.getApiKeysForFundingOrganisation(any(Integer.class))).thenReturn(expectedApiKeys);
+        prepareAuthentication();
+        when(apiKeyService.getApiKeysForFundingOrganisation(eq(grantAdmin.getFunder().getId()))).thenReturn(expectedApiKeys);
 
         ModelAndView actualResponse = controllerUnderTest.showKeys();
         assertThat(actualResponse.getModel().get("apiKeys")).isEqualTo(expectedApiKeys);
@@ -72,7 +96,7 @@ class ApiKeyControllerTest {
     @Test
     void createKey_ShouldShowTheCorrectViewAndAttachedObject() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
-        when(apiGatewayService.createApiKeys(createApiKeyDTO.getKeyName())).thenReturn("keyValue");
+        when(apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName())).thenReturn("keyValue");
 
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
 
@@ -92,13 +116,19 @@ class ApiKeyControllerTest {
     }
 
     @Test
-    void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyAlreadyExists(){
+    void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyAlreadyExists() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
-        when(apiGatewayService.doesKeyExist(createApiKeyDTO.getKeyName())).thenReturn(true);
+        when(apiKeyService.doesApiKeyExist(createApiKeyDTO.getKeyName())).thenReturn(true);
         when(bindingResult.hasErrors()).thenReturn(true);
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
 
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
         assertThat(methodResponse.getModel().get("createApiKeyDTO")).isInstanceOf(CreateApiKeyDTO.class);
+    }
+
+    private void prepareAuthentication() {
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
     }
 }
