@@ -35,13 +35,13 @@ public class ApiKeyController {
         return mav;
     }
 
-    @GetMapping("/create-api-key-form")
+    @GetMapping("/create")
     public ModelAndView showCreateKeyForm() {
         final ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE);
         return createApiKey.addObject("createApiKeyDTO", new CreateApiKeyDTO());
     }
 
-    @PostMapping("/create-api-key-form")
+    @PostMapping("/create")
     public ModelAndView createKey(final @Valid @ModelAttribute CreateApiKeyDTO createApiKeyDTO, final BindingResult bindingResult) {
         if (apiKeyService.doesApiKeyExist(createApiKeyDTO.getKeyName())) {
             final FieldError duplicateKey = new FieldError("createApiKeyDTO",

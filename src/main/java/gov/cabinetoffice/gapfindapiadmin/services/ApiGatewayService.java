@@ -58,6 +58,7 @@ public class ApiGatewayService {
     }
 
     protected void saveKeyInDatabase(String keyName, CreateApiKeyResponse response, GrantAdmin grantAdmin) {
+        //TODO add in some error handling here in case it doesn't save to the db for some reason but we manage to save in aws? Could catch any db exceptions and then delete from aws if it exists.
         final ApiKey apiKey = ApiKey.builder()
                 .fundingOrganisation(grantAdmin.getFunder())
                 .apiKey(response.value())
