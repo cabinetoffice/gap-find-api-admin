@@ -1,8 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
-import gov.cabinetoffice.gapfindapiadmin.model.ApiKey;
-import gov.cabinetoffice.gapfindapiadmin.service.ApiKeyService;
-import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
+import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
+import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

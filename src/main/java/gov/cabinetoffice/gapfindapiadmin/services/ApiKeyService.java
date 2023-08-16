@@ -1,16 +1,23 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyDoesNotExistException;
+import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyDoesNotExistException;
 import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
+
+    public List<ApiKey> getApiKeysForFundingOrganisation(int fundingOrgId){
+        return apiKeyRepository.findByFundingOrganisationId(fundingOrgId);
+    }
 
     public String getApiKeyName(Integer apiKeyId) {
         ApiKey apiKey = apiKeyRepository.findById(apiKeyId).orElseThrow(() -> new ApiKeyDoesNotExistException("API Key with id " + apiKeyId + " does not exist"));
@@ -22,5 +29,6 @@ public class ApiKeyService {
         // TODO: set this based on how it's stored in the database
         apiKey.setRevoked(true);
         apiKeyRepository.save(apiKey);
-    }
+
+
 }

@@ -1,6 +1,5 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
-import gov.cabinetoffice.gapfindapiadmin.service.ApiKeyService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import lombok.RequiredArgsConstructor;
@@ -13,15 +12,17 @@ import org.springframework.web.servlet.ModelAndView;
 @RequiredArgsConstructor
 public class ApiKeyController {
 
-    //TODO Make sure this takes the id from the request or the logged in user, rather than the hardcoded value
-    public static final String REVOKE_API_KEY_CONFIRMATION_PAGE = "revoke-api-key-confirmation";
-
-    public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
-
     private final ApiKeyService apiKeyService;
 
     private final ApiGatewayService apiGatewayService;
 
+    public static final String REVOKE_API_KEY_CONFIRMATION_PAGE = "revoke-api-key-confirmation";
+
+    public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
+
+
+
+    //TODO Make sure this takes the id from the request or the logged in user, rather than the hardcoded value
     @GetMapping
     public ModelAndView showKeys() {
         ModelAndView mav = new ModelAndView("organisation-api-keys");
