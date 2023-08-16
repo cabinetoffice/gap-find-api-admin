@@ -16,10 +16,10 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "aws")
 public class ApiGatewayConfigProperties {
 
-	@NotNull
-	private String apiGatewayId;
+    @NotNull
+    private String apiGatewayId;
 
-	@NotNull
-	private String apiGatewayUsagePlanId;
+    @NotNull
+    private String apiGatewayUsagePlanId;
 
 }

@@ -13,17 +13,46 @@
 <div class="govuk-width-container">
     <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <div class="govuk-panel govuk-panel--confirmation">
-                    <h1 class="govuk-panel__title">
-                        API Keys
-                    </h1>
+            <div class="govuk-grid-column-full">
+
+                <h1 class="govuk-heading-l">
+                    Manage API Keys
+                </h1>
+
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-third">
+                        <p class="govuk-body govuk-!-font-weight-bold">Department</p>
+                    </div>
+
+
+                    <div class="govuk-grid-column-one-third">
+                        <p class="govuk-body">Cabinet Office</p>
+                    </div>
                 </div>
-                <p class="govuk-body">Example paragraph.</p>
-                <h2 class="govuk-heading-m">Example heading</h2>
-                <p class="govuk-body">
-                    example body
-                </p>
+
+                <th:block th:if="${apiKeys.empty}">
+                    <p>You don't have any API keys yet. When you create one, you will be able to see a list of your API keys and revoke access to them on this screen.</p>
+                </th:block>
+                <th:block th:if="${!apiKeys.empty}">
+                    <table class="govuk-table">
+                        <tbody class="govuk-table__body">
+                          <tr class="govuk-table__row" th:each="apiKey : ${apiKeys}">
+
+                                <td class="govuk-table__cell"><span th:text="${apiKey.name}"></span></td>
+                                <td class="govuk-table__cell"><span th:text=" ${ 'Created ' + #temporals.format(apiKey.createdDate, 'd MMMM yyyy')}"></span></td>
+
+                                <td class="govuk-table__cell"><th:block th:if="${apiKey.isRevoked}"><span th:text=" ${'Revoked ' + #temporals.format(apiKey.revocationDate, 'd MMMM yyyy')}"> </span>
+                                </th:block>
+                                    <th:block th:if="${!apiKey.isRevoked}"><a class="govuk-link" href="#">Revoke</a></th:block>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </th:block>
+
+                <button class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                    Create an API Key
+                </button>
             </div>
         </div>
     </main>

@@ -49,6 +49,7 @@ class ApiGatewayServiceTest {
         verify(apiGatewayClient).createUsagePlanKey(any(CreateUsagePlanKeyRequest.class));
     }
 
+    //TODO change this test
     @Test
     void checkIfKeyExistAlready_doesNotThrowException() {
         when(apiGatewayClient.getApiKeys()).thenReturn(getApiKeysResponse);

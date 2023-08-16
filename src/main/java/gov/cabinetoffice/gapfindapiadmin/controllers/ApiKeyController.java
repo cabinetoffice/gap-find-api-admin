@@ -2,6 +2,7 @@ package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
+import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -18,14 +19,19 @@ import org.springframework.web.servlet.ModelAndView;
 @RequiredArgsConstructor
 public class ApiKeyController {
 
+    //TODO Make sure this takes the id from the request or the logged in user, rather than the hardcoded value
     public static final String CREATE_API_KEY_FORM_PAGE = "create-api-key-form";
     public static final String NEW_API_KEY_PAGE = "new-api-key";
     public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
+    private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
 
+    //TODO Make sure this takes the id from the request or the logged in user, rather than the hardcoded value
     @GetMapping
     public ModelAndView showKeys() {
-        return new ModelAndView(ORGANISATION_API_KEYS_PAGE);
+        ModelAndView mav = new ModelAndView(ORGANISATION_API_KEYS_PAGE);
+        mav.addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(2));
+        return mav;
     }
 
     @GetMapping("/create-api-key-form")
