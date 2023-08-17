@@ -15,6 +15,6 @@ public class ControllerExceptionsHandler extends ResponseEntityExceptionHandler 
 
     @ExceptionHandler(value = {ApiGatewayException.class})
     public String handleException(ApiGatewayException ex, WebRequest request) {
-        return "redirect:/error-page";
+        return "redirect:api-keys/error";
     }
 }
