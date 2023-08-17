@@ -52,5 +52,4 @@ public class JwtService {
         return JwtPayload.builder().sub(sub).roles(roles).emailAddress(emailAddress).departmentName(department).iss(iss)
                 .aud(aud).exp(exp).iat(iat).build();
     }
-
 }

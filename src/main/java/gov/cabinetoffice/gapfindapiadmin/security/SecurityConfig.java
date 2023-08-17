@@ -1,5 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.security;
 
+import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +22,8 @@ public class SecurityConfig {
             "/js/**"
     };
     private final JwtAuthorisationFilter jwtAuthorisationFilter;
-    public SecurityConfig(final JwtService jwtService, final GrantAdminService grantAdminService ) {
-        this.jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, grantAdminService);
+    public SecurityConfig(final JwtService jwtService, final GrantAdminService grantAdminService, UserServiceConfig userServiceConfig) {
+        this.jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, grantAdminService, userServiceConfig);
     }
 
     @Bean

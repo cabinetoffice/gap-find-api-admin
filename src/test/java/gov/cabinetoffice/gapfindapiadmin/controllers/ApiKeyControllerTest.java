@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -62,13 +61,13 @@ class ApiKeyControllerTest {
         final List<ApiKey> expectedApiKeys = List.of(ApiKey.builder().apiKey(apiKey).build());
         prepareAuthentication();
 
-        when(apiKeyService.getApiKeysForFundingOrganisation(eq(grantAdmin.getFunder().getId()))).thenReturn(expectedApiKeys);
+        when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
 
         ModelAndView actualResponse = controllerUnderTest.showKeys();
 
         List<ApiKey> actualApiKeys = (List<ApiKey>) actualResponse.getModel().get("apiKeys");
 
-        assertThat(actualResponse.getModel().get("apiKeys")).isEqualTo(expectedApiKeys);
+        assertThat(actualResponse.getModel()).containsEntry("apiKeys",expectedApiKeys);
         assertThat(actualApiKeys.get(0).getApiKey()).isEqualTo(apiKey);
     }
 
@@ -79,10 +78,10 @@ class ApiKeyControllerTest {
 
         List<ApiKey> expectedApiKeys = new ArrayList<>();
         prepareAuthentication();
-        when(apiKeyService.getApiKeysForFundingOrganisation(eq(grantAdmin.getFunder().getId()))).thenReturn(expectedApiKeys);
+        when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
 
         ModelAndView actualResponse = controllerUnderTest.showKeys();
-        assertThat(actualResponse.getModel().get("apiKeys")).isEqualTo(expectedApiKeys);
+        assertThat(actualResponse.getModel()).containsEntry("apiKeys",expectedApiKeys);
 
     }
 
