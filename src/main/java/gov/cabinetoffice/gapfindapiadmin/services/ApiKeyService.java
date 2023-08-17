@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -40,9 +39,9 @@ public class ApiKeyService {
         if(apiKey.isPresent()) {
             final ZonedDateTime zonedDateTime = ZonedDateTime.now();
 
-            UUID uuid = UUID.randomUUID();
+            String id = "1";
             apiKey.get().setRevocationDate(zonedDateTime);
-            apiKey.get().setRevokedBy(uuid); // TODO set to logged in user
+            apiKey.get().setRevokedBy(id); // TODO set to logged in user
             apiKey.get().setRevoked(true);
             apiKeyRepository.save(apiKey.get());
         }

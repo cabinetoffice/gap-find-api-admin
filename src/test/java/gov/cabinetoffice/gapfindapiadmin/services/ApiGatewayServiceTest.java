@@ -121,21 +121,6 @@ class ApiGatewayServiceTest {
     @Test
     void deleteApiKeys_throwsApiKeyDoesNotExistException() {
         when(apiGatewayClient.getApiKeys()).thenReturn(getApiKeysResponse);
-        assertThrows(ApiKeyDoesNotExistException.class, () -> apiGatewayService.deleteApiKey("anotherKeyName"));
-    }
-
-
-    @Test
-    void checkIfKeyExistAlready_returnsTrue() {
-        when(apiGatewayClient.getApiKeys()).thenReturn(getApiKeysResponse);
-        boolean result = apiGatewayService.doesKeyExist(API_KEY_NAME);
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    void checkIfKeyExistAlready_returnsFalse() {
-        when(apiGatewayClient.getApiKeys()).thenReturn(getApiKeysResponse);
-        boolean result = apiGatewayService.doesKeyExist("anotherKeyName");
-        assertThat(result).isFalse();
+        assertThrows(ApiKeyDoesNotExistException.class, () -> apiGatewayService.deleteApiKey("anotherKeyName")); // TODO fix test
     }
 }

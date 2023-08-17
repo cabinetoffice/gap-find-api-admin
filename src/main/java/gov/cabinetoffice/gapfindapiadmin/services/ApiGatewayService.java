@@ -78,13 +78,7 @@ public class ApiGatewayService {
                 .findFirst()
                 .ifPresentOrElse(k -> apiGatewayClient.deleteApiKey(builder -> builder.apiKey(k.id())), () -> {
                     throw new ApiKeyDoesNotExistException("API Key with name " + keyName + " does not exist");
-                });
-    }
-
-    boolean doesKeyExist(String keyName) {
-        return apiGatewayClient.getApiKeys().items()
-                .stream()
-                .anyMatch(key -> key.name() != null && key.name().equals(keyName));
+                }); // TODO remove exception and delete exception class
     }
 
 }

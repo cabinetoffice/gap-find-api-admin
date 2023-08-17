@@ -27,7 +27,6 @@ public class ApiKeyController {
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
 
-    //TODO Make sure this takes the id from the request or the logged in user, rather than the hardcoded value
     @GetMapping
     public ModelAndView showKeys() {
         GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
