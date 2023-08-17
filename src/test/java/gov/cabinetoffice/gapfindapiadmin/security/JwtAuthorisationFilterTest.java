@@ -6,7 +6,6 @@ import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
-import gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter;
 import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
 import jakarta.servlet.FilterChain;
