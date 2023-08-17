@@ -1,10 +1,10 @@
 package gov.cabinetoffice.gapfindapiadmin.config;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,14 +12,14 @@ import org.springframework.context.annotation.Configuration;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Configuration("cognitoConfigurationProperties")
-@ConfigurationProperties(prefix = "user-service")
-public class UserServiceConfig {
+@Configuration("apiGatewayConfigurationProperties")
+@ConfigurationProperties(prefix = "aws")
+public class ApiGatewayConfigProperties {
 
-    @NonNull
-    private String domain;
+    @NotNull
+    private String apiGatewayId;
 
-    @NonNull
-    private String cookieName;
+    @NotNull
+    private String apiGatewayUsagePlanId;
 
 }

@@ -12,4 +12,5 @@ public interface ApiKeyRepository extends CrudRepository<ApiKey, Integer> {
 
     List<ApiKey> findByFundingOrganisationId(Integer id);
 
+    ApiKey findByName(String name);
 }
