@@ -1,6 +1,5 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
-import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyDoesNotExistException;
 import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
 import org.assertj.core.api.Assertions;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

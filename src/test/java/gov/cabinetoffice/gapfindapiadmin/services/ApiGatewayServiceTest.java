@@ -1,7 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
-import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyAlreadyExistException;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyDoesNotExistException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,15 +8,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.services.apigateway.ApiGatewayClient;
-import software.amazon.awssdk.services.apigateway.model.*;
+import software.amazon.awssdk.services.apigateway.model.ApiKey;
+import software.amazon.awssdk.services.apigateway.model.GetApiKeysResponse;
 
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

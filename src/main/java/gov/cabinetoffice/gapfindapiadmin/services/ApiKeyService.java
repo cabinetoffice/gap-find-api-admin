@@ -1,6 +1,5 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
-import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyDoesNotExistException;
 import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
 import lombok.RequiredArgsConstructor;

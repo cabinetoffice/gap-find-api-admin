@@ -19,6 +19,7 @@ public class SecurityConfig {
             "/health",
             "/api-keys/**",
             "/js/**"};
+
     private final JwtAuthorisationFilter jwtAuthorisationFilter;
 
     public SecurityConfig(final JwtService jwtService) {
@@ -40,7 +41,7 @@ public class SecurityConfig {
                                 .anyRequest()
                                 .authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS));
-                //.addFilterBefore(jwtAuthorisationFilter, UsernamePasswordAuthenticationFilter.class);
+                //.addFilterBefore(jwtAuthorisationFilter, UsernamePasswordAuthenticationFilter.class); TODO: uncomment this line
 
         return http.build();
     }
