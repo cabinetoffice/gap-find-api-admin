@@ -34,7 +34,7 @@ public class GrantAdmin {
     @Column(name = "grant_admin_id")
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "funder_id", referencedColumnName = "funder_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private FundingOrganisation funder;
