@@ -22,6 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -32,6 +33,7 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final GrantAdminService grantAdminService;
     private final UserServiceConfig userServiceConfig;
+
 
     @Override
     public void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
