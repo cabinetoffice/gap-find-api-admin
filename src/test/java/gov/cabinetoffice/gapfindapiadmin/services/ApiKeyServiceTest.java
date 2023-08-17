@@ -52,7 +52,7 @@ class ApiKeyServiceTest {
     void doesApiKeyExist_apiKeyExists() {
         final String apiKeyName = "Key Name";
 
-        when(apiKeyRepository.findByName(apiKeyName)).thenReturn(of(ApiKey.builder().name(apiKeyName).build()));
+        when(apiKeyRepository.findByName(apiKeyName)).thenReturn(ApiKey.builder().name(apiKeyName).build());
 
         final boolean actual = serviceUnderTest.doesApiKeyExist(apiKeyName);
         assertThat(actual).isTrue();
@@ -63,7 +63,7 @@ class ApiKeyServiceTest {
     void doesApiKeyExist_apiKeyDoesNotExist() {
         final String apiKeyName = "nonExistingKey";
 
-        when(apiKeyRepository.findByName(apiKeyName)).thenReturn(Optional.ofNullable(null));
+        when(apiKeyRepository.findByName(apiKeyName)).thenReturn(null);
 
         boolean actual = serviceUnderTest.doesApiKeyExist(apiKeyName);
         assertThat(actual).isFalse();

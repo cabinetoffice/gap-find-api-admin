@@ -22,7 +22,8 @@ public class ApiKeyService {
     }
 
     public boolean doesApiKeyExist(String name) {
-        return apiKeyRepository.findByName(name).isPresent();
+        return apiKeyRepository.findByName(name) != null;
+
     }
 
 }
