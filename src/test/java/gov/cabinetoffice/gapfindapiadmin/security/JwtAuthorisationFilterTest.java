@@ -1,4 +1,4 @@
-package gov.cabinetoffice.gapfindapiadmin.controllers.security;
+package gov.cabinetoffice.gapfindapiadmin.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;

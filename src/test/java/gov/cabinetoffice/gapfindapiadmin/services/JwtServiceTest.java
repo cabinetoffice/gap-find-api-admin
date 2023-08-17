@@ -1,4 +1,4 @@
-package gov.cabinetoffice.gapfindapiadmin.controllers.services;
+package gov.cabinetoffice.gapfindapiadmin.services;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
