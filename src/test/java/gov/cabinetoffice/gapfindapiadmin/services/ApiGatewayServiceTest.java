@@ -2,7 +2,6 @@ package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyDoesNotExistException;
-import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
 import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
@@ -35,14 +34,19 @@ class ApiGatewayServiceTest {
     private final String API_KEY_DESCRIPTION = "apikeyDescription";
     private final ApiKey apiKey = ApiKey.builder().name(API_KEY_NAME).build();
     private final GetApiKeysResponse getApiKeysResponse = GetApiKeysResponse.builder().items(List.of(apiKey)).build();
+
     @Mock
     ApiGatewayConfigProperties apiGatewayConfigProperties;
+
     @Mock
     ApiGatewayClient apiGatewayClient;
+
     @Mock
     Principal principal;
+
     @Mock
     ApiKeyService apiKeyService;
+
     @Mock
     GrantAdminService grantAdminService;
     @Mock
@@ -50,8 +54,10 @@ class ApiGatewayServiceTest {
 
     @Mock
     private Authentication authentication;
+
     @Mock
     ZonedDateTime zonedDateTime;
+
     @InjectMocks
     ApiGatewayService apiGatewayService;
 
@@ -97,7 +103,7 @@ class ApiGatewayServiceTest {
         SecurityContextHolder.setContext(securityContext);
         CreateApiKeyResponse apiKeyRequest = CreateApiKeyResponse.builder().name(API_KEY_NAME).value("apiKeyValue").build();
         apiGatewayService.saveKeyInDatabase(API_KEY_NAME, apiKeyRequest, grantAdmin);
-        verify(apiKeyService).saveApiKey(any(ApiKey.class));
+        verify(apiKeyService).saveApiKey(any(gov.cabinetoffice.gapfindapiadmin.models.ApiKey.class));
     }
 
     private void prepareAuthentication() {
