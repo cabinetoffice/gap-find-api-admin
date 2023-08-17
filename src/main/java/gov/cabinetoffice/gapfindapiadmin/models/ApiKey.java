@@ -1,7 +1,20 @@
 package gov.cabinetoffice.gapfindapiadmin.models;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -36,7 +49,7 @@ public class ApiKey {
     @Column(name = "api_key_description")
     private String description;
 
-    @Column(name="created_date")
+    @Column(name = "created_date")
     private ZonedDateTime createdDate;
 
     @Column(name = "is_revoked", nullable = false)

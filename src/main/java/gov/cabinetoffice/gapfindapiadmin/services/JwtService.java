@@ -36,12 +36,12 @@ public class JwtService {
     }
 
     public JwtPayload getPayloadFromJwt(DecodedJWT decodedJWT) throws IllegalArgumentException {
-        String sub = decodedJWT.getSubject();
-        String roles = decodedJWT.getClaim("roles").asString();
-        String department = decodedJWT.getClaim("department").asString();
-        String emailAddress = decodedJWT.getClaim("email").asString();
-        String iss = decodedJWT.getClaim("iss").asString();
-        String aud = decodedJWT.getClaim("aud").asString();
+        final String sub = decodedJWT.getSubject();
+        final String roles = decodedJWT.getClaim("roles").asString();
+        final String department = decodedJWT.getClaim("department").asString();
+        final String emailAddress = decodedJWT.getClaim("email").asString();
+        final String iss = decodedJWT.getClaim("iss").asString();
+        final String aud = decodedJWT.getClaim("aud").asString();
         int exp = decodedJWT.getClaim("exp").asInt();
         int iat = decodedJWT.getClaim("iat").asInt();
 
@@ -52,5 +52,4 @@ public class JwtService {
         return JwtPayload.builder().sub(sub).roles(roles).emailAddress(emailAddress).departmentName(department).iss(iss)
                 .aud(aud).exp(exp).iat(iat).build();
     }
-
 }

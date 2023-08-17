@@ -12,13 +12,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Optional.of;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ApiKeyServiceTest {
+class ApiKeyServiceTest {
 
     @Mock
     private ApiKeyRepository apiKeyRepository;
@@ -36,20 +38,25 @@ public class ApiKeyServiceTest {
             .build();
 
     @Test
-    public void getApiKeysForFundingOrganisation_resultsReturned(){
-
+    void getApiKeysForFundingOrganisation_resultsReturned() {
         final int fundingOrgId = 1;
-
         final String apiKeyName = "Key Name";
-
         final List<ApiKey> expectedApiKeys = List.of(ApiKey.builder().name(apiKeyName).build());
 
         when(apiKeyRepository.findByFundingOrganisationId(any(Integer.class))).thenReturn(expectedApiKeys);
 
         List<ApiKey> actualApiKeys = serviceUnderTest.getApiKeysForFundingOrganisation(fundingOrgId);
+        assertThat(actualApiKeys).isEqualTo(expectedApiKeys);
 
-        Assertions.assertThat(actualApiKeys).isEqualTo(expectedApiKeys);
+    }
 
+    @Test
+    void saveApiKey_apiKeySaved() {
+        final ApiKey apiKey = ApiKey.builder().name("Key Name").build();
+
+        serviceUnderTest.saveApiKey(apiKey);
+
+        verify(apiKeyRepository).save(apiKey);
     }
 
     @Test
@@ -83,13 +90,24 @@ public class ApiKeyServiceTest {
     }
 
     @Test
-    void revokeApiKey_doesNotExist() {
-        when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(java.util.Optional.empty());
+    void doesApiKeyExist_apiKeyExists() {
+        final String apiKeyName = "Key Name";
 
-        final String response = serviceUnderTest.getApiKeyName(API_KEY_ID);
+        when(apiKeyRepository.findByName(apiKeyName)).thenReturn(ApiKey.builder().name(apiKeyName).build());
 
-        verify(apiKeyRepository).findById(API_KEY_ID);
-        assertThat(response).isNull();
+        final boolean actual = serviceUnderTest.doesApiKeyExist(apiKeyName);
+        assertThat(actual).isTrue();
+
+    }
+
+    @Test
+    void doesApiKeyExist_apiKeyDoesNotExist() {
+        final String apiKeyName = "nonExistingKey";
+
+        when(apiKeyRepository.findByName(apiKeyName)).thenReturn(null);
+
+        boolean actual = serviceUnderTest.doesApiKeyExist(apiKeyName);
+        assertThat(actual).isFalse();
     }
 
     @Test

@@ -1,10 +1,12 @@
 package gov.cabinetoffice.gapfindapiadmin.security;
 
+import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
+import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -17,15 +19,19 @@ public class SecurityConfig {
     private static final String[] WHITE_LIST = {
             "/webjars/**",
             "/health",
-            "/api-keys/**",
-            "/js/**"};
-
+            "/js/**"
+    };
     private final JwtAuthorisationFilter jwtAuthorisationFilter;
 
-    public SecurityConfig(final JwtService jwtService) {
-        this.jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService);
+    public SecurityConfig(final JwtService jwtService, final GrantAdminService grantAdminService, UserServiceConfig userServiceConfig) {
+        this.jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, grantAdminService, userServiceConfig);
     }
 
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        // specify any paths you don't want subject to JWT validation/authentication
+        return web -> web.ignoring().requestMatchers(WHITE_LIST);
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -34,14 +40,10 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers(HttpMethod.GET, WHITE_LIST)
-                                .permitAll()
-                                .requestMatchers(HttpMethod.POST, WHITE_LIST)
-                                .permitAll()
-                                .anyRequest()
+                        request.anyRequest()
                                 .authenticated())
-                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS));
-                //.addFilterBefore(jwtAuthorisationFilter, UsernamePasswordAuthenticationFilter.class); TODO: uncomment this line
+                .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
+                .addFilterBefore(jwtAuthorisationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

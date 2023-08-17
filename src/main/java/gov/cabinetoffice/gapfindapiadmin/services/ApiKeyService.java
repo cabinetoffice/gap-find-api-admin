@@ -16,8 +16,17 @@ public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
 
-    public List<ApiKey> getApiKeysForFundingOrganisation(int fundingOrgId){
+    public List<ApiKey> getApiKeysForFundingOrganisation(int fundingOrgId) {
         return apiKeyRepository.findByFundingOrganisationId(fundingOrgId);
+    }
+
+    public void saveApiKey(ApiKey apiKey) {
+        apiKeyRepository.save(apiKey);
+    }
+
+    public boolean doesApiKeyExist(String name) {
+        return apiKeyRepository.findByName(name) != null;
+
     }
 
     public String getApiKeyName(int apiKeyId) {
@@ -35,7 +44,6 @@ public class ApiKeyService {
             apiKey.get().setRevocationDate(zonedDateTime);
             apiKey.get().setRevokedBy(uuid); // TODO set to logged in user
             apiKey.get().setRevoked(true);
-
             apiKeyRepository.save(apiKey.get());
         }
     }
