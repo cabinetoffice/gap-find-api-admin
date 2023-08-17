@@ -18,8 +18,7 @@ public class ControllerExceptionsHandler extends ResponseEntityExceptionHandler 
 
 
     @ExceptionHandler(value = {ApiGatewayException.class})
-    protected ResponseEntity<Object> handleException(ApiGatewayException ex, WebRequest request) {
-        return handleExceptionInternal(ex, ErrorMessage.builder().message(ex.getMessage()).build(), new HttpHeaders(),
-                HttpStatus.BAD_REQUEST, request);
+    public String handleException(ApiGatewayException ex, WebRequest request) {
+        return "redirect:/error-page";
     }
 }

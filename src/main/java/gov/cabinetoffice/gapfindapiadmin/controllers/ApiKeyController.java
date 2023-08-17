@@ -57,8 +57,7 @@ public class ApiKeyController {
                     .addObject("createApiKeyDTO", createApiKeyDTO);
         }
 
-        final ModelAndView newApiKey = new ModelAndView(NEW_API_KEY_PAGE);
-        final String apiKeyValue = apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName());
-        return newApiKey.addObject("keyValue", apiKeyValue);
+        return  new ModelAndView(NEW_API_KEY_PAGE)
+                .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()));
     }
 }
