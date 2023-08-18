@@ -2,13 +2,13 @@ package gov.cabinetoffice.gapfindapiadmin.services;
 
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
-import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyDoesNotExistException;
 import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.apigateway.ApiGatewayClient;
+import software.amazon.awssdk.services.apigateway.model.ApiGatewayException;
 import software.amazon.awssdk.services.apigateway.model.CreateApiKeyRequest;
 import software.amazon.awssdk.services.apigateway.model.CreateApiKeyResponse;
 import software.amazon.awssdk.services.apigateway.model.CreateUsagePlanKeyRequest;
@@ -77,7 +77,7 @@ public class ApiGatewayService {
                 .filter(k -> k.name() != null && k.name().equals(keyName))
                 .findFirst()
                 .ifPresentOrElse(k -> apiGatewayClient.deleteApiKey(builder -> builder.apiKey(k.id())), () -> {
-                    throw new ApiKeyDoesNotExistException("API Key with name " + keyName + " does not exist");
+                    throw ApiGatewayException.builder().message("Api key does not exist").build();
                 }); // TODO remove exception and delete exception class
     }
 

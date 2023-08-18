@@ -69,6 +69,7 @@ public class ApiKeyController {
         if(!apiKey.isPresent()) {
             return new ModelAndView("redirect:/api-keys");
         }
+
         ModelAndView modelAndView = new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE);
         modelAndView.addObject("apiKey", apiKey);
 
@@ -77,9 +78,13 @@ public class ApiKeyController {
 
     @PostMapping("/revoke")
     public String revokeApiKey(@ModelAttribute ApiKey apiKey) {
-        apiKeyService.revokeApiKey(apiKey.getId());
-        // TODO uncomment when createAPIKey is here
-        //apiGatewayService.deleteApiKey(apiKey.getName());
-        return "redirect:/api-keys";
+        if(apiKey!=null) {
+            apiKeyService.revokeApiKey(apiKey.getId());
+            apiGatewayService.deleteApiKey(apiKey.getName());
+            return "redirect:/api-keys";
+        } else {
+            return "redirect:/error-page";
+        }
+
     }
 }

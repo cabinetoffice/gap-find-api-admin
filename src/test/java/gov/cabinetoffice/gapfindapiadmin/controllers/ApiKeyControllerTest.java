@@ -31,6 +31,7 @@ class ApiKeyControllerTest {
 
     @Mock
     private ApiKeyService apiKeyService;
+    
     @Mock
     private BindingResult bindingResult;
 
@@ -39,6 +40,7 @@ class ApiKeyControllerTest {
 
     @Mock
     private Principal principal;
+    
     @Mock
     private SecurityContext securityContext;
 
@@ -54,10 +56,6 @@ class ApiKeyControllerTest {
     private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
 
     private static final Integer API_KEY_ID = 1;
-
-    private static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
-
-    private static final String REVOKE_API_KEY_CONFIRMATION_PAGE = "revoke-api-key-confirmation";
 
     private final ApiKey apiKey = ApiKey.builder()
             .id(API_KEY_ID)
@@ -143,10 +141,10 @@ class ApiKeyControllerTest {
     }
 
     @Test
-    void showRevokeApiKeyConfirmationPage_showsCorrectView() {
+    void showRevokeApiKeyPage_showsCorrectView() {
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(java.util.Optional.ofNullable(apiKey));
         final ModelAndView response = controllerUnderTest.showRevokeApiKeyConfirmation(API_KEY_ID);
-        assertThat(response.getViewName()).isEqualTo(REVOKE_API_KEY_CONFIRMATION_PAGE);
+        assertThat(response.getViewName()).isEqualTo(ApiKeyController.REVOKE_API_KEY_CONFIRMATION_PAGE);
     }
 
     @Test
@@ -154,4 +152,5 @@ class ApiKeyControllerTest {
         final String response = controllerUnderTest.revokeApiKey(apiKey);
         assertThat(response).isEqualTo("redirect:/api-keys");
     }
+
 }

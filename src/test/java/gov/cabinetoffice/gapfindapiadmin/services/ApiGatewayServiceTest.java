@@ -1,7 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
-import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyDoesNotExistException;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
 import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
@@ -34,6 +33,9 @@ class ApiGatewayServiceTest {
     private final String API_KEY_DESCRIPTION = "apikeyDescription";
     private final ApiKey apiKey = ApiKey.builder().name(API_KEY_NAME).build();
     private final GetApiKeysResponse getApiKeysResponse = GetApiKeysResponse.builder().items(List.of(apiKey)).build();
+    private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder().id(1).build();
+    private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
+    private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
 
     @Mock
     ApiGatewayConfigProperties apiGatewayConfigProperties;
@@ -49,6 +51,7 @@ class ApiGatewayServiceTest {
 
     @Mock
     GrantAdminService grantAdminService;
+
     @Mock
     private SecurityContext securityContext;
 
@@ -60,11 +63,6 @@ class ApiGatewayServiceTest {
 
     @InjectMocks
     ApiGatewayService apiGatewayService;
-
-    private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder().id(1).build();
-    private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
-
-    private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
 
     @Test
     void createApiKeysInAwsAndDb() {
@@ -119,8 +117,8 @@ class ApiGatewayServiceTest {
     }
 
     @Test
-    void deleteApiKeys_throwsApiKeyDoesNotExistException() {
+    void deleteApiKeys_throwsException() {
         when(apiGatewayClient.getApiKeys()).thenReturn(getApiKeysResponse);
-        assertThrows(ApiKeyDoesNotExistException.class, () -> apiGatewayService.deleteApiKey("anotherKeyName")); // TODO fix test
+        assertThrows(ApiGatewayException.class, () -> apiGatewayService.deleteApiKey("anotherKeyName"));
     }
 }

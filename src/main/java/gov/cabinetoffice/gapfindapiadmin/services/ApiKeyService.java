@@ -1,8 +1,10 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
+import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
@@ -39,9 +41,9 @@ public class ApiKeyService {
         if(apiKey.isPresent()) {
             final ZonedDateTime zonedDateTime = ZonedDateTime.now();
 
-            String id = "1";
+            GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            apiKey.get().setRevokedBy(grantAdmin.getGapUser().getId());
             apiKey.get().setRevocationDate(zonedDateTime);
-            apiKey.get().setRevokedBy(id); // TODO set to logged in user
             apiKey.get().setRevoked(true);
             apiKeyRepository.save(apiKey.get());
         }
