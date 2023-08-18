@@ -57,6 +57,7 @@ public class ApiGatewayService {
     protected void saveKeyInDatabase(String keyName, CreateApiKeyResponse response, GrantAdmin grantAdmin) {
         //TODO add in some error handling here in case it doesn't save to the db for some reason but we manage to save in aws? Could catch any db exceptions and then delete from aws if it exists.
         final ApiKey apiKey = ApiKey.builder()
+                .apiGatewayId(response.id())
                 .fundingOrganisation(grantAdmin.getFunder())
                 .apiKey(response.value())
                 .name(keyName)
@@ -67,14 +68,8 @@ public class ApiGatewayService {
         apiKeyService.saveApiKey(apiKey);
     }
 
-    public void deleteApiKey(String keyName) {
-        apiGatewayClient.getApiKeys().items()
-                .stream()
-                .filter(k -> k.name() != null && k.name().equals(keyName))
-                .findFirst()
-                .ifPresentOrElse(k -> apiGatewayClient.deleteApiKey(builder -> builder.apiKey(k.id())), () -> {
-                    throw ApiGatewayException.builder().message("Api key does not exist").build();
-                });
+    public void deleteApiKey(ApiKey apiKey) {
+        apiGatewayClient.deleteApiKey(builder -> builder.apiKey(apiKey.getApiGatewayId()));
     }
 
 }

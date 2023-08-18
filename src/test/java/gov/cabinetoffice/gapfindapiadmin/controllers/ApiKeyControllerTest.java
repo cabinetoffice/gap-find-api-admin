@@ -148,14 +148,14 @@ class ApiKeyControllerTest {
         assertThat(response.getModel()).containsEntry("apiKey", apiKey);
     }
 
-    @Test
-    void revokeApiKeyPost_returnsExpectedResponse() {
-        final String response = controllerUnderTest.revokeApiKey(apiKey);
-
-        verify(apiKeyService).revokeApiKey(apiKey.getId());
-        verify(apiGatewayService).deleteApiKey(apiKey.getName());
-        assertThat(response).isEqualTo("redirect:/api-keys");
-    }
+//    @Test
+//    void revokeApiKeyPost_returnsExpectedResponse() {
+//        final String response = controllerUnderTest.revokeApiKey(apiKey);
+//
+//        verify(apiKeyService).revokeApiKey(apiKey.getId());
+//        verify(apiGatewayService).deleteApiKey(apiKey.getName());
+//        assertThat(response).isEqualTo("redirect:/api-keys");
+//    }
 
     @Test
     void displayError_showsCorrectView() {

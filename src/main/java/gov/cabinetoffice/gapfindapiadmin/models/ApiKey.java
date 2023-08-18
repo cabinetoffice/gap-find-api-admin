@@ -26,6 +26,9 @@ public class ApiKey {
     @JoinColumn(name = "funder_id")
     private FundingOrganisation fundingOrganisation;
 
+    @Column(name = "api_gateway_id")
+    private String apiGatewayId;
+
     @Column(name = "api_key_value")
     private String apiKey;
 

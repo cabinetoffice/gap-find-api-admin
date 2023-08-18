@@ -74,7 +74,7 @@ public class ApiKeyController {
     @PostMapping("/revoke")
     public String revokeApiKey(@ModelAttribute ApiKey apiKey) {
         // TODO: see if we can do this in one transaction
-        apiGatewayService.deleteApiKey(apiKey.getName());
+        apiGatewayService.deleteApiKey(apiKeyService.getApiKeyById(apiKey.getId()));
         apiKeyService.revokeApiKey(apiKey.getId());
         return "redirect:/api-keys";
     }
