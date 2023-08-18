@@ -27,7 +27,7 @@ class ControllerExceptionsHandlerTest {
         final String responseEntity = controllerExceptionsHandler.handleException(apiGatewayException,
                 webRequest);
 
-        assertThat(responseEntity).isEqualTo("redirect:/error-page");
+        assertThat(responseEntity).isEqualTo("redirect:/api-keys/error");
     }
 
 }

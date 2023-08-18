@@ -87,4 +87,10 @@ public class ApiKeyController {
         }
 
     }
+
+    //TODO change this to a better handling
+    @GetMapping("/error")
+    public ModelAndView displayError() {
+        return new ModelAndView("error-page");
+    }
 }
