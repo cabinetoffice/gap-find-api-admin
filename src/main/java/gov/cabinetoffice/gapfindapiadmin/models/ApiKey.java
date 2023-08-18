@@ -58,5 +58,5 @@ public class ApiKey {
     private ZonedDateTime revocationDate;
 
     @Column(name = "revoked_by", nullable = false)
-    private String revokedBy;
+    private Integer revokedBy;
 }

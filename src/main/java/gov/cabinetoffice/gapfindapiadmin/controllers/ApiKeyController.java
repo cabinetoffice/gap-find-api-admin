@@ -60,4 +60,10 @@ public class ApiKeyController {
         return  new ModelAndView(NEW_API_KEY_PAGE)
                 .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()));
     }
+
+    //TODO change this to a better handling
+    @GetMapping("/error")
+    public ModelAndView displayError() {
+        return new ModelAndView("error-page");
+    }
 }
