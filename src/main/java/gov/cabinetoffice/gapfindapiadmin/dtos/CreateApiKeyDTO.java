@@ -18,7 +18,7 @@ public class CreateApiKeyDTO {
 
 	@NotBlank(message = "Enter a key name")
 	@Pattern(regexp = "^[a-zA-Z0-9]*$", message = "Key name must be alphanumeric")
-	@Size(max = 1024, message = "Key name must be max 1024 characters")
+	@Size(max = 1024, message = "Key name must be max 1024 characters") // TODO check what to set max length to, it's 50 in DB
 	private String keyName;
 
 }
