@@ -1,5 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers.controller_advice;
 
+import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -7,6 +8,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.context.request.WebRequest;
 import software.amazon.awssdk.services.apigateway.model.ApiGatewayException;
+import software.amazon.awssdk.services.apigateway.model.NotFoundException;
+
+import java.sql.SQLException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -17,6 +21,15 @@ class ControllerExceptionsHandlerTest {
     private ApiGatewayException apiGatewayException;
 
     @Mock
+    private SQLException sqlException;
+
+    @Mock
+    private InvalidApiKeyIdException invalidApiKeyIdException;
+
+    @Mock
+    private NotFoundException notFoundException;
+
+    @Mock
     private WebRequest webRequest;
 
     @InjectMocks
@@ -25,6 +38,30 @@ class ControllerExceptionsHandlerTest {
     @Test
     void testHandleException_ApiGatewayException() {
         final String responseEntity = controllerExceptionsHandler.handleException(apiGatewayException,
+                webRequest);
+
+        assertThat(responseEntity).isEqualTo("redirect:/api-keys/error");
+    }
+
+    @Test
+    void testHandleException_SQLException() {
+        final String responseEntity = controllerExceptionsHandler.handleException(sqlException,
+                webRequest);
+
+        assertThat(responseEntity).isEqualTo("redirect:/api-keys/error");
+    }
+
+    @Test
+    void testHandleException_InvalidApiKeyIdException() {
+        final String responseEntity = controllerExceptionsHandler.handleException(invalidApiKeyIdException,
+                webRequest);
+
+        assertThat(responseEntity).isEqualTo("redirect:/api-keys/error");
+    }
+
+    @Test
+    void testHandleException_NotFoundException() {
+        final String responseEntity = controllerExceptionsHandler.handleException(notFoundException,
                 webRequest);
 
         assertThat(responseEntity).isEqualTo("redirect:/api-keys/error");

@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
@@ -10,10 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -23,15 +21,20 @@ public class ApiKeyController {
     public static final String CREATE_API_KEY_FORM_PAGE = "create-api-key-form";
     public static final String NEW_API_KEY_PAGE = "new-api-key";
     public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
+    public static final String REVOKE_API_KEY_CONFIRMATION_PAGE = "revoke-api-key-confirmation";
+    public static final String ERROR_PAGE = "error-page";
+
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
 
     @GetMapping
     public ModelAndView showKeys() {
-        GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        ModelAndView mav = new ModelAndView(ORGANISATION_API_KEYS_PAGE);
-        mav.addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()));
-        return mav;
+        final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final String departmentName = grantAdmin.getFunder().getName();
+
+        return new ModelAndView(ORGANISATION_API_KEYS_PAGE)
+                .addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()))
+                .addObject("departmentName", departmentName);
     }
 
     @GetMapping("/create")
@@ -61,9 +64,23 @@ public class ApiKeyController {
                 .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()));
     }
 
-    //TODO change this to a better handling
+    @GetMapping("/revoke/{apiKeyId}")
+    public ModelAndView showRevokeApiKeyConfirmation(@PathVariable int apiKeyId) {
+        final GapApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
+        return new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
+                .addObject("apiKey", apiKey);
+    }
+
+    @PostMapping("/revoke")
+    public String revokeApiKey(@ModelAttribute GapApiKey apiKey) {
+        // TODO: see if we can do this in one transaction
+        apiGatewayService.deleteApiKey(apiKeyService.getApiKeyById(apiKey.getId()));
+        apiKeyService.revokeApiKey(apiKey.getId());
+        return "redirect:/api-keys";
+    }
+
     @GetMapping("/error")
     public ModelAndView displayError() {
-        return new ModelAndView("error-page");
+        return new ModelAndView(ERROR_PAGE);
     }
 }

@@ -1,20 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.ZonedDateTime;
 
@@ -28,7 +15,7 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ApiKey {
+public class GapApiKey {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +25,9 @@ public class ApiKey {
     @ManyToOne
     @JoinColumn(name = "funder_id")
     private FundingOrganisation fundingOrganisation;
+
+    @Column(name = "api_gateway_id")
+    private String apiGatewayId;
 
     @Column(name = "api_key_value")
     private String apiKey;
