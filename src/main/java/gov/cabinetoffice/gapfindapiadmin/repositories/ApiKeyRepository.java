@@ -1,15 +1,15 @@
 package gov.cabinetoffice.gapfindapiadmin.repositories;
 
-import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
+import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface ApiKeyRepository extends CrudRepository<ApiKey, Integer> {
+public interface ApiKeyRepository extends CrudRepository<GapApiKey, Integer> {
 
-    List<ApiKey> findByFundingOrganisationId(Integer id);
+    List<GapApiKey> findByFundingOrganisationId(Integer id);
 
-    ApiKey findByName(String name);
+    GapApiKey findByName(String name);
 }

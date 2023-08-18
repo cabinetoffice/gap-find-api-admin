@@ -1,8 +1,8 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
-import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
+import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
@@ -54,8 +54,9 @@ class ApiKeyControllerTest {
 
     private static final Integer API_KEY_ID = 1;
 
-    private final ApiKey apiKey = ApiKey.builder()
+    private final GapApiKey apiKey = GapApiKey.builder()
             .id(API_KEY_ID)
+            .apiGatewayId("apiGatewayId")
             .name("Test API Key name")
             .apiKey("Test API Key")
             .isRevoked(false)
@@ -66,14 +67,14 @@ class ApiKeyControllerTest {
     void showKeys_expectedResponse() {
 
         final String apiKey = "Key";
-        final List<ApiKey> expectedApiKeys = List.of(ApiKey.builder().apiKey(apiKey).build());
+        final List<GapApiKey> expectedApiKeys = List.of(GapApiKey.builder().apiKey(apiKey).build());
         prepareAuthentication();
 
         when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
 
         ModelAndView actualResponse = controllerUnderTest.showKeys();
 
-        List<ApiKey> actualApiKeys = (List<ApiKey>) actualResponse.getModel().get("apiKeys");
+        List<GapApiKey> actualApiKeys = (List<GapApiKey>) actualResponse.getModel().get("apiKeys");
 
         assertThat(actualResponse.getModel()).containsEntry("apiKeys",expectedApiKeys);
         assertThat(actualResponse.getModel()).containsEntry("departmentName",fundingOrganisation.getName());
@@ -83,7 +84,7 @@ class ApiKeyControllerTest {
     @Test
     void showKeys_expectedResponse_emptyList() {
 
-        List<ApiKey> expectedApiKeys = new ArrayList<>();
+        List<GapApiKey> expectedApiKeys = new ArrayList<>();
         prepareAuthentication();
         when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
 
@@ -148,14 +149,16 @@ class ApiKeyControllerTest {
         assertThat(response.getModel()).containsEntry("apiKey", apiKey);
     }
 
-//    @Test
-//    void revokeApiKeyPost_returnsExpectedResponse() {
-//        final String response = controllerUnderTest.revokeApiKey(apiKey);
-//
-//        verify(apiKeyService).revokeApiKey(apiKey.getId());
-//        verify(apiGatewayService).deleteApiKey(apiKey.getName());
-//        assertThat(response).isEqualTo("redirect:/api-keys");
-//    }
+    @Test
+    void revokeApiKeyPost_returnsExpectedResponse() {
+        when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
+
+        final String response = controllerUnderTest.revokeApiKey(apiKey);
+
+        verify(apiKeyService).revokeApiKey(apiKey.getId());
+        verify(apiGatewayService).deleteApiKey(apiKey);
+        assertThat(response).isEqualTo("redirect:/api-keys");
+    }
 
     @Test
     void displayError_showsCorrectView() {

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import software.amazon.awssdk.services.apigateway.model.ApiGatewayException;
+import software.amazon.awssdk.services.apigateway.model.NotFoundException;
 
 import java.sql.SQLException;
 
@@ -27,6 +28,11 @@ public class ControllerExceptionsHandler extends ResponseEntityExceptionHandler 
 
     @ExceptionHandler(value = {InvalidApiKeyIdException.class})
     public String handleException(InvalidApiKeyIdException ex, WebRequest request) {
+        return "redirect:/api-keys/error";
+    }
+
+    @ExceptionHandler(value = {NotFoundException.class})
+    public String handleException(NotFoundException ex, WebRequest request) {
         return "redirect:/api-keys/error";
     }
 }

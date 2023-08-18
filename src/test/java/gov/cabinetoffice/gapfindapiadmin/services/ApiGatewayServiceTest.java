@@ -2,10 +2,12 @@ package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
+import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,7 +22,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -31,12 +32,12 @@ class ApiGatewayServiceTest {
 
     private final String API_KEY_NAME = "apikeyName";
     private final String API_KEY_DESCRIPTION = "apikeyDescription";
-    private gov.cabinetoffice.gapfindapiadmin.models.ApiKey dbApiKey = gov.cabinetoffice.gapfindapiadmin.models.ApiKey.builder()
+    private final GapApiKey gapApiKey = GapApiKey.builder()
             .id(1)
             .apiGatewayId("apiGatewayId")
             .isRevoked(false)
             .build();
-    private ApiKey apiKey = ApiKey.builder().id("apiGatewayId").name(API_KEY_NAME).build();
+    private final ApiKey apiKey = ApiKey.builder().id("apiGatewayId").name(API_KEY_NAME).build();
     private final GetApiKeysResponse getApiKeysResponse = GetApiKeysResponse.builder().items(List.of(apiKey)).build();
     private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder().id(1).build();
     private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
@@ -106,7 +107,7 @@ class ApiGatewayServiceTest {
         SecurityContextHolder.setContext(securityContext);
         CreateApiKeyResponse apiKeyRequest = CreateApiKeyResponse.builder().name(API_KEY_NAME).value("apiKeyValue").build();
         apiGatewayService.saveKeyInDatabase(API_KEY_NAME, apiKeyRequest, grantAdmin);
-        verify(apiKeyService).saveApiKey(any(gov.cabinetoffice.gapfindapiadmin.models.ApiKey.class));
+        verify(apiKeyService).saveApiKey(any(GapApiKey.class));
     }
 
     private void prepareAuthentication() {
@@ -115,18 +116,20 @@ class ApiGatewayServiceTest {
         when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
     }
 
-    // TODO fix tests
+    @Test
+    void deleteApiKeys() {
+        final ArgumentCaptor<DeleteApiKeyRequest> deleteApiKeyRequestArgumentCaptor = ArgumentCaptor.forClass(DeleteApiKeyRequest.class);
+        when(apiGatewayClient.deleteApiKey(any(DeleteApiKeyRequest.class))).thenReturn(DeleteApiKeyResponse.builder().build());
 
-//    @Test
-//    void deleteApiKeys() {
-//        when(dbApiKey.getApiGatewayId()).thenReturn(apiKey.id());
-//        apiGatewayService.deleteApiKey(dbApiKey);
-//        verify(apiGatewayClient).deleteApiKey(builder -> builder.apiKey(apiKey.id()));
-//    }
-//
-//    @Test
-//    void deleteApiKeys_throwsException() {
-//        when(apiGatewayClient.deleteApiKey(builder -> builder.apiKey(apiKey.id()))).thenThrow(ApiGatewayException.class);
-//        assertThrows(ApiGatewayException.class, () -> apiGatewayService.deleteApiKey(dbApiKey));
-//    }
+        apiGatewayService.deleteApiKey(gapApiKey);
+
+        verify(apiGatewayClient).deleteApiKey(deleteApiKeyRequestArgumentCaptor.capture());
+        assertThat(deleteApiKeyRequestArgumentCaptor.getValue().apiKey()).isEqualTo(gapApiKey.getApiGatewayId());
+    }
+
+    @Test
+    void deleteApiKeys_throwsException() {
+        when(apiGatewayClient.deleteApiKey(any(DeleteApiKeyRequest.class))).thenThrow(ApiGatewayException.class);
+        assertThrows(ApiGatewayException.class, () -> apiGatewayService.deleteApiKey(gapApiKey));
+    }
 }

@@ -15,7 +15,7 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ApiKey {
+public class GapApiKey {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

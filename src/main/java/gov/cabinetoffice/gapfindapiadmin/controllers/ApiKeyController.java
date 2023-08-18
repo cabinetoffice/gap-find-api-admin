@@ -1,7 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
-import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
+import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
@@ -66,13 +66,13 @@ public class ApiKeyController {
 
     @GetMapping("/revoke/{apiKeyId}")
     public ModelAndView showRevokeApiKeyConfirmation(@PathVariable int apiKeyId) {
-        final ApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
+        final GapApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
         return new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
                 .addObject("apiKey", apiKey);
     }
 
     @PostMapping("/revoke")
-    public String revokeApiKey(@ModelAttribute ApiKey apiKey) {
+    public String revokeApiKey(@ModelAttribute GapApiKey apiKey) {
         // TODO: see if we can do this in one transaction
         apiGatewayService.deleteApiKey(apiKeyService.getApiKeyById(apiKey.getId()));
         apiKeyService.revokeApiKey(apiKey.getId());

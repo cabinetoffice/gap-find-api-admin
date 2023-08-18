@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.context.request.WebRequest;
 import software.amazon.awssdk.services.apigateway.model.ApiGatewayException;
+import software.amazon.awssdk.services.apigateway.model.NotFoundException;
 
 import java.sql.SQLException;
 
@@ -24,6 +25,9 @@ class ControllerExceptionsHandlerTest {
 
     @Mock
     private InvalidApiKeyIdException invalidApiKeyIdException;
+
+    @Mock
+    private NotFoundException notFoundException;
 
     @Mock
     private WebRequest webRequest;
@@ -50,6 +54,14 @@ class ControllerExceptionsHandlerTest {
     @Test
     void testHandleException_InvalidApiKeyIdException() {
         final String responseEntity = controllerExceptionsHandler.handleException(invalidApiKeyIdException,
+                webRequest);
+
+        assertThat(responseEntity).isEqualTo("redirect:/api-keys/error");
+    }
+
+    @Test
+    void testHandleException_NotFoundException() {
+        final String responseEntity = controllerExceptionsHandler.handleException(notFoundException,
                 webRequest);
 
         assertThat(responseEntity).isEqualTo("redirect:/api-keys/error");

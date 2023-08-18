@@ -1,7 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
-import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
+import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +17,11 @@ public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
 
-    public List<ApiKey> getApiKeysForFundingOrganisation(int fundingOrgId) {
+    public List<GapApiKey> getApiKeysForFundingOrganisation(int fundingOrgId) {
         return apiKeyRepository.findByFundingOrganisationId(fundingOrgId);
     }
 
-    public void saveApiKey(ApiKey apiKey) {
+    public void saveApiKey(GapApiKey apiKey) {
         apiKeyRepository.save(apiKey);
     }
 
@@ -34,7 +34,7 @@ public class ApiKeyService {
     }
 
     public void revokeApiKey(int apiKeyId) {
-        final ApiKey apiKey = getApiKeyById(apiKeyId);
+        final GapApiKey apiKey = getApiKeyById(apiKeyId);
         final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         apiKey.setRevokedBy(grantAdmin.getGapUser().getId());
@@ -44,7 +44,7 @@ public class ApiKeyService {
         apiKeyRepository.save(apiKey);
     }
 
-    public ApiKey getApiKeyById(int apiKeyId) {
+    public GapApiKey getApiKeyById(int apiKeyId) {
         return apiKeyRepository.findById(apiKeyId)
                 .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
     }

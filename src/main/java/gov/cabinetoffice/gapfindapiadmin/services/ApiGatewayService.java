@@ -1,13 +1,16 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
-import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
+import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.apigateway.ApiGatewayClient;
-import software.amazon.awssdk.services.apigateway.model.*;
+import software.amazon.awssdk.services.apigateway.model.CreateApiKeyRequest;
+import software.amazon.awssdk.services.apigateway.model.CreateApiKeyResponse;
+import software.amazon.awssdk.services.apigateway.model.CreateUsagePlanKeyRequest;
+import software.amazon.awssdk.services.apigateway.model.DeleteApiKeyRequest;
 
 import java.time.ZonedDateTime;
 
@@ -56,7 +59,7 @@ public class ApiGatewayService {
 
     protected void saveKeyInDatabase(String keyName, CreateApiKeyResponse response, GrantAdmin grantAdmin) {
         //TODO add in some error handling here in case it doesn't save to the db for some reason but we manage to save in aws? Could catch any db exceptions and then delete from aws if it exists.
-        final ApiKey apiKey = ApiKey.builder()
+        final GapApiKey apiKey = GapApiKey.builder()
                 .apiGatewayId(response.id())
                 .fundingOrganisation(grantAdmin.getFunder())
                 .apiKey(response.value())
@@ -68,8 +71,10 @@ public class ApiGatewayService {
         apiKeyService.saveApiKey(apiKey);
     }
 
-    public void deleteApiKey(ApiKey apiKey) {
-        apiGatewayClient.deleteApiKey(builder -> builder.apiKey(apiKey.getApiGatewayId()));
+    public void deleteApiKey(GapApiKey apiKey) {
+        apiGatewayClient.deleteApiKey(DeleteApiKeyRequest.builder()
+                .apiKey(apiKey.getApiGatewayId())
+                .build());
     }
 
 }
