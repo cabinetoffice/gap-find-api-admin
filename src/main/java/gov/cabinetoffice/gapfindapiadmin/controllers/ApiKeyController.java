@@ -24,6 +24,8 @@ public class ApiKeyController {
     public static final String NEW_API_KEY_PAGE = "new-api-key";
     public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
     public static final String REVOKE_API_KEY_CONFIRMATION_PAGE = "revoke-api-key-confirmation";
+    public static final String ERROR_PAGE = "error-page";
+
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
 
@@ -78,19 +80,13 @@ public class ApiKeyController {
 
     @PostMapping("/revoke")
     public String revokeApiKey(@ModelAttribute ApiKey apiKey) {
-        if(apiKey!=null) {
-            apiKeyService.revokeApiKey(apiKey.getId());
-            apiGatewayService.deleteApiKey(apiKey.getName());
-            return "redirect:/api-keys";
-        } else {
-            return "redirect:/error-page";
-        }
-
+        apiGatewayService.deleteApiKey(apiKey.getName());
+        apiKeyService.revokeApiKey(apiKey.getId());
+        return "redirect:/api-keys";
     }
 
-    //TODO change this to a better handling
     @GetMapping("/error")
     public ModelAndView displayError() {
-        return new ModelAndView("error-page");
+        return new ModelAndView(ERROR_PAGE);
     }
 }

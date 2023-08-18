@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>New API key</title>
+  <title>Something went wrong</title>
   <script type="text/javascript" th:src="@{/js/copy-to-clipboard.js}"></script>
   <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}" />
 </head>
@@ -14,15 +14,11 @@
   <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-l">Something Went Wrong</h1>
-
-
-        <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-4">
-
-        <p class="govuk-body">Please go back and try again</p>
-
-
-        <a th:href="@{/api-keys}" class="govuk-link govuk-link--no-visited-state govuk-!-font-size-19">Back to your API keys</a>
+        <h1 class="govuk-heading-l">Something went wrong</h1>
+        <p class="govuk-body">Something went wrong while trying to complete your request.</p>
+        <p class="govuk-body">
+          You can <a th:href="@{/api-keys}" class="govuk-link govuk-link--no-visited-state">return to the API dashboard</a> to try again.
+        </p>
       </div>
     </div>
   </main>

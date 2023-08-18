@@ -1,6 +1,5 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
-
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
@@ -78,7 +77,7 @@ public class ApiGatewayService {
                 .findFirst()
                 .ifPresentOrElse(k -> apiGatewayClient.deleteApiKey(builder -> builder.apiKey(k.id())), () -> {
                     throw ApiGatewayException.builder().message("Api key does not exist").build();
-                }); // TODO remove exception and delete exception class
+                });
     }
 
 }

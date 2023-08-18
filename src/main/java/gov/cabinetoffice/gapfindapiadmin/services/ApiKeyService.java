@@ -27,7 +27,6 @@ public class ApiKeyService {
 
     public boolean doesApiKeyExist(String name) {
         return apiKeyRepository.findByName(name) != null;
-
     }
 
     public String getApiKeyName(int apiKeyId) {
@@ -45,6 +44,7 @@ public class ApiKeyService {
             apiKey.get().setRevokedBy(grantAdmin.getGapUser().getId());
             apiKey.get().setRevocationDate(zonedDateTime);
             apiKey.get().setRevoked(true);
+
             apiKeyRepository.save(apiKey.get());
         }
     }
