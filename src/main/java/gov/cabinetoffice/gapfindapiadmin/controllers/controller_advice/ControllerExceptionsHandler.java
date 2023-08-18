@@ -2,11 +2,13 @@ package gov.cabinetoffice.gapfindapiadmin.controllers.controller_advice;
 
 
 import gov.cabinetoffice.gapfindapiadmin.controllers.ApiKeyController;
+import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import software.amazon.awssdk.services.apigateway.model.ApiGatewayException;
+
 import java.sql.SQLException;
 
 @ControllerAdvice(
@@ -20,6 +22,11 @@ public class ControllerExceptionsHandler extends ResponseEntityExceptionHandler 
 
     @ExceptionHandler(value = {SQLException.class})
     public String handleException(SQLException ex, WebRequest request) {
+        return "redirect:/api-keys/error";
+    }
+
+    @ExceptionHandler(value = {InvalidApiKeyIdException.class})
+    public String handleException(InvalidApiKeyIdException ex, WebRequest request) {
         return "redirect:/api-keys/error";
     }
 }

@@ -1,5 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
+import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
 import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
 import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -83,25 +85,16 @@ class ApiKeyServiceTest {
     }
 
     @Test
-    void getApiKey_doesNotExist() {
-        when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(java.util.Optional.empty());
-
-        final String response = serviceUnderTest.getApiKeyName(API_KEY_ID);
-
-        verify(apiKeyRepository).findById(API_KEY_ID);
-        assertThat(response).isNull();
-    }
-
-    @Test
     void revokeApiKey_returnsExpectedResponse() {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
-        when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(java.util.Optional.ofNullable(apiKey));
+        when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(Optional.ofNullable(apiKey));
 
         serviceUnderTest.revokeApiKey(API_KEY_ID);
 
         verify(apiKeyRepository).findById(API_KEY_ID);
+        verify(apiKeyRepository).save(apiKey);
         assertThat(apiKey.isRevoked()).isEqualTo(true);
     }
 
@@ -130,20 +123,20 @@ class ApiKeyServiceTest {
     void getApiKeyById_returnsExpectedResponse() {
         when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(java.util.Optional.ofNullable(apiKey));
 
-        final Optional<ApiKey> response = serviceUnderTest.getApiKeyById(API_KEY_ID);
+        final ApiKey response = serviceUnderTest.getApiKeyById(API_KEY_ID);
 
         verify(apiKeyRepository).findById(API_KEY_ID);
-        assertThat(response).isEqualTo(java.util.Optional.of(apiKey));
+        assertThat(response).isEqualTo(apiKey);
     }
 
     @Test
-    void getApiKeyById_doesNotExist() {
+    void getApiKeyById_throwsException() {
         when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(java.util.Optional.empty());
 
-        final Optional<ApiKey> response = serviceUnderTest.getApiKeyById(API_KEY_ID);
-
+        assertThatThrownBy(() -> serviceUnderTest.getApiKeyById(API_KEY_ID))
+                .isInstanceOf(InvalidApiKeyIdException.class)
+                .hasMessage("Invalid API Key Id: " + API_KEY_ID);
         verify(apiKeyRepository).findById(API_KEY_ID);
-        assertThat(response).isEqualTo(java.util.Optional.empty());
     }
 
 }

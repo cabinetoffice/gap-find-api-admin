@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Api keys</title>
-
     <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}" />
 </head>
 
@@ -25,9 +24,7 @@
                             <dt class="govuk-summary-list__key">
                                 Department
                             </dt>
-<!--                            TODO : Replace with department from JWT-->
-                            <dd class="govuk-summary-list__value">
-                                Cabinet Office
+                            <dd class="govuk-summary-list__value" th:text="${departmentName}">
                             </dd>
                         </div>
                     </dl>

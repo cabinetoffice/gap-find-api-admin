@@ -19,11 +19,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,9 +37,6 @@ class ApiKeyControllerTest {
 
     @Mock
     private ApiGatewayService apiGatewayService;
-
-    @Mock
-    private Principal principal;
     
     @Mock
     private SecurityContext securityContext;
@@ -50,7 +47,7 @@ class ApiKeyControllerTest {
     @InjectMocks
     private ApiKeyController controllerUnderTest;
 
-    private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder().id(1).build();
+    private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder().id(1).name("testDepartmentName").build();
     private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
 
     private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
@@ -79,6 +76,7 @@ class ApiKeyControllerTest {
         List<ApiKey> actualApiKeys = (List<ApiKey>) actualResponse.getModel().get("apiKeys");
 
         assertThat(actualResponse.getModel()).containsEntry("apiKeys",expectedApiKeys);
+        assertThat(actualResponse.getModel()).containsEntry("departmentName",fundingOrganisation.getName());
         assertThat(actualApiKeys.get(0).getApiKey()).isEqualTo(apiKey);
     }
 
@@ -142,21 +140,20 @@ class ApiKeyControllerTest {
 
     @Test
     void showRevokeApiKeyPage_showsCorrectView() {
-        when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(java.util.Optional.ofNullable(apiKey));
-        final ModelAndView response = controllerUnderTest.showRevokeApiKeyConfirmation(API_KEY_ID);
-        assertThat(response.getViewName()).isEqualTo(ApiKeyController.REVOKE_API_KEY_CONFIRMATION_PAGE);
-    }
+        when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
 
-    @Test
-    void showRevokeApiKeyPage_apiKeyNotPresent() {
-        when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(java.util.Optional.empty());
         final ModelAndView response = controllerUnderTest.showRevokeApiKeyConfirmation(API_KEY_ID);
-        assertThat(response.getViewName()).isEqualTo("redirect:/api-keys");
+
+        assertThat(response.getViewName()).isEqualTo(ApiKeyController.REVOKE_API_KEY_CONFIRMATION_PAGE);
+        assertThat(response.getModel()).containsEntry("apiKey", apiKey);
     }
 
     @Test
     void revokeApiKeyPost_returnsExpectedResponse() {
         final String response = controllerUnderTest.revokeApiKey(apiKey);
+
+        verify(apiKeyService).revokeApiKey(apiKey.getId());
+        verify(apiGatewayService).deleteApiKey(apiKey.getName());
         assertThat(response).isEqualTo("redirect:/api-keys");
     }
 

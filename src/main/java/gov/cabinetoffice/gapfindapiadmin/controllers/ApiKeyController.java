@@ -14,8 +14,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Optional;
-
 @Controller
 @RequestMapping("/api-keys")
 @RequiredArgsConstructor
@@ -31,10 +29,12 @@ public class ApiKeyController {
 
     @GetMapping
     public ModelAndView showKeys() {
-        GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        ModelAndView mav = new ModelAndView(ORGANISATION_API_KEYS_PAGE);
-        mav.addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()));
-        return mav;
+        final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final String departmentName = grantAdmin.getFunder().getName();
+
+        return new ModelAndView(ORGANISATION_API_KEYS_PAGE)
+                .addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()))
+                .addObject("departmentName", departmentName);
     }
 
     @GetMapping("/create")
@@ -66,20 +66,14 @@ public class ApiKeyController {
 
     @GetMapping("/revoke/{apiKeyId}")
     public ModelAndView showRevokeApiKeyConfirmation(@PathVariable int apiKeyId) {
-        Optional<ApiKey> apiKey = apiKeyService.getApiKeyById(apiKeyId);
-
-        if(!apiKey.isPresent()) {
-            return new ModelAndView("redirect:/api-keys");
-        }
-
-        ModelAndView modelAndView = new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE);
-        modelAndView.addObject("apiKey", apiKey);
-
-        return modelAndView;
+        final ApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
+        return new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
+                .addObject("apiKey", apiKey);
     }
 
     @PostMapping("/revoke")
     public String revokeApiKey(@ModelAttribute ApiKey apiKey) {
+        // TODO: see if we can do this in one transaction
         apiGatewayService.deleteApiKey(apiKey.getName());
         apiKeyService.revokeApiKey(apiKey.getId());
         return "redirect:/api-keys";

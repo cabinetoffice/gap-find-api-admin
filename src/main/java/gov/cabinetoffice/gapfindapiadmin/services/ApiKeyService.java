@@ -1,5 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
+import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
 import gov.cabinetoffice.gapfindapiadmin.models.ApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,26 +30,22 @@ public class ApiKeyService {
     }
 
     public String getApiKeyName(int apiKeyId) {
-        Optional<ApiKey> apiKey = apiKeyRepository.findById(apiKeyId);
-        return apiKey.map(ApiKey::getName).orElse(null);
+        return getApiKeyById(apiKeyId).getName();
     }
 
     public void revokeApiKey(int apiKeyId) {
-        Optional<ApiKey> apiKey = apiKeyRepository.findById(apiKeyId);
+        final ApiKey apiKey = getApiKeyById(apiKeyId);
+        final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if(apiKey.isPresent()) {
-            final ZonedDateTime zonedDateTime = ZonedDateTime.now();
+        apiKey.setRevokedBy(grantAdmin.getGapUser().getId());
+        apiKey.setRevocationDate(ZonedDateTime.now());
+        apiKey.setRevoked(true);
 
-            GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            apiKey.get().setRevokedBy(grantAdmin.getGapUser().getId());
-            apiKey.get().setRevocationDate(zonedDateTime);
-            apiKey.get().setRevoked(true);
-
-            apiKeyRepository.save(apiKey.get());
-        }
+        apiKeyRepository.save(apiKey);
     }
 
-    public Optional<ApiKey> getApiKeyById(int apiKeyId) {
-        return apiKeyRepository.findById(apiKeyId);
+    public ApiKey getApiKeyById(int apiKeyId) {
+        return apiKeyRepository.findById(apiKeyId)
+                .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
     }
 }
