@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "api_key", indexes = {
