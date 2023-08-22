@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
+import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyException;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,9 @@ import software.amazon.awssdk.services.apigateway.model.CreateApiKeyResponse;
 import software.amazon.awssdk.services.apigateway.model.CreateUsagePlanKeyRequest;
 import software.amazon.awssdk.services.apigateway.model.DeleteApiKeyRequest;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.ZonedDateTime;
 
 @Service
@@ -23,8 +27,6 @@ public class ApiGatewayService {
     private final ApiGatewayClient apiGatewayClient;
 
     private final ApiKeyService apiKeyService;
-
-    private final GrantAdminService grantAdminService;
 
     public String createApiKeysInAwsAndDb(String keyName) {
         final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -59,16 +61,37 @@ public class ApiGatewayService {
 
     protected void saveKeyInDatabase(String keyName, CreateApiKeyResponse response, GrantAdmin grantAdmin) {
         //TODO add in some error handling here in case it doesn't save to the db for some reason but we manage to save in aws? Could catch any db exceptions and then delete from aws if it exists.
-        final GapApiKey apiKey = GapApiKey.builder()
-                .apiGatewayId(response.id())
-                .fundingOrganisation(grantAdmin.getFunder())
-                .apiKey(response.value())
-                .name(keyName)
-                .createdDate(ZonedDateTime.now())
-                .isRevoked(false)
-                .build();
 
-        apiKeyService.saveApiKey(apiKey);
+        try {
+            final GapApiKey apiKey = GapApiKey.builder()
+                    .apiGatewayId(response.id())
+                    .fundingOrganisation(grantAdmin.getFunder())
+                    .apiKey(hashString(response.value()))
+                    .name(keyName)
+                    .createdDate(ZonedDateTime.now())
+                    .isRevoked(false)
+                    .build();
+
+            apiKeyService.saveApiKey(apiKey);
+        } catch (NoSuchAlgorithmException e) {
+            throw new ApiKeyException(e);
+        }
+
+    }
+
+    private String hashString(String hashingValue) throws NoSuchAlgorithmException {
+            final MessageDigest md = MessageDigest.getInstance("SHA-512");
+            md.update(hashingValue.getBytes(StandardCharsets.UTF_8));
+            final byte[] hashed = md.digest();
+
+            final StringBuilder hashedStringBuilder = new StringBuilder();
+            for (byte b : hashed) {
+                hashedStringBuilder.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
+            }
+
+            return hashedStringBuilder.toString();
+
+
     }
 
     public void deleteApiKey(GapApiKey apiKey) {
