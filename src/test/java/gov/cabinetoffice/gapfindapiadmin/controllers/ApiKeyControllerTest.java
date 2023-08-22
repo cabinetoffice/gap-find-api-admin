@@ -7,6 +7,7 @@ import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
+import gov.cabinetoffice.gapfindapiadmin.services.FundingOrganisationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,6 +38,9 @@ class ApiKeyControllerTest {
 
     @Mock
     private ApiGatewayService apiGatewayService;
+
+    @Mock
+    private FundingOrganisationService fundingOrganisationService;
     
     @Mock
     private SecurityContext securityContext;

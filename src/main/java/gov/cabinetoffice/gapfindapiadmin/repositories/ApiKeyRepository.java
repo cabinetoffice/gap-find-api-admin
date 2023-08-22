@@ -12,4 +12,6 @@ public interface ApiKeyRepository extends CrudRepository<GapApiKey, Integer> {
     List<GapApiKey> findByFundingOrganisationId(Integer id);
 
     GapApiKey findByName(String name);
+
+    Long countByIsRevokedFalse();
 }

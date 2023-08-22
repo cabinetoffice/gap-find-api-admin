@@ -1,18 +1,29 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.dtos.FilterDTO;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
+import gov.cabinetoffice.gapfindapiadmin.services.FundingOrganisationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 @RequestMapping("/api-keys")
@@ -23,9 +34,11 @@ public class ApiKeyController {
     public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
     public static final String REVOKE_API_KEY_CONFIRMATION_PAGE = "revoke-api-key-confirmation";
     public static final String ERROR_PAGE = "error-page";
+    public static final String SUPER_ADMIN_API_KEYS_PAGE = "super-admin-api-keys";
 
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
+    private final FundingOrganisationService fundingOrganisationService;
 
     @GetMapping
     public ModelAndView showKeys() {
@@ -35,6 +48,30 @@ public class ApiKeyController {
         return new ModelAndView(ORGANISATION_API_KEYS_PAGE)
                 .addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()))
                 .addObject("departmentName", departmentName);
+    }
+
+    @GetMapping("/super-admin")
+    public ModelAndView showKeys(@RequestParam(value = "departments", required = false) List<String> departments,
+                                 @RequestParam(value = "page", required = false) Optional<Integer> page) {
+        final List<GapApiKey> allApiKeys = apiKeyService.getApiKeysForSelectedFundingOrganisations(departments);
+        final List<FilterDTO> allFundingOrganisations = fundingOrganisationService.getAllFundingOrganisationNames(departments); // TODO check if you need to get name for existing keys;
+        final Long activeKeyCount = apiKeyService.getActiveKeyCount(allApiKeys);
+
+        final int currentPage = page.orElse(1);
+        Page<GapApiKey> apiKeysPage =  apiKeyService.findPaginated(PageRequest.of(currentPage - 1, 5), allApiKeys);
+        final int totalPages = apiKeysPage.getTotalPages();
+        List<Integer> pageNumbers = new ArrayList<>();
+        if(totalPages > 0) {
+            pageNumbers = IntStream.rangeClosed(1, totalPages)
+                    .boxed()
+                    .collect(Collectors.toList());
+        }
+
+        return new ModelAndView(SUPER_ADMIN_API_KEYS_PAGE)
+                .addObject("departments", allFundingOrganisations)
+                .addObject("activeKeyCount", activeKeyCount)
+                .addObject("apiKeysPage", apiKeysPage)
+                .addObject("pageNumbers",pageNumbers);
     }
 
     @GetMapping("/create")
