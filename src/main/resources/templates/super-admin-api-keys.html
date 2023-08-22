@@ -71,30 +71,28 @@
                         </tr>
                         </tbody>
                     </table>
-                    <th:block th:if="${apiKeysPage.totalElements > apiKeysPage.size}">
-                        <nav class="govuk-pagination" role="navigation" aria-label="results">
-                            <div class="govuk-pagination__prev">
-                                <a class="govuk-link govuk-pagination__link" href="#" rel="prev">
-                                    <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
-                                        <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
-                                    </svg>
-                                    <span class="govuk-pagination__link-title">Previous</span></a>
-                            </div>
-                            <ul class="govuk-pagination__list">
-                                <li class="govuk-pagination__item">
-                                    <a class="govuk-link govuk-pagination__link" href="#" aria-label="Page 1">
-                                        1
-                                    </a>
-                                </li>
-                            </ul>
-                            <div class="govuk-pagination__next">
-                                <a class="govuk-link govuk-pagination__link" href="#" rel="next"> <span class="govuk-pagination__link-title">Next</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
-                                    <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
-                                </svg></a>
-                            </div>
-                        </nav>
-                        <p class="govuk-body govuk-!-text-align-right">Showing <span class="govuk-!-font-weight-bold" th:text="${apiKeysPage.number * apiKeysPage.size + 1}"></span> to <span class="govuk-!-font-weight-bold" th:text=" ${(apiKeysPage.number * apiKeysPage.size) + #lists.size(apiKeysPage.content)}"></span> of <span class="govuk-!-font-weight-bold" th:text="${apiKeysPage.totalElements + ' keys'}"></span></p>
-                    </th:block>
+                    <nav class="govuk-pagination" role="navigation" aria-label="results" th:if="${apiKeysPage.totalElements > apiKeysPage.size}">
+                        <div class="govuk-pagination__prev" th:if="${apiKeysPage.number > 0}">
+                            <a class="govuk-link govuk-pagination__link" href="#" rel="prev">
+                                <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                    <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
+                                </svg>
+                                <span class="govuk-pagination__link-title">Previous</span></a>
+                        </div>
+                        <ul class="govuk-pagination__list" th:each="pageNumber : ${pageNumbers}">
+                            <li class="govuk-pagination__item" th:classappend="${pageNumber==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumber})}"
+                                   aria-label="Page 1" th:text="${pageNumber}">
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="govuk-pagination__next" th:if="${apiKeysPage.number+1 <  #lists.size(pageNumbers) }">
+                            <a class="govuk-link govuk-pagination__link" href="#" rel="next"> <span class="govuk-pagination__link-title">Next</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
+                            </svg></a>
+                        </div>
+                    </nav>
+                    <p class="govuk-body govuk-!-text-align-right">Showing <span class="govuk-!-font-weight-bold" th:text="${apiKeysPage.number * apiKeysPage.size + 1}"></span> to <span class="govuk-!-font-weight-bold" th:text=" ${(apiKeysPage.number * apiKeysPage.size) + #lists.size(apiKeysPage.content)}"></span> of <span class="govuk-!-font-weight-bold" th:text="${apiKeysPage.totalElements + ' keys'}"></span></p>
                 </th:block>
                 <p th:if="${#lists.isEmpty(apiKeysPage.content)}" class="govuk-body">No one has any API keys yet. When one is created, you will be able to see a list of all API keys, the department it belongs, when it was created and revoke access to them on this screen.</p>
             </div>
