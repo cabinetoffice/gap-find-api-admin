@@ -28,16 +28,6 @@ public class ApiKeyService {
         return apiKeyRepository.findByFundingOrganisationId(fundingOrgId);
     }
 
-    public List<GapApiKey> getApiKeysForSelectedFundingOrganisations(List<String> fundingOrgName) {
-        final List<GapApiKey> gapApiKeys = (List<GapApiKey>) apiKeyRepository.findAll();
-        return Optional.ofNullable(fundingOrgName)
-                .map(names -> gapApiKeys.stream()
-                        .filter(key -> names.contains(key.getFundingOrganisation().getName()))
-                        .collect(Collectors.toList()))
-                .orElse(gapApiKeys);
-    }
-
-
     public void saveApiKey(GapApiKey apiKey) {
         apiKeyRepository.save(apiKey);
     }
@@ -64,6 +54,15 @@ public class ApiKeyService {
     public GapApiKey getApiKeyById(int apiKeyId) {
         return apiKeyRepository.findById(apiKeyId)
                 .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
+    }
+
+    public List<GapApiKey> getApiKeysForSelectedFundingOrganisations(List<String> fundingOrgName) {
+        final List<GapApiKey> gapApiKeys = (List<GapApiKey>) apiKeyRepository.findAll();
+        return Optional.ofNullable(fundingOrgName)
+                .map(names -> gapApiKeys.stream()
+                        .filter(key -> names.contains(key.getFundingOrganisation().getName()))
+                        .collect(Collectors.toList()))
+                .orElse(gapApiKeys);
     }
 
     public Long getActiveKeyCount(List<GapApiKey> gapApiKeys) {

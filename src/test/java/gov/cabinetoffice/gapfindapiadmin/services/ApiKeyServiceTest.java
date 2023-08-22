@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +28,14 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ApiKeyServiceTest {
 
-    private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder().id(1).build();
+    private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder()
+            .id(1)
+            .name("test org")
+            .build();
+    private final FundingOrganisation fundingOrganisation2 = FundingOrganisation.builder()
+            .id(2)
+            .name("Funding org")
+            .build();
     private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
     private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
 
@@ -49,6 +57,15 @@ class ApiKeyServiceTest {
             .id(API_KEY_ID)
             .name("Test API Key name")
             .apiKey("Test API Key")
+            .fundingOrganisation(fundingOrganisation)
+            .isRevoked(false)
+            .build();
+
+    private final GapApiKey apiKey2 = GapApiKey.builder()
+            .id(API_KEY_ID)
+            .name("Test API Key name 2")
+            .apiKey("Test API Key 2")
+            .fundingOrganisation(fundingOrganisation2)
             .isRevoked(false)
             .build();
 
@@ -137,6 +154,27 @@ class ApiKeyServiceTest {
                 .isInstanceOf(InvalidApiKeyIdException.class)
                 .hasMessage("Invalid API Key Id: " + API_KEY_ID);
         verify(apiKeyRepository).findById(API_KEY_ID);
+    }
+
+    @Test
+    void getApiKeysForSelectedFundingOrganisations_noneSelected() {
+        when(apiKeyRepository.findAll()).thenReturn(Collections.singletonList(apiKey));
+
+        final List<GapApiKey> gapApiKeys = serviceUnderTest.getApiKeysForSelectedFundingOrganisations(null);
+
+        verify(apiKeyRepository).findAll();
+        assertThat(gapApiKeys).isEqualTo(Collections.singletonList(apiKey));
+    }
+
+    @Test
+    void getApiKeysForSelectedFundingOrganisations_oneSelected() {
+        final List<String> fundingOrgName = Collections.singletonList("test org");
+        when(apiKeyRepository.findAll()).thenReturn(List.of(apiKey,apiKey2));
+
+        final List<GapApiKey> gapApiKeys = serviceUnderTest.getApiKeysForSelectedFundingOrganisations(fundingOrgName);
+
+        verify(apiKeyRepository).findAll();
+        assertThat(gapApiKeys).isEqualTo(Collections.singletonList(apiKey));
     }
 
 }
