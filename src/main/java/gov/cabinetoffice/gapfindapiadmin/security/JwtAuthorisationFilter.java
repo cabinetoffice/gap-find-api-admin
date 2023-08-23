@@ -29,8 +29,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @RequiredArgsConstructor
 public class JwtAuthorisationFilter extends OncePerRequestFilter {
 
-    private final static String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
-    private final static String TECHNICAL_SUPPORT_ROLE = "TECHNICAL_SUPPORT";
+    private static final String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
+    private static final String TECHNICAL_SUPPORT_ROLE = "TECHNICAL_SUPPORT";
     private final JwtService jwtService;
     private final GrantAdminService grantAdminService;
     private final UserServiceConfig userServiceConfig;

@@ -30,8 +30,8 @@ public class ApiKeyController {
     public static final String REVOKE_API_KEY_CONFIRMATION_PAGE = "revoke-api-key-confirmation";
     public static final String ERROR_PAGE = "error-page";
     public static final String SUPER_ADMIN_PAGE = "super";
-    public final static String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
-    public final static String TECHNICAL_SUPPORT_ROLE = "TECHNICAL_SUPPORT";
+    public static final String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
+    public static final String TECHNICAL_SUPPORT_ROLE = "TECHNICAL_SUPPORT";
 
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;

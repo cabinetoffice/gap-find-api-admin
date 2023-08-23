@@ -92,7 +92,7 @@ class ApiKeyServiceTest {
 
         verify(apiKeyRepository).findById(API_KEY_ID);
         verify(apiKeyRepository).save(apiKey);
-        assertThat(apiKey.isRevoked()).isEqualTo(true);
+        assertThat(apiKey.isRevoked()).isTrue();
     }
 
 
