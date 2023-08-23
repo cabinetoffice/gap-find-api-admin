@@ -7,7 +7,6 @@ import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -47,15 +46,15 @@ public class ApiKeyController {
                 .addObject("departmentName", departmentName);
     }
 
-    @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
     @GetMapping("/create")
+    @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
     public ModelAndView showCreateKeyForm() {
         final ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE);
         return createApiKey.addObject("createApiKeyDTO", new CreateApiKeyDTO());
     }
 
+    @PostMapping("/create")
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
-    @Secured(TECHNICAL_SUPPORT_ROLE)
     public ModelAndView createKey(final @Valid @ModelAttribute CreateApiKeyDTO createApiKeyDTO, final BindingResult bindingResult) {
         if (apiKeyService.doesApiKeyExist(createApiKeyDTO.getKeyName())) {
             final FieldError duplicateKey = new FieldError("createApiKeyDTO",
@@ -81,7 +80,8 @@ public class ApiKeyController {
     public ModelAndView showRevokeApiKeyConfirmation(@PathVariable int apiKeyId) {
         final GapApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
         return new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
-                .addObject("apiKey", apiKey).addObject("backButtonUrl", apiKeyService.generateBackButtonValue());
+                .addObject("apiKey", apiKey)
+                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue());
     }
 
     @PostMapping("/revoke")
