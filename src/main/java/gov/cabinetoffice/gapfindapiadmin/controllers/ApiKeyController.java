@@ -58,7 +58,7 @@ public class ApiKeyController {
         final Long activeKeyCount = apiKeyService.getActiveKeyCount(allApiKeys);
 
         final int currentPage = page.orElse(1);
-        Page<GapApiKey> apiKeysPage =  apiKeyService.findPaginated(PageRequest.of(currentPage - 1, 5), allApiKeys);
+        Page<GapApiKey> apiKeysPage =  apiKeyService.findPaginated(PageRequest.of(currentPage - 1, 1), allApiKeys);
         final int totalPages = apiKeysPage.getTotalPages();
         List<Integer> pageNumbers = new ArrayList<>();
         if(totalPages > 0) {

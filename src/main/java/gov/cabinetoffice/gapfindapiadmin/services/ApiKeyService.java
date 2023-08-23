@@ -86,8 +86,7 @@ public class ApiKeyService {
             paginatedList = apiKeys.subList(startItem, toIndex);
         }
 
-        Page<GapApiKey> apiKeyPage
-                = new PageImpl<GapApiKey>(paginatedList, PageRequest.of(currentPage, pageSize), apiKeys.size());
+        Page<GapApiKey> apiKeyPage = new PageImpl<GapApiKey>(paginatedList, PageRequest.of(currentPage, pageSize), apiKeys.size());
 
         return apiKeyPage;
     }

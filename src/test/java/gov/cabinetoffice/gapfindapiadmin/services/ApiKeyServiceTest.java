@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -160,10 +161,10 @@ class ApiKeyServiceTest {
     void getApiKeysForSelectedFundingOrganisations_noneSelected() {
         when(apiKeyRepository.findAll()).thenReturn(Collections.singletonList(apiKey));
 
-        final List<GapApiKey> gapApiKeys = serviceUnderTest.getApiKeysForSelectedFundingOrganisations(null);
+        final List<GapApiKey> response = serviceUnderTest.getApiKeysForSelectedFundingOrganisations(null);
 
         verify(apiKeyRepository).findAll();
-        assertThat(gapApiKeys).isEqualTo(Collections.singletonList(apiKey));
+        assertThat(response).isEqualTo(Collections.singletonList(apiKey));
     }
 
     @Test
@@ -171,10 +172,35 @@ class ApiKeyServiceTest {
         final List<String> fundingOrgName = Collections.singletonList("test org");
         when(apiKeyRepository.findAll()).thenReturn(List.of(apiKey,apiKey2));
 
-        final List<GapApiKey> gapApiKeys = serviceUnderTest.getApiKeysForSelectedFundingOrganisations(fundingOrgName);
+        final List<GapApiKey> response = serviceUnderTest.getApiKeysForSelectedFundingOrganisations(fundingOrgName);
 
         verify(apiKeyRepository).findAll();
-        assertThat(gapApiKeys).isEqualTo(Collections.singletonList(apiKey));
+        assertThat(response).isEqualTo(Collections.singletonList(apiKey));
     }
+
+    @Test
+    void getActiveKeyCount_forAllKeys() {
+        when(apiKeyRepository.countByIsRevokedFalse()).thenReturn(Long.valueOf(3));
+
+        final Long response = serviceUnderTest.getActiveKeyCount(null);
+
+        verify(apiKeyRepository).countByIsRevokedFalse();
+        assertThat(response).isEqualTo(Long.valueOf(3));
+    }
+
+    @Test
+    void getActiveKeyCount_forAllFilteredKeys() {
+        when(apiKeyRepository.countByIsRevokedFalse()).thenReturn(Long.valueOf(2));
+
+        final Long response = serviceUnderTest.getActiveKeyCount(List.of(apiKey,apiKey2));
+
+        assertThat(response).isEqualTo(Long.valueOf(2));
+    }
+
+//    @Test
+//    void findPaginated_returnApiKeyPage() {
+//        Pageable pageable = Pageable.
+//
+//    }
 
 }
