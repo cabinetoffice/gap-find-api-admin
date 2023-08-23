@@ -13,6 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +24,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,6 +69,11 @@ class ApiKeyControllerTest {
             .apiKey("Test API Key")
             .isRevoked(false)
             .build();
+
+    private final Page<GapApiKey> apiKeyPage = new PageImpl<>(Collections.singletonList(apiKey), PageRequest.of(0, 1), 1);
+    private final List<String> departments = List.of("testDepartmentName","anotherDepartment");
+    private final List<GapApiKey> apiKeyList = List.of(apiKey);
+    private final List<Integer> pageNumbers = List.of(1);
 
     @Test
     @WithMockUser()
@@ -168,6 +177,44 @@ class ApiKeyControllerTest {
     void displayError_showsCorrectView() {
         final ModelAndView response = controllerUnderTest.displayError();
         assertThat(response.getViewName()).isEqualTo(ApiKeyController.ERROR_PAGE);
+    }
+
+    @Test
+    void superAdminShowKeys_showsCorrectViewWithRequestParams() {
+        final List<String> selectedDepartments = List.of("testDepartmentName");
+
+        when(apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartments))
+                .thenReturn(apiKeyList);
+        when(fundingOrganisationService.getAllFundingOrganisationNames()).thenReturn(departments);
+        when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));
+        when(apiKeyService.findPaginated(PageRequest.of(0, 1),Collections.singletonList(apiKey))).thenReturn(apiKeyPage);
+
+        final ModelAndView response = controllerUnderTest.showKeys(selectedDepartments, java.util.Optional.of(1));
+
+        assertThat(response.getViewName()).isEqualTo(ApiKeyController.SUPER_ADMIN_API_KEYS_PAGE);
+        assertThat(response.getModel()).containsEntry("departments", departments);
+        assertThat(response.getModel()).containsEntry("activeKeyCount", 1L);
+        assertThat(response.getModel()).containsEntry("apiKeysPage", apiKeyPage);
+        assertThat(response.getModel()).containsEntry("pageNumbers", pageNumbers);
+        assertThat(response.getModel()).containsEntry("selectedDepartments", selectedDepartments);
+    }
+
+    @Test
+    void superAdminShowKeys_showsCorrectViewNoRequestParams() {
+        when(apiKeyService.getApiKeysForSelectedFundingOrganisations(null))
+                .thenReturn(apiKeyList);
+        when(fundingOrganisationService.getAllFundingOrganisationNames()).thenReturn(departments);
+        when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));
+        when(apiKeyService.findPaginated(PageRequest.of(0, 1),Collections.singletonList(apiKey))).thenReturn(apiKeyPage);
+
+        final ModelAndView response = controllerUnderTest.showKeys(null, java.util.Optional.empty());
+
+        assertThat(response.getViewName()).isEqualTo(ApiKeyController.SUPER_ADMIN_API_KEYS_PAGE);
+        assertThat(response.getModel()).containsEntry("departments", departments);
+        assertThat(response.getModel()).containsEntry("activeKeyCount", 1L);
+        assertThat(response.getModel()).containsEntry("apiKeysPage", apiKeyPage);
+        assertThat(response.getModel()).containsEntry("pageNumbers", pageNumbers);
+        assertThat(response.getModel()).containsEntry("selectedDepartments", Collections.EMPTY_LIST);
     }
 
 }

@@ -11,6 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -48,6 +51,9 @@ class ApiKeyServiceTest {
 
     @Mock
     private ApiKeyRepository apiKeyRepository;
+
+    @Mock
+    private Pageable pageable;
 
     @InjectMocks
     private ApiKeyService serviceUnderTest;
@@ -197,10 +203,15 @@ class ApiKeyServiceTest {
         assertThat(response).isEqualTo(Long.valueOf(2));
     }
 
-//    @Test
-//    void findPaginated_returnApiKeyPage() {
-//        Pageable pageable = Pageable.
-//
-//    }
+    @Test
+    void findPaginated_returnApiKeyPage() {
+        final Page<GapApiKey> apiKeyPage = new PageImpl<>(Collections.singletonList(apiKey), PageRequest.of(0, 1), 1);
+        when(pageable.getPageSize()).thenReturn(1);
+        when(pageable.getPageNumber()).thenReturn(0);
+
+        final Page<GapApiKey> response = serviceUnderTest.findPaginated(pageable, Collections.singletonList(apiKey));
+
+        assertThat(response).isEqualTo(apiKeyPage);
+    }
 
 }

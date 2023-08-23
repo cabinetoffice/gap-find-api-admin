@@ -56,9 +56,9 @@ public class ApiKeyService {
                 .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
     }
 
-    public List<GapApiKey> getApiKeysForSelectedFundingOrganisations(List<String> fundingOrgName) {
+    public List<GapApiKey> getApiKeysForSelectedFundingOrganisations(List<String> selectedFundingOrgName) {
         final List<GapApiKey> gapApiKeys = (List<GapApiKey>) apiKeyRepository.findAll();
-        return Optional.ofNullable(fundingOrgName)
+        return Optional.ofNullable(selectedFundingOrgName)
                 .map(names -> gapApiKeys.stream()
                         .filter(key -> names.contains(key.getFundingOrganisation().getName()))
                         .collect(Collectors.toList()))
@@ -74,9 +74,9 @@ public class ApiKeyService {
     }
 
     public Page<GapApiKey> findPaginated(Pageable pageable, List<GapApiKey> apiKeys) {
-        int pageSize = pageable.getPageSize();
-        int currentPage = pageable.getPageNumber();
-        int startItem = currentPage * pageSize;
+        final int pageSize = pageable.getPageSize();
+        final int currentPage = pageable.getPageNumber();
+        final int startItem = currentPage * pageSize;
         List<GapApiKey> paginatedList;
 
         if (apiKeys.size() < startItem) {
@@ -86,8 +86,7 @@ public class ApiKeyService {
             paginatedList = apiKeys.subList(startItem, toIndex);
         }
 
-        Page<GapApiKey> apiKeyPage = new PageImpl<GapApiKey>(paginatedList, PageRequest.of(currentPage, pageSize), apiKeys.size());
+        return new PageImpl<>(paginatedList, PageRequest.of(currentPage, pageSize), apiKeys.size());
 
-        return apiKeyPage;
     }
 }

@@ -14,4 +14,6 @@ public interface ApiKeyRepository extends CrudRepository<GapApiKey, Integer> {
     GapApiKey findByName(String name);
 
     Long countByIsRevokedFalse();
+
+
 }

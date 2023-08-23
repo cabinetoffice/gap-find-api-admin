@@ -1,7 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
-import gov.cabinetoffice.gapfindapiadmin.dtos.FilterDTO;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
@@ -51,10 +50,10 @@ public class ApiKeyController {
     }
 
     @GetMapping("/super-admin")
-    public ModelAndView showKeys(@RequestParam(value = "departments", required = false) List<String> departments,
+    public ModelAndView showKeys(@RequestParam(value = "selectedDepartments", required = false) List<String> selectedDepartment,
                                  @RequestParam(value = "page", required = false) Optional<Integer> page) {
-        final List<GapApiKey> allApiKeys = apiKeyService.getApiKeysForSelectedFundingOrganisations(departments);
-        final List<FilterDTO> allFundingOrganisations = fundingOrganisationService.getAllFundingOrganisationNames(departments); // TODO check if you need to get name for existing keys;
+        final List<GapApiKey> allApiKeys = apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartment);
+        final List<String> allFundingOrganisations = fundingOrganisationService.getAllFundingOrganisationNames(); // TODO check if you need to get name for existing keys;
         final Long activeKeyCount = apiKeyService.getActiveKeyCount(allApiKeys);
 
         final int currentPage = page.orElse(1);
@@ -71,7 +70,8 @@ public class ApiKeyController {
                 .addObject("departments", allFundingOrganisations)
                 .addObject("activeKeyCount", activeKeyCount)
                 .addObject("apiKeysPage", apiKeysPage)
-                .addObject("pageNumbers",pageNumbers);
+                .addObject("pageNumbers",pageNumbers)
+                .addObject("selectedDepartments", selectedDepartment==null? Collections.EMPTY_LIST : selectedDepartment);
     }
 
     @GetMapping("/create")

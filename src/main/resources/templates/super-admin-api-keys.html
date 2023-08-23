@@ -21,11 +21,11 @@
 <!--                   TODO: check action-->
                    <form th:action="@{/api-keys/super-admin}" method="get" novalidate>
                        <div class="govuk-form-group govuk-!-margin-bottom-2">
-                           <fieldset class="govuk-fieldset" > <!-- TODO: remove this fieldset? -->
+                           <fieldset class="govuk-fieldset" >
                                <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
                                    <div class="govuk-checkboxes__item" th:each="department : ${departments}">
-                                       <input class="govuk-checkboxes__input" th:name="departments" th:id="${department.name}" type="checkbox" th:checked="${department.isSelected}" th:value="${department.name}">
-                                       <label class="govuk-label govuk-checkboxes__label" th:for="${department.name}" th:text="${department.name}">
+                                       <input class="govuk-checkboxes__input" th:name="selectedDepartments" th:id="${department}" type="checkbox" th:checked="${selectedDepartments.empty} ? 'false' : ${#lists.contains(selectedDepartments, department)}" th:value="${department}">
+                                       <label class="govuk-label govuk-checkboxes__label" th:for="${department}" th:text="${department}">
                                        </label>
                                    </div>
                                </div>
@@ -71,26 +71,20 @@
                         </tr>
                         </tbody>
                     </table>
-                    <p th:text="${apiKeysPage.totalElements}"></p>
-                    <p th:text="${apiKeysPage.size}"></p>
-                    <p th:text="${#lists.size(pageNumbers)}"></p>
-                    <p th:text="${pageNumbers[1]}"></p>
-                    <p th:text="${apiKeysPage.number+1}"></p>
 
                     <nav class="govuk-pagination" role="navigation" aria-label="results" th:if="${apiKeysPage.totalElements > apiKeysPage.size}">
                         <div class="govuk-pagination__prev" th:if="${apiKeysPage.number > 0}">
-                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${apiKeysPage.number})}" rel="prev">
+                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${apiKeysPage.number},selectedDepartments=${selectedDepartments})}" rel="prev">
                                 <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
                                     <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
                                 </svg>
                                 <span class="govuk-pagination__link-title">Previous</span></a>
                         </div>
-
 <!--                            if 5 or less then no ellipses-->
                             <th:block th:if="${#lists.size(pageNumbers) < 6}">
                                 <ul class="govuk-pagination__list" th:each="pageNumber : ${pageNumbers}">
                                     <li class="govuk-pagination__item" th:classappend="${pageNumber==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
-                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumber})}"
+                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumber},selectedDepartments=${selectedDepartments})}"
                                            aria-label="Page 1" th:text="${pageNumber}">
                                         </a>
                                     </li>
@@ -100,21 +94,21 @@
                             <th:block th:if="${#lists.size(pageNumbers)>7 && apiKeysPage.number+1 > 4 && apiKeysPage.number+1 <= #lists.size(pageNumbers) -3 }"> <!-- do if statement -->
                                 <ul class="govuk-pagination__list">
                                     <li class="govuk-pagination__item" th:classappend="${pageNumbers[0]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
-                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[0]})}"
+                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[0]},selectedDepartments=${selectedDepartments})}"
                                            aria-label="Page 1" th:text="${pageNumbers[0]}">
                                         </a>
                                     </li>
                                     <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
                                     <th:block th:each="i: ${#numbers.sequence(apiKeysPage.number-1, apiKeysPage.number+1)}">
                                         <li class="govuk-pagination__item" th:classappend="${pageNumbers[i]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
-                                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[i]})}"
+                                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[i]},selectedDepartments=${selectedDepartments})}"
                                                aria-label="Page 1" th:text="${pageNumbers[i]}">
                                             </a>
                                         </li>
                                     </th:block>
                                     <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
                                     <li class="govuk-pagination__item" th:classappend="${pageNumbers[#lists.size(pageNumbers)-1]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
-                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[#lists.size(pageNumbers)-1]})}"
+                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[#lists.size(pageNumbers)-1]},selectedDepartments=${selectedDepartments})}"
                                            aria-label="Page 1" th:text="${pageNumbers[#lists.size(pageNumbers)-1]}">
                                         </a>
                                     </li>
@@ -125,14 +119,14 @@
                                 <ul class="govuk-pagination__list">
                                     <th:block th:each="i: ${#numbers.sequence(0, apiKeysPage.number+1)}">
                                         <li class="govuk-pagination__item" th:classappend="${pageNumbers[i]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
-                                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[i]})}"
+                                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[i]},selectedDepartments=${selectedDepartments})}"
                                                aria-label="Page 1" th:text="${pageNumbers[i]}">
                                             </a>
                                         </li>
                                     </th:block>
                                     <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
                                     <li class="govuk-pagination__item" th:classappend="${pageNumbers[#lists.size(pageNumbers)-1]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
-                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[#lists.size(pageNumbers)-1]})}"
+                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[#lists.size(pageNumbers)-1]},selectedDepartments=${selectedDepartments})}"
                                            aria-label="Page 1" th:text="${pageNumbers[#lists.size(pageNumbers)-1]}">
                                         </a>
                                     </li>
@@ -142,14 +136,14 @@
                         <th:block th:if="${#lists.size(pageNumbers) > 5 && apiKeysPage.number + 1 > #lists.size(pageNumbers) - 3 }">
                             <ul class="govuk-pagination__list">
                                 <li class="govuk-pagination__item" th:classappend="${pageNumbers[0]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
-                                    <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[0]})}"
+                                    <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[0]},selectedDepartments=${selectedDepartments})}"
                                        aria-label="Page 1" th:text="${pageNumbers[0]}">
                                     </a>
                                 </li>
                                 <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
                                 <th:block th:each="i: ${#numbers.sequence(apiKeysPage.number-1, #lists.size(pageNumbers)-1)}">
                                     <li class="govuk-pagination__item" th:classappend="${pageNumbers[i]==apiKeysPage.number+1} ? 'govuk-pagination__item--current ' : ''" >
-                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[i]})}"
+                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${pageNumbers[i]},selectedDepartments=${selectedDepartments})}"
                                            aria-label="Page 1" th:text="${pageNumbers[i]}">
                                         </a>
                                     </li>
@@ -157,9 +151,8 @@
                             </ul>
                         </th:block>
 
-
                         <div class="govuk-pagination__next" th:if="${apiKeysPage.number+1 <  #lists.size(pageNumbers) }">
-                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${apiKeysPage.number+2})}"  rel="next"> <span class="govuk-pagination__link-title">Next</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/super-admin(page=${apiKeysPage.number+2},selectedDepartments=${selectedDepartments})}"  rel="next"> <span class="govuk-pagination__link-title">Next</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
                                 <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
                             </svg></a>
                         </div>
