@@ -155,7 +155,7 @@ class ApiKeyServiceTest {
     void isSuperAdmin_returnTrueWhenUserIsASuperAdmin() {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
-        boolean actual = serviceUnderTest.isSuperAdmin();
+        final boolean actual = serviceUnderTest.isSuperAdmin();
         assertThat(actual).isTrue();
     }
 
@@ -163,7 +163,7 @@ class ApiKeyServiceTest {
     void isSuperAdmin_returnFalseWhenUserIsASuperAdmin() {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
-        boolean actual = serviceUnderTest.isSuperAdmin();
+        final boolean actual = serviceUnderTest.isSuperAdmin();
         assertThat(actual).isFalse();
     }
 

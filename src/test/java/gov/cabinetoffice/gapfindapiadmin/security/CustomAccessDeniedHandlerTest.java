@@ -31,7 +31,7 @@ class CustomAccessDeniedHandlerTest {
 
     @Test
     void testHandleAccessDenied() throws IOException, ServletException {
-        AccessDeniedException accessDeniedException = new AccessDeniedException("Access Denied");
+        final AccessDeniedException accessDeniedException = new AccessDeniedException("Access Denied");
 
         when(request.getContextPath()).thenReturn("/app-context");
         doNothing().when(response).sendRedirect("/app-context/api-keys/error");
