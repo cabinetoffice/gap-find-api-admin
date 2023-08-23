@@ -5,7 +5,9 @@ import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
@@ -14,6 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
+@EnableWebSecurity
+@EnableMethodSecurity()
 public class SecurityConfig {
 
     private static final String[] WHITE_LIST = {
@@ -22,6 +26,7 @@ public class SecurityConfig {
             "/js/**"
     };
     private final JwtAuthorisationFilter jwtAuthorisationFilter;
+
 
     public SecurityConfig(final JwtService jwtService, final GrantAdminService grantAdminService, UserServiceConfig userServiceConfig) {
         this.jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, grantAdminService, userServiceConfig);
@@ -43,7 +48,10 @@ public class SecurityConfig {
                         request.anyRequest()
                                 .authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
-                .addFilterBefore(jwtAuthorisationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthorisationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling
+                                .accessDeniedHandler(new CustomAccessDeniedHandler()));
 
         return http.build();
     }
