@@ -59,7 +59,7 @@ public class ApiKeyService {
         return "/api-keys";
     }
 
-    private boolean isSuperAdmin(){
+    protected boolean isSuperAdmin(){
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(SUPER_ADMIN_ROLE));
     }

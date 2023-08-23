@@ -2,6 +2,7 @@ package gov.cabinetoffice.gapfindapiadmin.controllers.controller_advice;
 
 
 import gov.cabinetoffice.gapfindapiadmin.controllers.ApiKeyController;
+import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyException;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,23 +17,29 @@ import java.sql.SQLException;
         assignableTypes = {ApiKeyController.class})
 public class ControllerExceptionsHandler extends ResponseEntityExceptionHandler {
 
+    public final static String ERROR_PAGE_REDIRECT = "redirect:/api-keys/error";
     @ExceptionHandler(value = {ApiGatewayException.class})
     public String handleException(ApiGatewayException ex, WebRequest request) {
-        return "redirect:/api-keys/error";
+        return ERROR_PAGE_REDIRECT;
     }
 
     @ExceptionHandler(value = {SQLException.class})
     public String handleException(SQLException ex, WebRequest request) {
-        return "redirect:/api-keys/error";
+        return ERROR_PAGE_REDIRECT;
+    }
+
+    @ExceptionHandler(value = {ApiKeyException.class})
+    public String handleException(ApiKeyException ex, WebRequest request) {
+        return ERROR_PAGE_REDIRECT;
     }
 
     @ExceptionHandler(value = {InvalidApiKeyIdException.class})
     public String handleException(InvalidApiKeyIdException ex, WebRequest request) {
-        return "redirect:/api-keys/error";
+        return ERROR_PAGE_REDIRECT;
     }
 
     @ExceptionHandler(value = {NotFoundException.class})
     public String handleException(NotFoundException ex, WebRequest request) {
-        return "redirect:/api-keys/error";
+        return ERROR_PAGE_REDIRECT;
     }
 }

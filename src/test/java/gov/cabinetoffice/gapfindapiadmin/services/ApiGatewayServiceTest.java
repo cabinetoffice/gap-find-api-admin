@@ -17,8 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import software.amazon.awssdk.services.apigateway.ApiGatewayClient;
 import software.amazon.awssdk.services.apigateway.model.*;
 
-import java.security.DigestException;
-import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -128,7 +126,6 @@ class ApiGatewayServiceTest {
         assertThat(actualApiKey.getApiKey()).isNotEqualTo(apiKeyValue);
 
     }
-
     private void prepareAuthentication() {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
