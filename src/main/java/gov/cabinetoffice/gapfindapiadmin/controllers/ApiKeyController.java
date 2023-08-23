@@ -98,7 +98,7 @@ public class ApiKeyController {
         return new ModelAndView(ERROR_PAGE).addObject("backButtonUrl", apiKeyService.generateBackButtonValue());
     }
 
-    @GetMapping("/super-admin")
+    @GetMapping("/manage")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ModelAndView displaySuperAdminPage() {
         return new ModelAndView(SUPER_ADMIN_PAGE);
