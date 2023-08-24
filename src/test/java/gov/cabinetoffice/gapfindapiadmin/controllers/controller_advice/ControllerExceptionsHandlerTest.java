@@ -1,5 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers.controller_advice;
 
+import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyException;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,7 @@ import software.amazon.awssdk.services.apigateway.model.NotFoundException;
 
 import java.sql.SQLException;
 
+import static gov.cabinetoffice.gapfindapiadmin.controllers.controller_advice.ControllerExceptionsHandler.ERROR_PAGE_REDIRECT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,6 +25,8 @@ class ControllerExceptionsHandlerTest {
     @Mock
     private SQLException sqlException;
 
+    @Mock
+    private ApiKeyException apiKeyException;
     @Mock
     private InvalidApiKeyIdException invalidApiKeyIdException;
 
@@ -40,7 +44,7 @@ class ControllerExceptionsHandlerTest {
         final String responseEntity = controllerExceptionsHandler.handleException(apiGatewayException,
                 webRequest);
 
-        assertThat(responseEntity).isEqualTo("redirect:/api-keys/error");
+        assertThat(responseEntity).isEqualTo(ERROR_PAGE_REDIRECT);
     }
 
     @Test
@@ -48,7 +52,15 @@ class ControllerExceptionsHandlerTest {
         final String responseEntity = controllerExceptionsHandler.handleException(sqlException,
                 webRequest);
 
-        assertThat(responseEntity).isEqualTo("redirect:/api-keys/error");
+        assertThat(responseEntity).isEqualTo(ERROR_PAGE_REDIRECT);
+    }
+
+    @Test
+    void testHandleException_ApiKeyException() {
+        final String responseEntity = controllerExceptionsHandler.handleException(apiKeyException,
+                webRequest);
+
+        assertThat(responseEntity).isEqualTo(ERROR_PAGE_REDIRECT);
     }
 
     @Test
@@ -56,7 +68,7 @@ class ControllerExceptionsHandlerTest {
         final String responseEntity = controllerExceptionsHandler.handleException(invalidApiKeyIdException,
                 webRequest);
 
-        assertThat(responseEntity).isEqualTo("redirect:/api-keys/error");
+        assertThat(responseEntity).isEqualTo(ERROR_PAGE_REDIRECT);
     }
 
     @Test
@@ -64,7 +76,7 @@ class ControllerExceptionsHandlerTest {
         final String responseEntity = controllerExceptionsHandler.handleException(notFoundException,
                 webRequest);
 
-        assertThat(responseEntity).isEqualTo("redirect:/api-keys/error");
+        assertThat(responseEntity).isEqualTo(ERROR_PAGE_REDIRECT);
     }
 
 }

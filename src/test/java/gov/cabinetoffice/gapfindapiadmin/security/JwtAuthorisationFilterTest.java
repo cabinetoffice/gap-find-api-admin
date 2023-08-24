@@ -112,7 +112,7 @@ class JwtAuthorisationFilterTest {
 
         assertThatExceptionOfType(UnauthorizedException.class)
                 .isThrownBy(() -> jwtAuthorisationFilter.doFilterInternal(request, response, filterChain))
-                .withMessage("User is not a technical support user");
+                .withMessage("User does not have the required roles to access this resource");
     }
 
 }

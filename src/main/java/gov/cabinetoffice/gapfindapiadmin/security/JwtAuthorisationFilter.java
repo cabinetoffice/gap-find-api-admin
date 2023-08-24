@@ -29,10 +29,11 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @RequiredArgsConstructor
 public class JwtAuthorisationFilter extends OncePerRequestFilter {
 
+    private static final String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
+    private static final String TECHNICAL_SUPPORT_ROLE = "TECHNICAL_SUPPORT";
     private final JwtService jwtService;
     private final GrantAdminService grantAdminService;
     private final UserServiceConfig userServiceConfig;
-
 
     @Override
     public void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
@@ -43,15 +44,17 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
         final DecodedJWT decodedJWT = this.jwtService.verifyToken(customJWTCookie.getValue());
 
         final JwtPayload jwtPayload = this.jwtService.getPayloadFromJwt(decodedJWT);
+        final boolean isSuperAdmin = jwtPayload.getRoles().contains(SUPER_ADMIN_ROLE);
 
-        if (!jwtPayload.getRoles().contains("TECHNICAL_SUPPORT")) {
-            throw new UnauthorizedException("User is not a technical support user");
+        if (!jwtPayload.getRoles().contains(TECHNICAL_SUPPORT_ROLE) && !isSuperAdmin) {
+            throw new UnauthorizedException("User does not have the required roles to access this resource");
         }
-
+        final SimpleGrantedAuthority simpleGrantedAuthority = isSuperAdmin ? new SimpleGrantedAuthority(SUPER_ADMIN_ROLE) : new SimpleGrantedAuthority(TECHNICAL_SUPPORT_ROLE);
         final GrantAdmin grantAdmin = this.grantAdminService.getGrantAdminForUser(jwtPayload.getSub());
 
+
         final Authentication auth = new UsernamePasswordAuthenticationToken(grantAdmin, null,
-                Collections.singletonList(new SimpleGrantedAuthority("TECHNICAL_SUPPORT")));
+                Collections.singletonList(simpleGrantedAuthority));
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         filterChain.doFilter(request, response);

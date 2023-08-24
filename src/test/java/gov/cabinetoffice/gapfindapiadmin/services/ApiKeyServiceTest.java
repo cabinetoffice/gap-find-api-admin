@@ -11,14 +11,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +47,13 @@ class ApiKeyServiceTest {
             .build();
     private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
     private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
-
+    private final Integer API_KEY_ID = 1;
+    private final GapApiKey apiKey = GapApiKey.builder()
+            .id(API_KEY_ID)
+            .name("Test API Key name")
+            .apiKey("Test API Key")
+            .isRevoked(false)
+            .build();
     @Mock
     private SecurityContext securityContext;
 
@@ -110,16 +121,14 @@ class ApiKeyServiceTest {
 
     @Test
     void revokeApiKey_returnsExpectedResponse() {
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
+        setSecurityContext();
         when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(Optional.ofNullable(apiKey));
 
         serviceUnderTest.revokeApiKey(API_KEY_ID);
 
         verify(apiKeyRepository).findById(API_KEY_ID);
         verify(apiKeyRepository).save(apiKey);
-        assertThat(apiKey.isRevoked()).isEqualTo(true);
+        assertThat(apiKey.isRevoked()).isTrue();
     }
 
     @Test
@@ -161,6 +170,48 @@ class ApiKeyServiceTest {
                 .isInstanceOf(InvalidApiKeyIdException.class)
                 .hasMessage("Invalid API Key Id: " + API_KEY_ID);
         verify(apiKeyRepository).findById(API_KEY_ID);
+    }
+
+    @Test
+    void generateBackButtonValue_returnExpectedWhenUserIsASuperAdmin() {
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
+        assertThat(serviceUnderTest.generateBackButtonValue()).isEqualTo("/api-keys/super-admin");
+    }
+
+    @Test
+    void generateBackButtonValue_returnExpectedWhenUserIsATechnicalSupport() {
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        assertThat(serviceUnderTest.generateBackButtonValue()).isEqualTo("/api-keys");
+    }
+
+    @Test
+    void isSuperAdmin_returnTrueWhenUserIsASuperAdmin() {
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
+        final boolean actual = serviceUnderTest.isSuperAdmin();
+        assertThat(actual).isTrue();
+    }
+
+    @Test
+    void isSuperAdmin_returnFalseWhenUserIsASuperAdmin() {
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        final boolean actual = serviceUnderTest.isSuperAdmin();
+        assertThat(actual).isFalse();
+    }
+
+    private Authentication createAuthenticationWithRoles(String role) {
+        Collection<GrantedAuthority> authorities = new HashSet<>();
+        authorities.add(new SimpleGrantedAuthority(role));
+        return new UsernamePasswordAuthenticationToken("username", "password", authorities);
+    }
+
+    private void setSecurityContext() {
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
     }
 
     @Test
@@ -224,5 +275,4 @@ class ApiKeyServiceTest {
         verify(apiKeyRepository).findByUniqueFundingOrganisationNames();
         assertThat(response).isEqualTo(orgNames);
     }
-
 }

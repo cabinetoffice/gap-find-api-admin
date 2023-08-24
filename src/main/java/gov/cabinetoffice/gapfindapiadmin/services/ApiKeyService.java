@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static gov.cabinetoffice.gapfindapiadmin.controllers.ApiKeyController.SUPER_ADMIN_ROLE;
+
 @Service
 @RequiredArgsConstructor
 public class ApiKeyService {
@@ -54,6 +56,19 @@ public class ApiKeyService {
     public GapApiKey getApiKeyById(int apiKeyId) {
         return apiKeyRepository.findById(apiKeyId)
                 .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
+    }
+
+    //TODO change those return values
+    public String generateBackButtonValue(){
+        if(isSuperAdmin()){
+            return "/api-keys/super-admin";
+        }
+        return "/api-keys";
+    }
+
+    protected boolean isSuperAdmin(){
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals(SUPER_ADMIN_ROLE));
     }
 
     public List<GapApiKey> getApiKeysForSelectedFundingOrganisations(List<String> selectedFundingOrgName) {
@@ -93,4 +108,5 @@ public class ApiKeyService {
     public List<String> getFundingOrgForAllApiKeys() {
         return apiKeyRepository.findByUniqueFundingOrganisationNames();
     }
+
 }

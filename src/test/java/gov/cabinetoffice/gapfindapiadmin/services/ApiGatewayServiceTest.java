@@ -110,6 +110,22 @@ class ApiGatewayServiceTest {
         verify(apiKeyService).saveApiKey(any(GapApiKey.class));
     }
 
+    @Test
+    void saveKeyInDatabase_confirmKeyIsHashed() {
+        String apiKeyValue = "apiKeyValue";
+        ArgumentCaptor<GapApiKey> apiKeyArgumentCaptor = ArgumentCaptor.forClass(GapApiKey.class);
+
+        SecurityContextHolder.setContext(securityContext);
+        CreateApiKeyResponse apiKeyRequest = CreateApiKeyResponse.builder().name(API_KEY_NAME).value(apiKeyValue).build();
+
+        apiGatewayService.saveKeyInDatabase(API_KEY_NAME, apiKeyRequest, grantAdmin);
+        verify(apiKeyService).saveApiKey(apiKeyArgumentCaptor.capture());
+
+        GapApiKey actualApiKey = apiKeyArgumentCaptor.getValue();
+
+        assertThat(actualApiKey.getApiKey()).isNotEqualTo(apiKeyValue);
+
+    }
     private void prepareAuthentication() {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
