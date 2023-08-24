@@ -54,7 +54,7 @@ public class ApiKeyService {
     //TODO change those return values 
     public String generateBackButtonValue(){
         if(isSuperAdmin()){
-            return "/api-keys/super-admin";
+            return "/api-keys/manage";
         }
         return "/api-keys";
     }
