@@ -5,7 +5,6 @@ import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
-import gov.cabinetoffice.gapfindapiadmin.services.FundingOrganisationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,7 +36,6 @@ public class ApiKeyController {
 
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
-    private final FundingOrganisationService fundingOrganisationService;
 
     @GetMapping
     public ModelAndView showKeys() {
@@ -53,18 +51,17 @@ public class ApiKeyController {
     public ModelAndView showKeys(@RequestParam(value = "selectedDepartments", required = false) List<String> selectedDepartment,
                                  @RequestParam(value = "page", required = false) Optional<Integer> page) {
         final List<GapApiKey> allApiKeys = apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartment);
-        final List<String> allFundingOrganisations = fundingOrganisationService.getAllFundingOrganisationNames(); // TODO check if you need to get name for existing keys;
+        final List<String> allFundingOrganisations = apiKeyService.getFundingOrgForAllApiKeys();
         final Long activeKeyCount = apiKeyService.getActiveKeyCount(allApiKeys);
 
         final int currentPage = page.orElse(1);
-        Page<GapApiKey> apiKeysPage =  apiKeyService.findPaginated(PageRequest.of(currentPage - 1, 1), allApiKeys);
+        final Page<GapApiKey> apiKeysPage =  apiKeyService.findPaginated(PageRequest.of(currentPage - 1, 10), allApiKeys);
         final int totalPages = apiKeysPage.getTotalPages();
-        List<Integer> pageNumbers = new ArrayList<>();
-        if(totalPages > 0) {
-            pageNumbers = IntStream.rangeClosed(1, totalPages)
-                    .boxed()
-                    .collect(Collectors.toList());
-        }
+        final List<Integer> pageNumbers = totalPages > 0 ?
+                IntStream.rangeClosed(1, totalPages)
+                .boxed()
+                .collect(Collectors.toList()) : new ArrayList<>();
+
 
         return new ModelAndView(SUPER_ADMIN_API_KEYS_PAGE)
                 .addObject("departments", allFundingOrganisations)

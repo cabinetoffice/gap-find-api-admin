@@ -214,4 +214,15 @@ class ApiKeyServiceTest {
         assertThat(response).isEqualTo(apiKeyPage);
     }
 
+    @Test
+    void getFundingOrgForAllApiKeys_returnsUniqueKeys() {
+        final List<String> orgNames = List.of("test org");
+        when(apiKeyRepository.findByUniqueFundingOrganisationNames()).thenReturn(orgNames);
+
+        final List<String> response = serviceUnderTest.getFundingOrgForAllApiKeys();
+
+        verify(apiKeyRepository).findByUniqueFundingOrganisationNames();
+        assertThat(response).isEqualTo(orgNames);
+    }
+
 }

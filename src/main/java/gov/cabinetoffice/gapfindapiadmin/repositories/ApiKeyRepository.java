@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.repositories;
 
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +15,9 @@ public interface ApiKeyRepository extends CrudRepository<GapApiKey, Integer> {
     GapApiKey findByName(String name);
 
     Long countByIsRevokedFalse();
+
+    @Query("select distinct fundingOrganisation.name from GapApiKey")
+    List<String> findByUniqueFundingOrganisationNames();
 
 
 }

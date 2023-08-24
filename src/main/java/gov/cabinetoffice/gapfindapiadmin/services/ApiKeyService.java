@@ -89,4 +89,8 @@ public class ApiKeyService {
         return new PageImpl<>(paginatedList, PageRequest.of(currentPage, pageSize), apiKeys.size());
 
     }
+
+    public List<String> getFundingOrgForAllApiKeys() {
+        return apiKeyRepository.findByUniqueFundingOrganisationNames();
+    }
 }

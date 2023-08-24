@@ -7,7 +7,6 @@ import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
-import gov.cabinetoffice.gapfindapiadmin.services.FundingOrganisationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -42,9 +41,6 @@ class ApiKeyControllerTest {
 
     @Mock
     private ApiGatewayService apiGatewayService;
-
-    @Mock
-    private FundingOrganisationService fundingOrganisationService;
     
     @Mock
     private SecurityContext securityContext;
@@ -185,9 +181,9 @@ class ApiKeyControllerTest {
 
         when(apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartments))
                 .thenReturn(apiKeyList);
-        when(fundingOrganisationService.getAllFundingOrganisationNames()).thenReturn(departments);
+        when(apiKeyService.getFundingOrgForAllApiKeys()).thenReturn(departments);
         when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));
-        when(apiKeyService.findPaginated(PageRequest.of(0, 1),Collections.singletonList(apiKey))).thenReturn(apiKeyPage);
+        when(apiKeyService.findPaginated(PageRequest.of(0, 10),Collections.singletonList(apiKey))).thenReturn(apiKeyPage);
 
         final ModelAndView response = controllerUnderTest.showKeys(selectedDepartments, java.util.Optional.of(1));
 
@@ -201,11 +197,10 @@ class ApiKeyControllerTest {
 
     @Test
     void superAdminShowKeys_showsCorrectViewNoRequestParams() {
-        when(apiKeyService.getApiKeysForSelectedFundingOrganisations(null))
-                .thenReturn(apiKeyList);
-        when(fundingOrganisationService.getAllFundingOrganisationNames()).thenReturn(departments);
+        when(apiKeyService.getApiKeysForSelectedFundingOrganisations(null)).thenReturn(apiKeyList);
+        when(apiKeyService.getFundingOrgForAllApiKeys()).thenReturn(departments);
         when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));
-        when(apiKeyService.findPaginated(PageRequest.of(0, 1),Collections.singletonList(apiKey))).thenReturn(apiKeyPage);
+        when(apiKeyService.findPaginated(PageRequest.of(0, 10),Collections.singletonList(apiKey))).thenReturn(apiKeyPage);
 
         final ModelAndView response = controllerUnderTest.showKeys(null, java.util.Optional.empty());
 
