@@ -141,7 +141,7 @@ class ApiKeyServiceTest {
     void generateBackButtonValue_returnExpectedWhenUserIsASuperAdmin() {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
-        assertThat(serviceUnderTest.generateBackButtonValue()).isEqualTo("/api-keys/super-admin");
+        assertThat(serviceUnderTest.generateBackButtonValue()).isEqualTo("/api-keys/manage");
     }
 
     @Test
