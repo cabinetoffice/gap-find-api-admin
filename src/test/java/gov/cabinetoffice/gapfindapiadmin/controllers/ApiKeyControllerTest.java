@@ -186,9 +186,9 @@ class ApiKeyControllerTest {
         when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));
         when(apiKeyService.findPaginated(PageRequest.of(0, 10),Collections.singletonList(apiKey))).thenReturn(apiKeyPage);
 
-        final ModelAndView response = controllerUnderTest.showKeys(selectedDepartments, java.util.Optional.of(1));
+        final ModelAndView response = controllerUnderTest.displaySuperAdminPage(selectedDepartments, java.util.Optional.of(1));
 
-        assertThat(response.getViewName()).isEqualTo(ApiKeyController.SUPER_ADMIN_API_KEYS_PAGE);
+        assertThat(response.getViewName()).isEqualTo(ApiKeyController.SUPER_ADMIN_PAGE);
         assertThat(response.getModel()).containsEntry("departments", departments);
         assertThat(response.getModel()).containsEntry("activeKeyCount", 1L);
         assertThat(response.getModel()).containsEntry("apiKeysPage", apiKeyPage);
@@ -203,9 +203,9 @@ class ApiKeyControllerTest {
         when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));
         when(apiKeyService.findPaginated(PageRequest.of(0, 10),Collections.singletonList(apiKey))).thenReturn(apiKeyPage);
 
-        final ModelAndView response = controllerUnderTest.showKeys(null, java.util.Optional.empty());
+        final ModelAndView response = controllerUnderTest.displaySuperAdminPage(null, java.util.Optional.empty());
 
-        assertThat(response.getViewName()).isEqualTo(ApiKeyController.SUPER_ADMIN_API_KEYS_PAGE);
+        assertThat(response.getViewName()).isEqualTo(ApiKeyController.SUPER_ADMIN_PAGE);
         assertThat(response.getModel()).containsEntry("departments", departments);
         assertThat(response.getModel()).containsEntry("activeKeyCount", 1L);
         assertThat(response.getModel()).containsEntry("apiKeysPage", apiKeyPage);

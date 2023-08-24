@@ -11,22 +11,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -45,30 +41,9 @@ class ApiKeyServiceTest {
             .id(2)
             .name("Funding org")
             .build();
+
     private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
     private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
-    private final Integer API_KEY_ID = 1;
-    private final GapApiKey apiKey = GapApiKey.builder()
-            .id(API_KEY_ID)
-            .name("Test API Key name")
-            .apiKey("Test API Key")
-            .isRevoked(false)
-            .build();
-    @Mock
-    private SecurityContext securityContext;
-
-    @Mock
-    private Authentication authentication;
-
-    @Mock
-    private ApiKeyRepository apiKeyRepository;
-
-    @Mock
-    private Pageable pageable;
-
-    @InjectMocks
-    private ApiKeyService serviceUnderTest;
-
     private final Integer API_KEY_ID = 1;
 
     private final GapApiKey apiKey = GapApiKey.builder()
@@ -86,6 +61,20 @@ class ApiKeyServiceTest {
             .fundingOrganisation(fundingOrganisation2)
             .isRevoked(false)
             .build();
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private Authentication authentication;
+
+    @Mock
+    private ApiKeyRepository apiKeyRepository;
+
+    @Mock
+    private Pageable pageable;
+
+    @InjectMocks
+    private ApiKeyService serviceUnderTest;
 
     @Test
     void getApiKeysForFundingOrganisation_resultsReturned() {

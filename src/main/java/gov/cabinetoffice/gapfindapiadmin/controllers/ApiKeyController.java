@@ -14,11 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
@@ -37,7 +33,7 @@ public class ApiKeyController {
     public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
     public static final String REVOKE_API_KEY_CONFIRMATION_PAGE = "revoke-api-key-confirmation";
     public static final String ERROR_PAGE = "error-page";
-    public static final String SUPER_ADMIN_PAGE = "super";
+    public static final String SUPER_ADMIN_PAGE = "super-admin-api-keys";
     public static final String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
     public static final String TECHNICAL_SUPPORT_ROLE = "TECHNICAL_SUPPORT";
 
@@ -53,30 +49,6 @@ public class ApiKeyController {
         return new ModelAndView(ORGANISATION_API_KEYS_PAGE)
                 .addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()))
                 .addObject("departmentName", departmentName);
-    }
-
-    @GetMapping("/super-admin")
-    public ModelAndView showKeys(@RequestParam(value = "selectedDepartments", required = false) List<String> selectedDepartment,
-                                 @RequestParam(value = "page", required = false) Optional<Integer> page) {
-        final List<GapApiKey> allApiKeys = apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartment);
-        final List<String> allFundingOrganisations = apiKeyService.getFundingOrgForAllApiKeys();
-        final Long activeKeyCount = apiKeyService.getActiveKeyCount(allApiKeys);
-
-        final int currentPage = page.orElse(1);
-        final Page<GapApiKey> apiKeysPage =  apiKeyService.findPaginated(PageRequest.of(currentPage - 1, 10), allApiKeys);
-        final int totalPages = apiKeysPage.getTotalPages();
-        final List<Integer> pageNumbers = totalPages > 0 ?
-                IntStream.rangeClosed(1, totalPages)
-                .boxed()
-                .collect(Collectors.toList()) : new ArrayList<>();
-
-
-        return new ModelAndView(SUPER_ADMIN_API_KEYS_PAGE)
-                .addObject("departments", allFundingOrganisations)
-                .addObject("activeKeyCount", activeKeyCount)
-                .addObject("apiKeysPage", apiKeysPage)
-                .addObject("pageNumbers",pageNumbers)
-                .addObject("selectedDepartments", selectedDepartment==null? Collections.EMPTY_LIST : selectedDepartment);
     }
 
     @GetMapping("/create")
@@ -133,7 +105,26 @@ public class ApiKeyController {
 
     @GetMapping("/manage")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ModelAndView displaySuperAdminPage() {
-        return new ModelAndView(SUPER_ADMIN_PAGE);
+    public ModelAndView displaySuperAdminPage(@RequestParam(value = "selectedDepartments", required = false) List<String> selectedDepartment,
+                                 @RequestParam(value = "page", required = false) Optional<Integer> page) {
+        final List<GapApiKey> allApiKeys = apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartment);
+        final List<String> allFundingOrganisations = apiKeyService.getFundingOrgForAllApiKeys();
+        final Long activeKeyCount = apiKeyService.getActiveKeyCount(allApiKeys);
+
+        final int currentPage = page.orElse(1);
+        final Page<GapApiKey> apiKeysPage =  apiKeyService.findPaginated(PageRequest.of(currentPage - 1, 10), allApiKeys);
+        final int totalPages = apiKeysPage.getTotalPages();
+        final List<Integer> pageNumbers = totalPages > 0 ?
+                IntStream.rangeClosed(1, totalPages)
+                        .boxed()
+                        .collect(Collectors.toList()) : new ArrayList<>();
+
+
+        return new ModelAndView(SUPER_ADMIN_PAGE)
+                .addObject("departments", allFundingOrganisations)
+                .addObject("activeKeyCount", activeKeyCount)
+                .addObject("apiKeysPage", apiKeysPage)
+                .addObject("pageNumbers",pageNumbers)
+                .addObject("selectedDepartments", selectedDepartment==null? Collections.EMPTY_LIST : selectedDepartment);
     }
 }
