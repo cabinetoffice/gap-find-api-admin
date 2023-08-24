@@ -5,11 +5,13 @@ import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
+@Component
 public class PaginationHelper {
 
     private final ApiKeyService apiKeyService;
