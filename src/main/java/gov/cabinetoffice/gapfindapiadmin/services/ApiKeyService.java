@@ -13,10 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static gov.cabinetoffice.gapfindapiadmin.controllers.ApiKeyController.SUPER_ADMIN_ROLE;
 
@@ -58,7 +56,6 @@ public class ApiKeyService {
                 .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
     }
 
-    //TODO change those return values
     public String generateBackButtonValue(){
         if(isSuperAdmin()){
             return "/api-keys/manage";
@@ -76,7 +73,7 @@ public class ApiKeyService {
         return Optional.ofNullable(selectedFundingOrgName)
                 .map(names -> gapApiKeys.stream()
                         .filter(key -> names.contains(key.getFundingOrganisation().getName()))
-                        .collect(Collectors.toList()))
+                        .toList())
                 .orElse(gapApiKeys);
     }
 
@@ -95,7 +92,7 @@ public class ApiKeyService {
         List<GapApiKey> paginatedList;
 
         if (apiKeys.size() < startItem) {
-            paginatedList = Collections.emptyList();
+            paginatedList = List.of();
         } else {
             int toIndex = Math.min(startItem + pageSize, apiKeys.size());
             paginatedList = apiKeys.subList(startItem, toIndex);

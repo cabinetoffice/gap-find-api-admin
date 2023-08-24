@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.helpers.PaginationHelper;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
@@ -26,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,6 +50,9 @@ class ApiKeyControllerTest {
 
     @Mock
     private Authentication authentication;
+
+    @Mock
+    private PaginationHelper paginationHelper;
 
     @InjectMocks
     private ApiKeyController controllerUnderTest;
@@ -184,9 +190,10 @@ class ApiKeyControllerTest {
                 .thenReturn(apiKeyList);
         when(apiKeyService.getFundingOrgForAllApiKeys()).thenReturn(departments);
         when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));
-        when(apiKeyService.findPaginated(PageRequest.of(0, 10),Collections.singletonList(apiKey))).thenReturn(apiKeyPage);
+        when(paginationHelper.getGapApiKeysPage(apiKeyList,1)).thenReturn(apiKeyPage);
+        when(paginationHelper.getNumberOfPages(apiKeyPage.getTotalPages())).thenReturn(List.of(1));
 
-        final ModelAndView response = controllerUnderTest.displaySuperAdminPage(selectedDepartments, java.util.Optional.of(1));
+        final ModelAndView response = controllerUnderTest.displaySuperAdminPage(selectedDepartments, of(1));
 
         assertThat(response.getViewName()).isEqualTo(ApiKeyController.SUPER_ADMIN_PAGE);
         assertThat(response.getModel()).containsEntry("departments", departments);
@@ -201,16 +208,17 @@ class ApiKeyControllerTest {
         when(apiKeyService.getApiKeysForSelectedFundingOrganisations(null)).thenReturn(apiKeyList);
         when(apiKeyService.getFundingOrgForAllApiKeys()).thenReturn(departments);
         when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));
-        when(apiKeyService.findPaginated(PageRequest.of(0, 10),Collections.singletonList(apiKey))).thenReturn(apiKeyPage);
+        when(paginationHelper.getGapApiKeysPage(apiKeyList,1)).thenReturn(apiKeyPage);
+        when(paginationHelper.getNumberOfPages(apiKeyPage.getTotalPages())).thenReturn(List.of(1));
 
-        final ModelAndView response = controllerUnderTest.displaySuperAdminPage(null, java.util.Optional.empty());
+        final ModelAndView response = controllerUnderTest.displaySuperAdminPage(null, empty());
 
         assertThat(response.getViewName()).isEqualTo(ApiKeyController.SUPER_ADMIN_PAGE);
         assertThat(response.getModel()).containsEntry("departments", departments);
         assertThat(response.getModel()).containsEntry("activeKeyCount", 1L);
         assertThat(response.getModel()).containsEntry("apiKeysPage", apiKeyPage);
         assertThat(response.getModel()).containsEntry("pageNumbers", pageNumbers);
-        assertThat(response.getModel()).containsEntry("selectedDepartments", Collections.EMPTY_LIST);
+        assertThat(response.getModel()).containsEntry("selectedDepartments", List.of());
     }
 
 }

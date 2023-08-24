@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.helpers.PaginationHelper;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
@@ -8,7 +9,6 @@ import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -17,12 +17,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Controller
 @RequestMapping("/api-keys")
@@ -35,10 +31,10 @@ public class ApiKeyController {
     public static final String ERROR_PAGE = "error-page";
     public static final String SUPER_ADMIN_PAGE = "super-admin-api-keys";
     public static final String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
-    public static final String TECHNICAL_SUPPORT_ROLE = "TECHNICAL_SUPPORT";
 
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
+    private final PaginationHelper paginationHelper;
 
     @GetMapping
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
@@ -108,23 +104,19 @@ public class ApiKeyController {
     public ModelAndView displaySuperAdminPage(@RequestParam(value = "selectedDepartments", required = false) List<String> selectedDepartment,
                                  @RequestParam(value = "page", required = false) Optional<Integer> page) {
         final List<GapApiKey> allApiKeys = apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartment);
-        final List<String> allFundingOrganisations = apiKeyService.getFundingOrgForAllApiKeys();
-        final Long activeKeyCount = apiKeyService.getActiveKeyCount(allApiKeys);
-
         final int currentPage = page.orElse(1);
-        final int pageSize = 10;
-        final Page<GapApiKey> apiKeysPage =  apiKeyService.findPaginated(PageRequest.of(currentPage - 1, pageSize), allApiKeys);
-        final int totalPages = apiKeysPage.getTotalPages();
-        final List<Integer> pageNumbers = totalPages > 0 ?
-                IntStream.rangeClosed(1, totalPages)
-                        .boxed()
-                        .collect(Collectors.toList()) : new ArrayList<>();
+        final Page<GapApiKey> apiKeysPage = paginationHelper.getGapApiKeysPage(allApiKeys, currentPage);
+
 
         return new ModelAndView(SUPER_ADMIN_PAGE)
-                .addObject("departments", allFundingOrganisations)
-                .addObject("activeKeyCount", activeKeyCount)
+                .addObject("departments", apiKeyService.getFundingOrgForAllApiKeys())
+                .addObject("activeKeyCount", apiKeyService.getActiveKeyCount(allApiKeys))
                 .addObject("apiKeysPage", apiKeysPage)
-                .addObject("pageNumbers",pageNumbers)
-                .addObject("selectedDepartments", selectedDepartment==null? Collections.EMPTY_LIST : selectedDepartment);
+                .addObject("pageNumbers", paginationHelper.getNumberOfPages(apiKeysPage.getTotalPages()))
+                .addObject("selectedDepartments", selectedDepartment==null? List.of() : selectedDepartment);
     }
+
+
+
+
 }

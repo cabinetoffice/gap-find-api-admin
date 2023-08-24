@@ -255,6 +255,17 @@ class ApiKeyServiceTest {
     }
 
     @Test
+    void findPaginated_returnEmptyList() {
+        final Page<GapApiKey> apiKeyPage = new PageImpl<>(List.of(), PageRequest.of(1, 1), 0);
+        when(pageable.getPageSize()).thenReturn(1);
+        when(pageable.getPageNumber()).thenReturn(1);
+
+        final Page<GapApiKey> response = serviceUnderTest.findPaginated(pageable, List.of());
+
+        assertThat(response).isEqualTo(apiKeyPage);
+    }
+
+    @Test
     void getFundingOrgForAllApiKeys_returnsUniqueKeys() {
         final List<String> orgNames = List.of("test org");
         when(apiKeyRepository.findByUniqueFundingOrganisationNames()).thenReturn(orgNames);
