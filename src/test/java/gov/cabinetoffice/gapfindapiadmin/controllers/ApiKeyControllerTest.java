@@ -177,7 +177,7 @@ class ApiKeyControllerTest {
     }
 
     @Test
-    void superAdminShowKeys_showsCorrectViewWithRequestParams() {
+    void displaySuperAdminPage_showsCorrectViewWithRequestParams() {
         final List<String> selectedDepartments = List.of("testDepartmentName");
 
         when(apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartments))
@@ -197,7 +197,7 @@ class ApiKeyControllerTest {
     }
 
     @Test
-    void superAdminShowKeys_showsCorrectViewNoRequestParams() {
+    void displaySuperAdminPage_showsCorrectViewNoRequestParams() {
         when(apiKeyService.getApiKeysForSelectedFundingOrganisations(null)).thenReturn(apiKeyList);
         when(apiKeyService.getFundingOrgForAllApiKeys()).thenReturn(departments);
         when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));

@@ -112,13 +112,13 @@ public class ApiKeyController {
         final Long activeKeyCount = apiKeyService.getActiveKeyCount(allApiKeys);
 
         final int currentPage = page.orElse(1);
-        final Page<GapApiKey> apiKeysPage =  apiKeyService.findPaginated(PageRequest.of(currentPage - 1, 10), allApiKeys);
+        final int pageSize = 10;
+        final Page<GapApiKey> apiKeysPage =  apiKeyService.findPaginated(PageRequest.of(currentPage - 1, pageSize), allApiKeys);
         final int totalPages = apiKeysPage.getTotalPages();
         final List<Integer> pageNumbers = totalPages > 0 ?
                 IntStream.rangeClosed(1, totalPages)
                         .boxed()
                         .collect(Collectors.toList()) : new ArrayList<>();
-
 
         return new ModelAndView(SUPER_ADMIN_PAGE)
                 .addObject("departments", allFundingOrganisations)
