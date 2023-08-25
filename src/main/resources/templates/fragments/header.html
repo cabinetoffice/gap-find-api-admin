@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-    <div th:fragment="header">
+    <div th:fragment="header" data-cy="header">
         <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
 
         <header class="govuk-header " role="banner" data-module="govuk-header">
@@ -41,7 +41,7 @@
             </div>
         </header>
 
-        <nav>
+        <nav data-cy="beta-banner">
             <div class="govuk-width-container">
                 <div class="govuk-phase-banner">
                     <div class="govuk-grid-row">
