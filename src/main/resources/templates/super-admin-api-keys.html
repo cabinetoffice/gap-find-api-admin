@@ -13,29 +13,30 @@
     <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
         <div class="govuk-grid-row">
            <div class="govuk-grid-column-one-third">
-               <h1 class="govuk-heading-l govuk-!-margin-bottom-2">Manage API keys</h1>
-               <p class="govuk-body govuk-!-margin-bottom-2"><span class="govuk-!-font-weight-bold" th:text="${activeKeyCount}"></span> active API keys</p>
+               <h1 class="govuk-heading-l govuk-!-margin-bottom-2" th:data-cy="admin-dashboard-heading">Manage API keys</h1>
+               <p class="govuk-body govuk-!-margin-bottom-2" th:data-cy="admin-dashboard-active-key-count"><span class="govuk-!-font-weight-bold" th:text="${activeKeyCount}" ></span> active API keys</p>
                <hr class="govuk-section-break govuk-!-margin-bottom-2 govuk-section-break--visible">
                <th:block th:if="${!departments.empty}">
-                   <h2 class="govuk-heading-m govuk-!-margin-bottom-2">Department</h2>
+                   <h2 class="govuk-heading-m govuk-!-margin-bottom-2" th:data-cy="admin-dashboard-filter-department-heading">Department</h2>
                    <form th:action="@{/api-keys/manage}" method="get" novalidate>
                        <div class="govuk-form-group govuk-!-margin-bottom-2">
                            <fieldset class="govuk-fieldset" >
                                <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
-                                   <div class="govuk-checkboxes__item" th:each="department : ${departments}">
-                                       <input class="govuk-checkboxes__input" th:name="selectedDepartments" th:id="${department}" type="checkbox" th:checked="${selectedDepartments.empty} ? 'false' : ${#lists.contains(selectedDepartments, department)}" th:value="${department}">
-                                       <label class="govuk-label govuk-checkboxes__label" th:for="${department}" th:text="${department}">
+                                   <div class="govuk-checkboxes__item" th:each="department : ${departments}" th:data-cy="admin-dashboard-filter-departments-div">
+                                       <input class="govuk-checkboxes__input" th:name="selectedDepartments" th:id="${department}" type="checkbox" th:checked="${selectedDepartments.empty} ? 'false' : ${#lists.contains(selectedDepartments, department)}" th:value="${department}" th:data-cy="'admin-dashboard-filter-' + ${department} + '-checkbox'">
+
+                                       <label class="govuk-label govuk-checkboxes__label" th:for="${department}" th:text="${department}" th:data-cy="'admin-dashboard-filter-' + ${department} + '-label'">
                                        </label>
                                    </div>
                                </div>
                            </fieldset>
                        </div>
                        <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-4">
-                       <button class="govuk-button govuk-!-margin-bottom-4" data-module="govuk-button">
+                       <button class="govuk-button govuk-!-margin-bottom-4" data-module="govuk-button" th:data-cy="admin-dashboard-filter-apply-button">
                            Apply filters
                        </button>
                        <hr class="govuk-section-break">
-                       <a th:href="@{/api-keys/manage}" role="button" draggable="false" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-module="govuk-button">
+                       <a th:href="@{/api-keys/manage}" role="button" draggable="false" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-module="govuk-button" th:data-cy="admin-dashboard-filter-clear-button">
                            Clear all filters
                        </a>
                        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
@@ -46,32 +47,32 @@
                 <th:block th:if="${!#lists.isEmpty(apiKeysPage.content)}">
                     <table class="govuk-table govuk-!-margin-bottom-2">
                         <thead class="govuk-table__head">
-                        <tr class="govuk-table__row">
-                            <th scope="col" class="govuk-table__header">API key</th>
-                            <th scope="col" class="govuk-table__header">Department</th>
-                            <th scope="col" class="govuk-table__header">Created</th>
-                            <th scope="col" class="govuk-table__header">Revoke</th>
+                        <tr class="govuk-table__row" th:data-cy="admin-dashboard-list-table-headers">
+                            <th scope="col" class="govuk-table__header" th:data-cy="admin-dashboard-list-table-API-key-header">API key</th>
+                            <th scope="col" class="govuk-table__header" th:data-cy="admin-dashboard-list-table-Department-header">Department</th>
+                            <th scope="col" class="govuk-table__header" th:data-cy="admin-dashboard-list-table-Created-header">Created</th>
+                            <th scope="col" class="govuk-table__header" th:data-cy="admin-dashboard-list-table-Revoke-header" >Revoke</th>
                         </tr>
                         </thead>
-                        <tbody class="govuk-table__body">
-                        <tr class="govuk-table__row" th:each="apiKey : ${apiKeysPage.content}">
-                            <td class="govuk-table__cell" th:text="${apiKey.name}"></td>
+                        <tbody class="govuk-table__body" th:data-cy="admin-dashboard-list-table-body">
+                        <tr class="govuk-table__row" th:each="apiKey : ${apiKeysPage.content}" >
+                            <td class="govuk-table__cell" th:text="${apiKey.name}" th:data-cy="'admin-dashboard-list-table-row-API-key-' + ${apiKey.name}"></td>
                             <th:block th:object="${apiKey.fundingOrganisation}">
-                                <td class="govuk-table__cell" th:text="*{name}"></td>
+                                <td class="govuk-table__cell" th:text="*{name}" th:data-cy="'admin-dashboard-list-table-row-Department-' + ${apiKey.name}"></td>
                             </th:block>
-                            <td class="govuk-table__cell" th:text=" ${#temporals.format(apiKey.createdDate, 'd MMMM yyyy')}"></td>
+                            <td class="govuk-table__cell" th:text=" ${#temporals.format(apiKey.createdDate, 'd MMMM yyyy')}" th:data-cy="'admin-dashboard-list-table-row-Created-' + ${apiKey.name}"></td>
                             <td class="govuk-table__cell" th:if="${!apiKey.isRevoked}" >
-                                <a class="govuk-link govuk-link--no-visited-state" th:href="@{'/api-keys/revoke/' + ${apiKey.id}}">
+                                <a class="govuk-link govuk-link--no-visited-state" th:href="@{'/api-keys/revoke/' + ${apiKey.id}}" th:data-cy="'admin-dashboard-list-table-row-Revoked-' + ${apiKey.name} + '-link'">
                                     Revoke<span class="govuk-visually-hidden"> API key</span>
                                 </a>
                             </td>
-                            <td class="govuk-table__cell govuk-hint" th:if="${apiKey.isRevoked}" th:text=" ${#temporals.format(apiKey.revocationDate, 'd MMMM yyyy')}">
+                            <td class="govuk-table__cell govuk-hint" th:if="${apiKey.isRevoked}" th:text=" ${#temporals.format(apiKey.revocationDate, 'd MMMM yyyy')}" th:data-cy="'admin-dashboard-list-table-row-Revoked-' + ${apiKey.name} + '-date'">
                             </td>
                         </tr>
                         </tbody>
                     </table>
 
-                    <nav class="govuk-pagination" role="navigation" aria-label="results" th:if="${apiKeysPage.totalElements > apiKeysPage.size}">
+                    <nav class="govuk-pagination" role="navigation" aria-label="results" th:if="${apiKeysPage.totalElements > apiKeysPage.size}" th:data-cy="admin-dashboard-pagination-bar">
                         <div class="govuk-pagination__prev" th:if="${apiKeysPage.number > 0}">
                             <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${apiKeysPage.number},selectedDepartments=${selectedDepartments})}" rel="prev">
                                 <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
@@ -158,7 +159,7 @@
                     </nav>
                     <p class="govuk-body govuk-!-text-align-right">Showing <span class="govuk-!-font-weight-bold" th:text="${apiKeysPage.number * apiKeysPage.size + 1}"></span> to <span class="govuk-!-font-weight-bold" th:text=" ${(apiKeysPage.number * apiKeysPage.size) + #lists.size(apiKeysPage.content)}"></span> of <span class="govuk-!-font-weight-bold" th:text="${apiKeysPage.totalElements + ' keys'}"></span></p>
                 </th:block>
-                <p th:if="${#lists.isEmpty(apiKeysPage.content)}" class="govuk-body">No one has any API keys yet. When one is created, you will be able to see a list of all API keys, the department it belongs, when it was created and revoke access to them on this screen.</p>
+                <p th:if="${#lists.isEmpty(apiKeysPage.content)}" class="govuk-body" th:data-cy="admin-dashboard-no-api-key-paragraph">No one has any API keys yet. When one is created, you will be able to see a list of all API keys, the department it belongs, when it was created and revoke access to them on this screen.</p>
             </div>
         </div>
     </main>

@@ -1,10 +1,96 @@
-describe('template spec', () => {
-  beforeEach(() => {
-   const superAdminToken =
-'eyJraWQiOiJlN2QzZjk0OS01MzdkLTQxMDItODcwNy0wY2NhZDIwYzBjNDAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ1cm46ZmRjOmdvdi51azoyMDIyOmZrRlMwTVFQWFdpN3FnRTNVdm53amIyMUJBRXQxVGQyMEQwYzRJUE95S2ciLCJhdWQiOiJGR1AiLCJyb2xlcyI6IltBUFBMSUNBTlQsIEZJTkQsIFRFQ0hOSUNBTF9TVVBQT1JULCBTVVBFUl9BRE1JTl0iLCJpZFRva2VuIjoiZXlKcmFXUWlPaUkyTkRSaFpqVTVPR0kzT0RCbU5UUXhNRFpqWVRCbU0yTXdNVGN6TkRGaVl6SXpNR00wWmpnek56Tm1NelZtTXpKbE1UaGxNMlUwTUdOak4yRmpabVkySWl3aVlXeG5Jam9pUlZNeU5UWWlmUS5leUpoZEY5b1lYTm9Jam9pY1RVd1VrNTRkVWxaUWs4NVRIaFZOVE5PUTFseWR5SXNJbk4xWWlJNkluVnlianBtWkdNNloyOTJMblZyT2pJd01qSTZabXRHVXpCTlVWQllWMmszY1dkRk0xVjJibmRxWWpJeFFrRkZkREZVWkRJd1JEQmpORWxRVDNsTFp5SXNJbUYxWkNJNkltUjNXWFV4TlU5eWVVeHVTRjlDUjFaWVZXWlJTVE5WWXpNM1ZTSXNJbWx6Y3lJNkltaDBkSEJ6T2k4dmIybGtZeTVwYm5SbFozSmhkR2x2Ymk1aFkyTnZkVzUwTG1kdmRpNTFheThpTENKMmIzUWlPaUpEYkM1RGJTSXNJbVY0Y0NJNk1UWTVNamsyT1RjME1Td2lhV0YwSWpveE5qa3lPVFk1TmpJeExDSnViMjVqWlNJNklrWTNNbVp5YkVwT1lqbHVaVEpwTkdSSGNrbEJUQzEyY0dKMmFVUkZRbXBqZWxvMWMwa3lkazlRY0hKR1RuQk1Uems0UVZkU2NFeElaVXAxZWpNNE9Yb2lMQ0oyZEcwaU9pSm9kSFJ3Y3pvdkwyOXBaR011YVc1MFpXZHlZWFJwYjI0dVlXTmpiM1Z1ZEM1bmIzWXVkV3N2ZEhKMWMzUnRZWEpySWl3aWMybGtJam9pZUU1WGRHcGFNbmhIYUhka2NERTNZVlpGUjBwNFQyUjVOMVZWSW4wLnc5U0pheFlYNnYtdlhjbXlVbDRjZGpFdlAtMkVpZzZHY0RkbHdvajJIOWxCU0x5Yko5RVY2UDZSNkJLczgyZmhnMVFMY1NReDk1cm9vcjQ3cHBmZkx3IiwiaXNzIjoiaHR0cHM6Ly9zYW5kYm94LWdhcC5zZXJ2aWNlLmNhYmluZXRvZmZpY2UuZ292LnVrL2FwcGx5L3VzZXIiLCJkZXBhcnRtZW50IjoiQ2FiaW5ldCBPZmZpY2UiLCJleHAiOjE2OTI5NzMyMjIsImlhdCI6MTY5Mjk2OTYyMiwiZW1haWwiOiJhbnRvbmlvLmxvcnVzc29AYW5kLmRpZ2l0YWwiLCJqdGkiOiJhODdkZTRjMy1jM2MyLTRlOTgtODEwYi03MGI5OGQ0ZWJjYmYifQ.JPZGL-ikJ11rpGmMowBzGSDXxZGaj_ewOsJv5fYU-cH9P-qpr7wRBs9pdCOmu-C8q8AYmfAWcTwYO_Ruz-9fsjGnxkltzdsDv3e94AjhlQ4BibAmfPj4PncULwTX_Rn9vgUwA5lNiizCA-4NpJu8Y23l0LhsySk3LNwoG985utzL63V_K5YzOymHO8sYRRvOu9_w3fOmPI27EvG6QMSUgAmZYlnu6mVwLhcRLa0KX7HejvBDkfblqWub-BKNsCakVRsY-B1xTrOmoM6_L0mawwxHr767yi91oHWp9ab7WZGC618MvFAwjWNKDDHT9kagkK0bkXc3g0t8aRHFruqGjg'
-   cy.setCookie('user-service-token', superAdminToken);
+describe('Super Admin Journey', () => {
+  // it('should show No keys message when no apiKeys are present', () => {
+  //   cy.setMockTokenForSuperAdmin();
+  //   cy.visit('http://localhost:8084/find/api/admin/api-keys/manage');
+  //   cy.get('[data-cy="header"]').should('be.visible');
+  //   cy.get(`[data-cy="beta-banner"]`).should('be.visible');
+  //   cy.get(`[data-cy="admin-dashboard-heading"]`).should('be.visible').should('have.text', 'Manage API keys');
+  //   cy.get(`[data-cy="admin-dashboard-active-key-count"]`)
+  //     .should('be.visible')
+  //     .should('have.text', '0 active API keys');
+  //   cy.get(`[data-cy="admin-dashboard-no-api-key-paragraph"]`)
+  //     .should('be.visible')
+  //     .should(
+  //       'have.text',
+  //       'No one has any API keys yet. When one is created, you will be able to see a list of all API keys, the department it belongs, when it was created and revoke access to them on this screen.'
+  //     );
+  //   cy.get(`[data-cy="footer"]`).should('be.visible');
+  // });
+
+  // it('creates keys for superAdmin test', () => {
+  //   create55KeyForFUndingOrganisation1();
+  //   create55KeyForFUndingOrganisation2();
+  // });
+
+  it('should show 110 keys and 2 organisation in the filters', () => {
+    cy.setMockTokenForSuperAdmin();
+    cy.visit('http://localhost:8084/find/api/admin/api-keys/manage');
+
+    //Check filter side
+    cy.get(`[data-cy="admin-dashboard-heading"]`).should('be.visible').should('have.text', 'Manage API keys');
+    cy.get(`[data-cy="admin-dashboard-active-key-count"]`)
+      .should('be.visible')
+      .should('have.text', '110 active API keys');
+    cy.get('[data-cy="admin-dashboard-filter-departments-div"]')
+      .should('be.visible')
+      .find('input[type="checkbox"]')
+      .should('have.length', 2);
+    cy.get(`[data-cy="admin-dashboard-filter-Evil Org-checkbox"]`).should('not.be.checked');
+    cy.get(`[data-cy="admin-dashboard-filter-Evil Org-label"]`).should('have.text', 'Evil Org');
+    cy.get(`[data-cy="admin-dashboard-filter-Test Org-checkbox"]`).should('not.be.checked');
+    cy.get(`[data-cy="admin-dashboard-filter-Test Org-label"]`).should('have.text', 'Test Org');
+    cy.get(`[data-cy="admin-dashboard-filter-apply-button"]`).should('be.visible');
+    cy.get(`[data-cy="admin-dashboard-filter-clear-button"]`).should('be.visible');
+    const today = new Date().toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+    //check table side
+
+    //headers
+    cy.get('[data-cy="admin-dashboard-list-table-headers"]').should('be.visible').find('th').should('have.length', 4);
+    cy.get(`[data-cy="admin-dashboard-list-table-API-key-header"]`).should('have.text', 'API key');
+    cy.get(`[data-cy="admin-dashboard-list-table-Department-header"]`).should('have.text', 'Department');
+    cy.get(`[data-cy="admin-dashboard-list-table-Created-header"]`).should('have.text', 'Created');
+    cy.get(`[data-cy="admin-dashboard-list-table-Revoke-header"]`).should('have.text', 'Revoke');
+
+    //rows
+    cy.get(`[data-cy="admin-dashboard-list-table-body"]`).should('be.visible').find('tr').should('have.length', 10);
+    //first 10 single rows content
+    checkFirst10RowsContent(today);
   });
-  it('passes', () => {
-    cy.visit('http://localhost:8084/find/api/admin/manage');
-  });
+
+  //pagination
 });
+
+function checkFirst10RowsContent(today) {
+  for (let i = 0; i < 10; i++) {
+    const index = i + 1;
+    cy.get(`[data-cy="admin-dashboard-list-table-row-API-key-Org1Cypress${index}"]`).should(
+      'have.text',
+      `Org1Cypress${index}`
+    );
+    cy.get(`[data-cy="admin-dashboard-list-table-row-Department-Org1Cypress${index}"]`).should('have.text', 'Test Org');
+    cy.get(`[data-cy="admin-dashboard-list-table-row-Created-Org1Cypress${index}"]`).should('have.text', today);
+    cy.get(`[data-cy="admin-dashboard-list-table-row-Revoked-Org1Cypress${index}-link"]`).should('contain', 'Revoke');
+  }
+}
+// function create55KeyForFUndingOrganisation1() {
+//   cy.setMockTokenForTechnicalSupportFundingOrganisation1();
+//   for (let i = 0; i < 55; i++) {
+//     cy.visit('http://localhost:8084/find/api/admin/api-keys/create');
+//     cy.get(`[data-cy="create-key-input"]`).type('Org1Cypress' + (i + 1));
+//     cy.get(`[data-cy="create-key-continue"]`).click();
+//     cy.get(`[data-cy="new-key-back-button"]`).click();
+//   }
+// }
+// function create55KeyForFUndingOrganisation2() {
+//   cy.setMockTokenForTechnicalSupportFundingOrganisation2();
+//   for (let i = 55; i < 110; i++) {
+//     cy.visit('http://localhost:8084/find/api/admin/api-keys/create');
+//     cy.get(`[data-cy="create-key-input"]`).type('Org2Cypress' + (i + 1));
+//     cy.get(`[data-cy="create-key-continue"]`).click();
+//     cy.get(`[data-cy="new-key-back-button"]`).click();
+//   }
+// }
