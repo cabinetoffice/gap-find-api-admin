@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.helpers.PaginationHelper;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
@@ -12,6 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,8 +24,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,6 +51,9 @@ class ApiKeyControllerTest {
     @Mock
     private Authentication authentication;
 
+    @Mock
+    private PaginationHelper paginationHelper;
+
     @InjectMocks
     private ApiKeyController controllerUnderTest;
 
@@ -61,6 +71,11 @@ class ApiKeyControllerTest {
             .apiKey("Test API Key")
             .isRevoked(false)
             .build();
+
+    private final Page<GapApiKey> apiKeyPage = new PageImpl<>(Collections.singletonList(apiKey), PageRequest.of(0, 1), 1);
+    private final List<String> departments = List.of("testDepartmentName","anotherDepartment");
+    private final List<GapApiKey> apiKeyList = List.of(apiKey);
+    private final List<Integer> pageNumbers = List.of(1);
 
     @Test
     @WithMockUser()
@@ -165,6 +180,45 @@ class ApiKeyControllerTest {
     void displayError_showsCorrectView() {
         final ModelAndView response = controllerUnderTest.displayError();
         assertThat(response.getViewName()).isEqualTo(ApiKeyController.ERROR_PAGE);
+    }
+
+    @Test
+    void displaySuperAdminPage_showsCorrectViewWithRequestParams() {
+        final List<String> selectedDepartments = List.of("testDepartmentName");
+
+        when(apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartments))
+                .thenReturn(apiKeyList);
+        when(apiKeyService.getFundingOrgForAllApiKeys()).thenReturn(departments);
+        when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));
+        when(paginationHelper.getGapApiKeysPage(apiKeyList,1)).thenReturn(apiKeyPage);
+        when(paginationHelper.getNumberOfPages(apiKeyPage.getTotalPages())).thenReturn(List.of(1));
+
+        final ModelAndView response = controllerUnderTest.displaySuperAdminPage(selectedDepartments, of(1));
+
+        assertThat(response.getViewName()).isEqualTo(ApiKeyController.SUPER_ADMIN_PAGE);
+        assertThat(response.getModel()).containsEntry("departments", departments);
+        assertThat(response.getModel()).containsEntry("activeKeyCount", 1L);
+        assertThat(response.getModel()).containsEntry("apiKeysPage", apiKeyPage);
+        assertThat(response.getModel()).containsEntry("pageNumbers", pageNumbers);
+        assertThat(response.getModel()).containsEntry("selectedDepartments", selectedDepartments);
+    }
+
+    @Test
+    void displaySuperAdminPage_showsCorrectViewNoRequestParams() {
+        when(apiKeyService.getApiKeysForSelectedFundingOrganisations(null)).thenReturn(apiKeyList);
+        when(apiKeyService.getFundingOrgForAllApiKeys()).thenReturn(departments);
+        when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));
+        when(paginationHelper.getGapApiKeysPage(apiKeyList,1)).thenReturn(apiKeyPage);
+        when(paginationHelper.getNumberOfPages(apiKeyPage.getTotalPages())).thenReturn(List.of(1));
+
+        final ModelAndView response = controllerUnderTest.displaySuperAdminPage(null, empty());
+
+        assertThat(response.getViewName()).isEqualTo(ApiKeyController.SUPER_ADMIN_PAGE);
+        assertThat(response.getModel()).containsEntry("departments", departments);
+        assertThat(response.getModel()).containsEntry("activeKeyCount", 1L);
+        assertThat(response.getModel()).containsEntry("apiKeysPage", apiKeyPage);
+        assertThat(response.getModel()).containsEntry("pageNumbers", pageNumbers);
+        assertThat(response.getModel()).containsEntry("selectedDepartments", List.of());
     }
 
 }

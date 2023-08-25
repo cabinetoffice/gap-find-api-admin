@@ -5,11 +5,16 @@ import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static gov.cabinetoffice.gapfindapiadmin.controllers.ApiKeyController.SUPER_ADMIN_ROLE;
 
@@ -51,7 +56,6 @@ public class ApiKeyService {
                 .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
     }
 
-    //TODO change those return values 
     public String generateBackButtonValue(){
         if(isSuperAdmin()){
             return "/api-keys/manage";
@@ -64,6 +68,42 @@ public class ApiKeyService {
                 .anyMatch(a -> a.getAuthority().equals(SUPER_ADMIN_ROLE));
     }
 
+    public List<GapApiKey> getApiKeysForSelectedFundingOrganisations(List<String> selectedFundingOrgName) {
+        final List<GapApiKey> gapApiKeys = (List<GapApiKey>) apiKeyRepository.findAll();
+        return Optional.ofNullable(selectedFundingOrgName)
+                .map(names -> gapApiKeys.stream()
+                        .filter(key -> names.contains(key.getFundingOrganisation().getName()))
+                        .toList())
+                .orElse(gapApiKeys);
+    }
 
+    public Long getActiveKeyCount(List<GapApiKey> gapApiKeys) {
+        return Optional.ofNullable(gapApiKeys)
+                .map(keys -> keys.stream()
+                        .filter(key -> !key.isRevoked())
+                        .count())
+                .orElse(apiKeyRepository.countByIsRevokedFalse());
+    }
+
+    public Page<GapApiKey> findPaginated(Pageable pageable, List<GapApiKey> apiKeys) {
+        final int pageSize = pageable.getPageSize();
+        final int currentPage = pageable.getPageNumber();
+        final int startItem = currentPage * pageSize;
+        List<GapApiKey> paginatedList;
+
+        if (apiKeys.size() < startItem) {
+            paginatedList = List.of();
+        } else {
+            int toIndex = Math.min(startItem + pageSize, apiKeys.size());
+            paginatedList = apiKeys.subList(startItem, toIndex);
+        }
+
+        return new PageImpl<>(paginatedList, PageRequest.of(currentPage, pageSize), apiKeys.size());
+
+    }
+
+    public List<String> getFundingOrgForAllApiKeys() {
+        return apiKeyRepository.findByUniqueFundingOrganisationNames();
+    }
 
 }

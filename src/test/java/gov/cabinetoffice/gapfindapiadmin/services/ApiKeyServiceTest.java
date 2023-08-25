@@ -11,6 +11,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,10 +22,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,22 +33,46 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ApiKeyServiceTest {
 
-    private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder().id(1).build();
+    private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder()
+            .id(1)
+            .name("test org")
+            .build();
+    private final FundingOrganisation fundingOrganisation2 = FundingOrganisation.builder()
+            .id(2)
+            .name("Funding org")
+            .build();
+
     private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
     private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
     private final Integer API_KEY_ID = 1;
+
     private final GapApiKey apiKey = GapApiKey.builder()
             .id(API_KEY_ID)
             .name("Test API Key name")
             .apiKey("Test API Key")
+            .fundingOrganisation(fundingOrganisation)
+            .isRevoked(false)
+            .build();
+
+    private final GapApiKey apiKey2 = GapApiKey.builder()
+            .id(API_KEY_ID)
+            .name("Test API Key name 2")
+            .apiKey("Test API Key 2")
+            .fundingOrganisation(fundingOrganisation2)
             .isRevoked(false)
             .build();
     @Mock
     private SecurityContext securityContext;
+
     @Mock
     private Authentication authentication;
+
     @Mock
     private ApiKeyRepository apiKeyRepository;
+
+    @Mock
+    private Pageable pageable;
+
     @InjectMocks
     private ApiKeyService serviceUnderTest;
 
@@ -94,7 +119,6 @@ class ApiKeyServiceTest {
         verify(apiKeyRepository).save(apiKey);
         assertThat(apiKey.isRevoked()).isTrue();
     }
-
 
     @Test
     void doesApiKeyExist_apiKeyExists() {
@@ -177,5 +201,78 @@ class ApiKeyServiceTest {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
+    }
+
+    @Test
+    void getApiKeysForSelectedFundingOrganisations_noneSelected() {
+        when(apiKeyRepository.findAll()).thenReturn(Collections.singletonList(apiKey));
+
+        final List<GapApiKey> response = serviceUnderTest.getApiKeysForSelectedFundingOrganisations(null);
+
+        verify(apiKeyRepository).findAll();
+        assertThat(response).isEqualTo(Collections.singletonList(apiKey));
+    }
+
+    @Test
+    void getApiKeysForSelectedFundingOrganisations_oneSelected() {
+        final List<String> fundingOrgName = Collections.singletonList("test org");
+        when(apiKeyRepository.findAll()).thenReturn(List.of(apiKey,apiKey2));
+
+        final List<GapApiKey> response = serviceUnderTest.getApiKeysForSelectedFundingOrganisations(fundingOrgName);
+
+        verify(apiKeyRepository).findAll();
+        assertThat(response).isEqualTo(Collections.singletonList(apiKey));
+    }
+
+    @Test
+    void getActiveKeyCount_forAllKeys() {
+        when(apiKeyRepository.countByIsRevokedFalse()).thenReturn(Long.valueOf(3));
+
+        final Long response = serviceUnderTest.getActiveKeyCount(null);
+
+        verify(apiKeyRepository).countByIsRevokedFalse();
+        assertThat(response).isEqualTo(Long.valueOf(3));
+    }
+
+    @Test
+    void getActiveKeyCount_forAllFilteredKeys() {
+        when(apiKeyRepository.countByIsRevokedFalse()).thenReturn(Long.valueOf(2));
+
+        final Long response = serviceUnderTest.getActiveKeyCount(List.of(apiKey,apiKey2));
+
+        assertThat(response).isEqualTo(Long.valueOf(2));
+    }
+
+    @Test
+    void findPaginated_returnApiKeyPage() {
+        final Page<GapApiKey> apiKeyPage = new PageImpl<>(Collections.singletonList(apiKey), PageRequest.of(0, 1), 1);
+        when(pageable.getPageSize()).thenReturn(1);
+        when(pageable.getPageNumber()).thenReturn(0);
+
+        final Page<GapApiKey> response = serviceUnderTest.findPaginated(pageable, Collections.singletonList(apiKey));
+
+        assertThat(response).isEqualTo(apiKeyPage);
+    }
+
+    @Test
+    void findPaginated_returnEmptyList() {
+        final Page<GapApiKey> apiKeyPage = new PageImpl<>(List.of(), PageRequest.of(1, 1), 0);
+        when(pageable.getPageSize()).thenReturn(1);
+        when(pageable.getPageNumber()).thenReturn(1);
+
+        final Page<GapApiKey> response = serviceUnderTest.findPaginated(pageable, List.of());
+
+        assertThat(response).isEqualTo(apiKeyPage);
+    }
+
+    @Test
+    void getFundingOrgForAllApiKeys_returnsUniqueKeys() {
+        final List<String> orgNames = List.of("test org");
+        when(apiKeyRepository.findByUniqueFundingOrganisationNames()).thenReturn(orgNames);
+
+        final List<String> response = serviceUnderTest.getFundingOrgForAllApiKeys();
+
+        verify(apiKeyRepository).findByUniqueFundingOrganisationNames();
+        assertThat(response).isEqualTo(orgNames);
     }
 }

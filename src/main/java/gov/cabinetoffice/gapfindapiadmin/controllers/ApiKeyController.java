@@ -1,23 +1,24 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.helpers.PaginationHelper;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/api-keys")
@@ -28,12 +29,12 @@ public class ApiKeyController {
     public static final String ORGANISATION_API_KEYS_PAGE = "organisation-api-keys";
     public static final String REVOKE_API_KEY_CONFIRMATION_PAGE = "revoke-api-key-confirmation";
     public static final String ERROR_PAGE = "error-page";
-    public static final String SUPER_ADMIN_PAGE = "super";
+    public static final String SUPER_ADMIN_PAGE = "super-admin-api-keys";
     public static final String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
-    public static final String TECHNICAL_SUPPORT_ROLE = "TECHNICAL_SUPPORT";
 
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
+    private final PaginationHelper paginationHelper;
 
     @GetMapping
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
@@ -100,7 +101,22 @@ public class ApiKeyController {
 
     @GetMapping("/manage")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ModelAndView displaySuperAdminPage() {
-        return new ModelAndView(SUPER_ADMIN_PAGE);
+    public ModelAndView displaySuperAdminPage(@RequestParam(value = "selectedDepartments", required = false) List<String> selectedDepartment,
+                                 @RequestParam(value = "page", required = false) Optional<Integer> page) {
+        final List<GapApiKey> allApiKeys = apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartment);
+        final int currentPage = page.orElse(1);
+        final Page<GapApiKey> apiKeysPage = paginationHelper.getGapApiKeysPage(allApiKeys, currentPage);
+
+
+        return new ModelAndView(SUPER_ADMIN_PAGE)
+                .addObject("departments", apiKeyService.getFundingOrgForAllApiKeys())
+                .addObject("activeKeyCount", apiKeyService.getActiveKeyCount(allApiKeys))
+                .addObject("apiKeysPage", apiKeysPage)
+                .addObject("pageNumbers", paginationHelper.getNumberOfPages(apiKeysPage.getTotalPages()))
+                .addObject("selectedDepartments", selectedDepartment==null? List.of() : selectedDepartment);
     }
+
+
+
+
 }

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage API keys</title>
+    <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}" />
+</head>
+
+<body class="govuk-template__body">
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
+        <div class="govuk-grid-row">
+           <div class="govuk-grid-column-one-third">
+               <h1 class="govuk-heading-l govuk-!-margin-bottom-2">Manage API keys</h1>
+               <p class="govuk-body govuk-!-margin-bottom-2"><span class="govuk-!-font-weight-bold" th:text="${activeKeyCount}"></span> active API keys</p>
+               <hr class="govuk-section-break govuk-!-margin-bottom-2 govuk-section-break--visible">
+               <th:block th:if="${!departments.empty}">
+                   <h2 class="govuk-heading-m govuk-!-margin-bottom-2">Department</h2>
+                   <form th:action="@{/api-keys/manage}" method="get" novalidate>
+                       <div class="govuk-form-group govuk-!-margin-bottom-2">
+                           <fieldset class="govuk-fieldset" >
+                               <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+                                   <div class="govuk-checkboxes__item" th:each="department : ${departments}">
+                                       <input class="govuk-checkboxes__input" th:name="selectedDepartments" th:id="${department}" type="checkbox" th:checked="${selectedDepartments.empty} ? 'false' : ${#lists.contains(selectedDepartments, department)}" th:value="${department}">
+                                       <label class="govuk-label govuk-checkboxes__label" th:for="${department}" th:text="${department}">
+                                       </label>
+                                   </div>
+                               </div>
+                           </fieldset>
+                       </div>
+                       <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-4">
+                       <button class="govuk-button govuk-!-margin-bottom-4" data-module="govuk-button">
+                           Apply filters
+                       </button>
+                       <hr class="govuk-section-break">
+                       <a th:href="@{/api-keys/manage}" role="button" draggable="false" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-module="govuk-button">
+                           Clear all filters
+                       </a>
+                       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                   </form>
+               </th:block>
+           </div>
+            <div class="govuk-grid-column-two-thirds">
+                <th:block th:if="${!#lists.isEmpty(apiKeysPage.content)}">
+                    <table class="govuk-table govuk-!-margin-bottom-2">
+                        <thead class="govuk-table__head">
+                        <tr class="govuk-table__row">
+                            <th scope="col" class="govuk-table__header">API key</th>
+                            <th scope="col" class="govuk-table__header">Department</th>
+                            <th scope="col" class="govuk-table__header">Created</th>
+                            <th scope="col" class="govuk-table__header">Revoke</th>
+                        </tr>
+                        </thead>
+                        <tbody class="govuk-table__body">
+                        <tr class="govuk-table__row" th:each="apiKey : ${apiKeysPage.content}">
+                            <td class="govuk-table__cell" th:text="${apiKey.name}"></td>
+                            <th:block th:object="${apiKey.fundingOrganisation}">
+                                <td class="govuk-table__cell" th:text="*{name}"></td>
+                            </th:block>
+                            <td class="govuk-table__cell" th:text=" ${#temporals.format(apiKey.createdDate, 'd MMMM yyyy')}"></td>
+                            <td class="govuk-table__cell" th:if="${!apiKey.isRevoked}" >
+                                <a class="govuk-link govuk-link--no-visited-state" th:href="@{'/api-keys/revoke/' + ${apiKey.id}}">
+                                    Revoke<span class="govuk-visually-hidden"> API key</span>
+                                </a>
+                            </td>
+                            <td class="govuk-table__cell govuk-hint" th:if="${apiKey.isRevoked}" th:text=" ${#temporals.format(apiKey.revocationDate, 'd MMMM yyyy')}">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <nav class="govuk-pagination" role="navigation" aria-label="results" th:if="${apiKeysPage.totalElements > apiKeysPage.size}">
+                        <div class="govuk-pagination__prev" th:if="${apiKeysPage.number > 0}">
+                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${apiKeysPage.number},selectedDepartments=${selectedDepartments})}" rel="prev">
+                                <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                    <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
+                                </svg>
+                                <span class="govuk-pagination__link-title">Previous</span></a>
+                        </div>
+<!--                            if 5 or less then no ellipses-->
+                            <th:block th:if="${#lists.size(pageNumbers) < 6}">
+                                <ul class="govuk-pagination__list" th:each="pageNumber : ${pageNumbers}">
+                                    <li class="govuk-pagination__item" th:classappend="${pageNumber==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumber},selectedDepartments=${selectedDepartments})}"
+                                           th:aria-label="${'Page ' + pageNumber}" th:text="${pageNumber}">
+                                        </a>
+                                    </li>
+                                </ul>
+                            </th:block>
+<!--                        if greater than  7, current is greater than 4 and less than last minus 3-->
+                            <th:block th:if="${#lists.size(pageNumbers)>7 && apiKeysPage.number+1 > 4 && apiKeysPage.number+1 <= #lists.size(pageNumbers) -3 }"> <!-- do if statement -->
+                                <ul class="govuk-pagination__list">
+                                    <li class="govuk-pagination__item" th:classappend="${pageNumbers[0]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[0]},selectedDepartments=${selectedDepartments})}"
+                                           th:aria-label="${'Page ' + pageNumbers[0]}" th:text="${pageNumbers[0]}">
+                                        </a>
+                                    </li>
+                                    <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
+                                    <th:block th:each="i: ${#numbers.sequence(apiKeysPage.number-1, apiKeysPage.number+1)}">
+                                        <li class="govuk-pagination__item" th:classappend="${pageNumbers[i]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[i]},selectedDepartments=${selectedDepartments})}"
+                                               th:aria-label="${'Page ' + pageNumbers[i]}" th:text="${pageNumbers[i]}">
+                                            </a>
+                                        </li>
+                                    </th:block>
+                                    <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
+                                    <li class="govuk-pagination__item" th:classappend="${pageNumbers[#lists.size(pageNumbers)-1]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[#lists.size(pageNumbers)-1]},selectedDepartments=${selectedDepartments})}"
+                                           th:aria-label="${'Page ' + pageNumbers[#lists.size(pageNumbers)-1]}" th:text="${pageNumbers[#lists.size(pageNumbers)-1]}">
+                                        </a>
+                                    </li>
+                                </ul>
+                            </th:block>
+<!--                            If more than 5 pages && current less than 5 then ellipses to last -->
+                            <th:block th:if="${#lists.size(pageNumbers) > 5 && apiKeysPage.number + 1 <5 }">
+                                <ul class="govuk-pagination__list">
+                                    <th:block th:each="i: ${#numbers.sequence(0, apiKeysPage.number+1)}">
+                                        <li class="govuk-pagination__item" th:classappend="${pageNumbers[i]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[i]},selectedDepartments=${selectedDepartments})}"
+                                               th:aria-label="${'Page ' + pageNumbers[i]}" th:text="${pageNumbers[i]}">
+                                            </a>
+                                        </li>
+                                    </th:block>
+                                    <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
+                                    <li class="govuk-pagination__item" th:classappend="${pageNumbers[#lists.size(pageNumbers)-1]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[#lists.size(pageNumbers)-1]},selectedDepartments=${selectedDepartments})}"
+                                           th:aria-label="${'Page ' + pageNumbers[#lists.size(pageNumbers)-1]}" th:text="${pageNumbers[#lists.size(pageNumbers)-1]}">
+                                        </a>
+                                    </li>
+                                </ul>
+                            </th:block>
+<!--                            If more than 5 pages && current more than last minus three then ellipses to first -->
+                        <th:block th:if="${#lists.size(pageNumbers) > 5 && apiKeysPage.number + 1 > #lists.size(pageNumbers) - 3 }">
+                            <ul class="govuk-pagination__list">
+                                <li class="govuk-pagination__item" th:classappend="${pageNumbers[0]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                    <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[0]},selectedDepartments=${selectedDepartments})}"
+                                       th:aria-label="${'Page ' + pageNumbers[0]}" th:text="${pageNumbers[0]}">
+                                    </a>
+                                </li>
+                                <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
+                                <th:block th:each="i: ${#numbers.sequence(apiKeysPage.number-1, #lists.size(pageNumbers)-1)}">
+                                    <li class="govuk-pagination__item" th:classappend="${pageNumbers[i]==apiKeysPage.number+1} ? 'govuk-pagination__item--current ' : ''" >
+                                        <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[i]},selectedDepartments=${selectedDepartments})}"
+                                           th:aria-label="${'Page ' + pageNumbers[i]}" th:text="${pageNumbers[i]}">
+                                        </a>
+                                    </li>
+                                </th:block>
+                            </ul>
+                        </th:block>
+
+                        <div class="govuk-pagination__next" th:if="${apiKeysPage.number+1 <  #lists.size(pageNumbers) }">
+                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${apiKeysPage.number+2},selectedDepartments=${selectedDepartments})}"  rel="next"> <span class="govuk-pagination__link-title">Next</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
+                            </svg></a>
+                        </div>
+                    </nav>
+                    <p class="govuk-body govuk-!-text-align-right">Showing <span class="govuk-!-font-weight-bold" th:text="${apiKeysPage.number * apiKeysPage.size + 1}"></span> to <span class="govuk-!-font-weight-bold" th:text=" ${(apiKeysPage.number * apiKeysPage.size) + #lists.size(apiKeysPage.content)}"></span> of <span class="govuk-!-font-weight-bold" th:text="${apiKeysPage.totalElements + ' keys'}"></span></p>
+                </th:block>
+                <p th:if="${#lists.isEmpty(apiKeysPage.content)}" class="govuk-body">No one has any API keys yet. When one is created, you will be able to see a list of all API keys, the department it belongs, when it was created and revoke access to them on this screen.</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
