@@ -10,7 +10,7 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="govuk-width-container">
-    <a th:href="@{/api-keys}" class="govuk-back-link">Back</a>
+    <a th:href="@{/api-keys}" class="govuk-back-link" data-cy="create-key-back-button">Back</a>
     <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
         <form th:action="@{/api-keys/create}" th:object="${createApiKeyDTO}" method="post" novalidate>
             <div class="govuk-grid-row">
@@ -20,19 +20,20 @@
                          aria-labelledby="error-summary-title"
                          role="alert"
                          data-module="govuk-error-summary"
-                         data-cy="cyErrorBanner"
+                         data-cy="create-key-error-banner"
                          id="error-summary"
                          tabIndex="-1"
                     >
-                        <h2 class="govuk-error-summary__title" id="error-summary-title" data-cy="cyErrorBannerHeading">
+                        <h2 class="govuk-error-summary__title" id="error-summary-title" data-cy="create-key-error-banner-heading">
                             There is a problem
                         </h2>
 
                         <div class="govuk-error-summary__body">
-                            <ul class="govuk-list govuk-error-summary__list" data-cy="cyError-summary-list">
+                            <ul class="govuk-list govuk-error-summary__list" data-cy="create-key-error-summary-list">
                                 <li th:each="err : ${#fields.detailedErrors()}">
-                                    <a th:href="${err.global ? '' : '#' + err.fieldName}" aria-label="something"
-                                       data-cy="something">[[${err.message}]]</a>
+                                    <a th:href="${err.global ? '' : '#' + err.fieldName}" aria-label="${err.message}">
+                                        [[${err.message}]]
+                                    </a>
                                 </li>
                             </ul>
                         </div>
@@ -42,11 +43,11 @@
                         <fieldset class="govuk-fieldset" role="group"
                                   aria-describedby="create-api-key-hint create-api-key-error">
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                                <h1 class="govuk-fieldset__heading">
+                                <h1 class="govuk-fieldset__heading" data-cy="create-key-heading">
                                     Name your API key
                                 </h1>
                             </legend>
-                            <div id="create-api-key-hint" class="govuk-hint">
+                            <div id="create-api-key-hint" class="govuk-hint" data-cy="create-key-hint-text">
                                 <p class="govuk-!-margin-bottom-0"> This name will be shown in your list of API keys to
                                     make it easier to find.</p>
                                 <p class="govuk-!-margin-top-0"> We recommend using the name of the service you will be
@@ -56,8 +57,7 @@
                                      th:classappend="${#fields.hasErrors('keyName') ? 'govuk-form-group--error' : ''}">
                                     <p th:id="keyName-error"
                                        th:class="govuk-error-message"
-                                       data-cy="cy-email-input-validation-error-details"
-                                       data-testid="error-message-test-id"
+                                       data-cy="create-key-input-validation-error-details"
                                        th:errors="*{keyName}"
                                     >
                                         <span class="govuk-visually-hidden">Error: </span>
@@ -70,12 +70,13 @@
                                            id="keyName"
                                            name="keyName"
                                            type="text"
+                                           data-cy="create-key-input"
                                     />
                                 </div>
                             </div>
                         </fieldset>
                     </div>
-                    <button class="govuk-button" data-module="govuk-button">
+                    <button class="govuk-button" data-module="govuk-button" data-cy="create-key-continue">
                         Continue
                     </button>
 

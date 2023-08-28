@@ -14,19 +14,22 @@
     <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-l">New API key</h1>
-                <p class="govuk-heading-m">Your API key:</p>
-                <p class="govuk-heading-m" th:text="${keyValue}" id="apiKeyValue"></p>
+                <h1 class="govuk-heading-l" data-cy="new-key-heading">New API key</h1>
+                <p class="govuk-heading-m" data-cy="new-key-your-api-key">Your API key:</p>
+                <p class="govuk-heading-m" th:text="${keyValue}" id="apiKeyValue" data-cy="new-key-value"></p>
 
-                <button id="copyButton" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-4" data-module="govuk-button">
+                <button id="copyButton" class="govuk-button govuk-button--secondary govuk-!-margin-bottom-4"
+                        data-module="govuk-button" data-cy="new-key-copy-to-clipboard-button">
                     Copy to clipboard
                 </button>
                 <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-bottom-4">
 
-                <p class="govuk-body">You should keep a copy of this API key somewhere safe.</p>
-                <p class="govuk-body">When you leave this screen, you will not be able to see this API key again.</p>
+                <p class="govuk-body" data-cy="new-key-paragraph">You should keep a copy of this API key somewhere safe.</p>
+                <p class="govuk-body" data-cy="new-key-paragraph-2">When you leave this screen, you will not be able to see this API key again.</p>
 
-                <a th:href="@{/api-keys}" class="govuk-link govuk-link--no-visited-state govuk-!-font-size-19">Back to your API keys</a>
+                <a th:href="@{/api-keys}" class="govuk-link govuk-link--no-visited-state govuk-!-font-size-19" data-cy="new-key-back-to-api-keys">
+                    Back to your API keys
+                </a>
             </div>
         </div>
     </main>

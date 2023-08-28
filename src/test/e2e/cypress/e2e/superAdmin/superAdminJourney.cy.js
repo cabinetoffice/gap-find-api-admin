@@ -5,6 +5,6 @@ describe('template spec', () => {
    cy.setCookie('user-service-token', superAdminToken);
   });
   it('passes', () => {
-    cy.visit('http://localhost:8084/find/api/admin/manage');
+    cy.visit('http://localhost:8084/find/api/admin/api-keys/manage');
   });
 });
