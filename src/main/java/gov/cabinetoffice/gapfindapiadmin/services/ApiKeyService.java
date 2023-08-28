@@ -13,10 +13,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+
 import java.util.List;
 import java.util.Optional;
 
 import static gov.cabinetoffice.gapfindapiadmin.controllers.ApiKeyController.SUPER_ADMIN_ROLE;
+import static java.util.Comparator.*;
 
 @Service
 @RequiredArgsConstructor
@@ -73,8 +75,13 @@ public class ApiKeyService {
         return Optional.ofNullable(selectedFundingOrgName)
                 .map(names -> gapApiKeys.stream()
                         .filter(key -> names.contains(key.getFundingOrganisation().getName()))
+                        //we want the keys with revoked True to be at the end of the list
+                        .sorted(comparing(GapApiKey::isRevoked))
                         .toList())
-                .orElse(gapApiKeys);
+                .orElse(gapApiKeys.stream().
+                        //we want the keys with revoked True to be at the end of the list
+                        sorted(comparing(GapApiKey::isRevoked))
+                        .toList());
     }
 
     public Long getActiveKeyCount(List<GapApiKey> gapApiKeys) {

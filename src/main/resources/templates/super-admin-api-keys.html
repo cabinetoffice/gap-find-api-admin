@@ -73,8 +73,8 @@
                     </table>
 
                     <nav class="govuk-pagination" role="navigation" aria-label="results" th:if="${apiKeysPage.totalElements > apiKeysPage.size}" th:data-cy="admin-dashboard-pagination-bar">
-                        <div class="govuk-pagination__prev" th:if="${apiKeysPage.number > 0}">
-                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${apiKeysPage.number},selectedDepartments=${selectedDepartments})}" rel="prev">
+                        <div class="govuk-pagination__prev" th:if="${apiKeysPage.number > 0}" th:data-cy="admin-dashboard-pagination-previous-page-item">
+                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${apiKeysPage.number},selectedDepartments=${selectedDepartments})}" rel="prev" th:data-cy="admin-dashboard-pagination-previous-page-link">
                                 <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
                                     <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
                                 </svg>
@@ -82,77 +82,77 @@
                         </div>
 <!--                            if 5 or less then no ellipses-->
                             <th:block th:if="${#lists.size(pageNumbers) < 6}">
-                                <ul class="govuk-pagination__list" th:each="pageNumber : ${pageNumbers}">
-                                    <li class="govuk-pagination__item" th:classappend="${pageNumber==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                <ul class="govuk-pagination__list" th:each="pageNumber : ${pageNumbers}" th:data-cy="admin-dashboard-pagination-list">
+                                    <li class="govuk-pagination__item" th:classappend="${pageNumber==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumber} + '-item'">
                                         <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumber},selectedDepartments=${selectedDepartments})}"
-                                           th:aria-label="${'Page ' + pageNumber}" th:text="${pageNumber}">
+                                           th:aria-label="${'Page ' + pageNumber}" th:text="${pageNumber}" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumber} + '-link'">
                                         </a>
                                     </li>
                                 </ul>
                             </th:block>
 <!--                        if greater than  7, current is greater than 4 and less than last minus 3-->
                             <th:block th:if="${#lists.size(pageNumbers)>7 && apiKeysPage.number+1 > 4 && apiKeysPage.number+1 <= #lists.size(pageNumbers) -3 }"> <!-- do if statement -->
-                                <ul class="govuk-pagination__list">
-                                    <li class="govuk-pagination__item" th:classappend="${pageNumbers[0]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                <ul class="govuk-pagination__list" th:data-cy="admin-dashboard-pagination-list" >
+                                    <li class="govuk-pagination__item" th:classappend="${pageNumbers[0]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[0]} + '-item'">
                                         <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[0]},selectedDepartments=${selectedDepartments})}"
-                                           th:aria-label="${'Page ' + pageNumbers[0]}" th:text="${pageNumbers[0]}">
+                                           th:aria-label="${'Page ' + pageNumbers[0]}" th:text="${pageNumbers[0]}" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[0]} + '-link'">
                                         </a>
                                     </li>
-                                    <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
+                                    <li class="govuk-pagination__item govuk-pagination__item--ellipses" th:data-cy="admin-dashboard-pagination-ellipses">&ctdot;</li>
                                     <th:block th:each="i: ${#numbers.sequence(apiKeysPage.number-1, apiKeysPage.number+1)}">
-                                        <li class="govuk-pagination__item" th:classappend="${pageNumbers[i]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                        <li class="govuk-pagination__item" th:classappend="${pageNumbers[i]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[i]} + '-item'">
                                             <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[i]},selectedDepartments=${selectedDepartments})}"
-                                               th:aria-label="${'Page ' + pageNumbers[i]}" th:text="${pageNumbers[i]}">
+                                               th:aria-label="${'Page ' + pageNumbers[i]}" th:text="${pageNumbers[i]}" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[i]} + '-link'">
                                             </a>
                                         </li>
                                     </th:block>
-                                    <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
-                                    <li class="govuk-pagination__item" th:classappend="${pageNumbers[#lists.size(pageNumbers)-1]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                    <li class="govuk-pagination__item govuk-pagination__item--ellipses" th:data-cy="admin-dashboard-pagination-ellipses">&ctdot;</li>
+                                    <li class="govuk-pagination__item" th:classappend="${pageNumbers[#lists.size(pageNumbers)-1]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[#lists.size(pageNumbers)-1]} + '-item'">
                                         <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[#lists.size(pageNumbers)-1]},selectedDepartments=${selectedDepartments})}"
-                                           th:aria-label="${'Page ' + pageNumbers[#lists.size(pageNumbers)-1]}" th:text="${pageNumbers[#lists.size(pageNumbers)-1]}">
+                                           th:aria-label="${'Page ' + pageNumbers[#lists.size(pageNumbers)-1]}" th:text="${pageNumbers[#lists.size(pageNumbers)-1]}" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[#lists.size(pageNumbers)-1]} + '-link'">
                                         </a>
                                     </li>
                                 </ul>
                             </th:block>
 <!--                            If more than 5 pages && current less than 5 then ellipses to last -->
                             <th:block th:if="${#lists.size(pageNumbers) > 5 && apiKeysPage.number + 1 <5 }">
-                                <ul class="govuk-pagination__list">
+                                <ul class="govuk-pagination__list" th:data-cy="admin-dashboard-pagination-list">
                                     <th:block th:each="i: ${#numbers.sequence(0, apiKeysPage.number+1)}">
-                                        <li class="govuk-pagination__item" th:classappend="${pageNumbers[i]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                        <li class="govuk-pagination__item" th:classappend="${pageNumbers[i]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[i]} + '-item'">
                                             <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[i]},selectedDepartments=${selectedDepartments})}"
-                                               th:aria-label="${'Page ' + pageNumbers[i]}" th:text="${pageNumbers[i]}">
+                                               th:aria-label="${'Page ' + pageNumbers[i]}" th:text="${pageNumbers[i]}" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[i]} + '-link'">
                                             </a>
                                         </li>
                                     </th:block>
-                                    <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
-                                    <li class="govuk-pagination__item" th:classappend="${pageNumbers[#lists.size(pageNumbers)-1]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                                    <li class="govuk-pagination__item govuk-pagination__item--ellipses" th:data-cy="admin-dashboard-pagination-ellipses">&ctdot;</li>
+                                    <li class="govuk-pagination__item" th:classappend="${pageNumbers[#lists.size(pageNumbers)-1]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[#lists.size(pageNumbers)-1]} + '-item'">
                                         <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[#lists.size(pageNumbers)-1]},selectedDepartments=${selectedDepartments})}"
-                                           th:aria-label="${'Page ' + pageNumbers[#lists.size(pageNumbers)-1]}" th:text="${pageNumbers[#lists.size(pageNumbers)-1]}">
+                                           th:aria-label="${'Page ' + pageNumbers[#lists.size(pageNumbers)-1]}" th:text="${pageNumbers[#lists.size(pageNumbers)-1]}" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[#lists.size(pageNumbers)-1]} + '-link'">
                                         </a>
                                     </li>
                                 </ul>
                             </th:block>
 <!--                            If more than 5 pages && current more than last minus three then ellipses to first -->
                         <th:block th:if="${#lists.size(pageNumbers) > 5 && apiKeysPage.number + 1 > #lists.size(pageNumbers) - 3 }">
-                            <ul class="govuk-pagination__list">
-                                <li class="govuk-pagination__item" th:classappend="${pageNumbers[0]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" >
+                            <ul class="govuk-pagination__list" th:data-cy="admin-dashboard-pagination-list">
+                                <li class="govuk-pagination__item" th:classappend="${pageNumbers[0]==apiKeysPage.number + 1} ? 'govuk-pagination__item--current ' : ''" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[0]} + '-item'">
                                     <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[0]},selectedDepartments=${selectedDepartments})}"
-                                       th:aria-label="${'Page ' + pageNumbers[0]}" th:text="${pageNumbers[0]}">
+                                       th:aria-label="${'Page ' + pageNumbers[0]}" th:text="${pageNumbers[0]}" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[0]} + '-link'">
                                     </a>
                                 </li>
-                                <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
+                                <li class="govuk-pagination__item govuk-pagination__item--ellipses" th:data-cy="admin-dashboard-pagination-ellipses">&ctdot;</li>
                                 <th:block th:each="i: ${#numbers.sequence(apiKeysPage.number-1, #lists.size(pageNumbers)-1)}">
-                                    <li class="govuk-pagination__item" th:classappend="${pageNumbers[i]==apiKeysPage.number+1} ? 'govuk-pagination__item--current ' : ''" >
+                                    <li class="govuk-pagination__item" th:classappend="${pageNumbers[i]==apiKeysPage.number+1} ? 'govuk-pagination__item--current ' : ''" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[i]} + '-item'">
                                         <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${pageNumbers[i]},selectedDepartments=${selectedDepartments})}"
-                                           th:aria-label="${'Page ' + pageNumbers[i]}" th:text="${pageNumbers[i]}">
+                                           th:aria-label="${'Page ' + pageNumbers[i]}" th:text="${pageNumbers[i]}" th:data-cy="'admin-dashboard-pagination-page-' + ${pageNumbers[i]} + '-link'">
                                         </a>
                                     </li>
                                 </th:block>
                             </ul>
                         </th:block>
 
-                        <div class="govuk-pagination__next" th:if="${apiKeysPage.number+1 <  #lists.size(pageNumbers) }">
-                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${apiKeysPage.number+2},selectedDepartments=${selectedDepartments})}"  rel="next"> <span class="govuk-pagination__link-title">Next</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                        <div class="govuk-pagination__next" th:if="${apiKeysPage.number+1 <  #lists.size(pageNumbers) }" th:data-cy="admin-dashboard-pagination-next-page-item">
+                            <a class="govuk-link govuk-pagination__link" th:href="@{/api-keys/manage(page=${apiKeysPage.number+2},selectedDepartments=${selectedDepartments})}"  rel="next" th:data-cy="admin-dashboard-pagination-next-page-link"> <span class="govuk-pagination__link-title">Next</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13" >
                                 <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
                             </svg></a>
                         </div>
