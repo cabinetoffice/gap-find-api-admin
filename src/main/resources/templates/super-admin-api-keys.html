@@ -157,7 +157,7 @@
                             </svg></a>
                         </div>
                     </nav>
-                    <p class="govuk-body govuk-!-text-align-right">Showing <span class="govuk-!-font-weight-bold" th:text="${apiKeysPage.number * apiKeysPage.size + 1}"></span> to <span class="govuk-!-font-weight-bold" th:text=" ${(apiKeysPage.number * apiKeysPage.size) + #lists.size(apiKeysPage.content)}"></span> of <span class="govuk-!-font-weight-bold" th:text="${apiKeysPage.totalElements + ' keys'}"></span></p>
+                    <p class="govuk-body govuk-!-text-align-right" th:data-cy="admin-dashboard-show-keys-count-paragraph">Showing <span class="govuk-!-font-weight-bold" th:text="${apiKeysPage.number * apiKeysPage.size + 1}"></span> to <span class="govuk-!-font-weight-bold" th:text=" ${(apiKeysPage.number * apiKeysPage.size) + #lists.size(apiKeysPage.content)}"></span> of <span class="govuk-!-font-weight-bold" th:text="${apiKeysPage.totalElements + ' keys'}"></span></p>
                 </th:block>
                 <p th:if="${#lists.isEmpty(apiKeysPage.content)}" class="govuk-body" th:data-cy="admin-dashboard-no-api-key-paragraph">No one has any API keys yet. When one is created, you will be able to see a list of all API keys, the department it belongs, when it was created and revoke access to them on this screen.</p>
             </div>

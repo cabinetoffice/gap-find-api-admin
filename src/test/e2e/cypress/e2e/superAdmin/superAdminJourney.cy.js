@@ -59,9 +59,51 @@ describe('Super Admin Journey', () => {
     cy.get(`[data-cy="admin-dashboard-list-table-body"]`).should('be.visible').find('tr').should('have.length', 10);
     //first 10 single rows content
     checkFirst10RowsContent(today);
+    //pagination
+    cy.get(`[data-cy="admin-dashboard-show-keys-count-paragraph"]`).should('have.text', 'Showing 1 to 10 of 10 keys');
   });
 
-  //pagination
+  it('should show only the filtered keys when department filters are set, and clear all filters should reset those filter', () => {
+    cy.setMockTokenForSuperAdmin();
+    cy.visit('http://localhost:8084/find/api/admin/api-keys/manage');
+
+    cy.get(`[data-cy="admin-dashboard-filter-Test Org-checkbox"]`).click();
+    cy.get(`[data-cy="admin-dashboard-filter-Test Org-checkbox"]`).should('be.checked');
+    cy.get(`[data-cy="admin-dashboard-filter-apply-button"]`).click();
+
+    cy.url().should('eq', 'http://localhost:8084/find/api/admin/api-keys/manage?selectedDepartments=Test+Org');
+    cy.get(`[data-cy="admin-dashboard-filter-Test Org-checkbox"]`).should('be.checked');
+    //rows
+    cy.get(`[data-cy="admin-dashboard-list-table-body"]`).should('be.visible').find('tr').should('have.length', 5);
+
+    //pagination
+    cy.get(`[data-cy="admin-dashboard-show-keys-count-paragraph"]`).should('have.text', 'Showing 1 to 5 of 5 keys');
+
+    cy.get(`[data-cy="admin-dashboard-filter-Evil Org-checkbox"]`).click();
+    cy.get(`[data-cy="admin-dashboard-filter-Evil Org-checkbox"]`).should('be.checked');
+    cy.get(`[data-cy="admin-dashboard-filter-apply-button"]`).click();
+    cy.url().should(
+      'eq',
+      'http://localhost:8084/find/api/admin/api-keys/manage?selectedDepartments=Evil+Org&selectedDepartments=Test+Org'
+    );
+
+    //rows
+    cy.get(`[data-cy="admin-dashboard-list-table-body"]`).should('be.visible').find('tr').should('have.length', 10);
+
+    //pagination
+    cy.get(`[data-cy="admin-dashboard-show-keys-count-paragraph"]`).should('have.text', 'Showing 1 to 10 of 10 keys');
+
+    cy.get(`[data-cy="admin-dashboard-filter-clear-button"]`).click();
+    cy.url().should('eq', 'http://localhost:8084/find/api/admin/api-keys/manage');
+    cy.get(`[data-cy="admin-dashboard-filter-Test Org-checkbox"]`).should('not.be.checked');
+    cy.get(`[data-cy="admin-dashboard-filter-Evil Org-checkbox"]`).should('not.be.checked');
+
+    //rows
+    cy.get(`[data-cy="admin-dashboard-list-table-body"]`).should('be.visible').find('tr').should('have.length', 10);
+
+    //pagination
+    cy.get(`[data-cy="admin-dashboard-show-keys-count-paragraph"]`).should('have.text', 'Showing 1 to 10 of 10 keys');
+  });
 });
 
 function checkFirst10RowsContent(today) {
