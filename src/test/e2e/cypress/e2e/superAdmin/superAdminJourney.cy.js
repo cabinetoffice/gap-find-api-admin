@@ -17,6 +17,7 @@ const today = new Date().toLocaleDateString('en-GB', {
 });
 
 describe('Super Admin Journey', () => {
+  after(() => cy.task('drop:apiKeyTable', Cypress.env()).then(() => cy.task('create:apiKeyTable', Cypress.env())));
   it('should show No keys message when no apiKeys are present', () => {
     cy.setMockTokenForSuperAdmin();
     cy.visit('http://localhost:8084/find/api/admin/api-keys/manage');
