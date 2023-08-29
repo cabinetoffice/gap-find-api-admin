@@ -26,9 +26,7 @@
                     <input type="hidden" th:field="*{id}">
                     <input type="hidden" th:field="*{name}">
                     <div class="govuk-button-group">
-                        <button class="govuk-button govuk-button--warning" data-module="govuk-button" data-cy="revoke-revoke-button">
-                            Revoke key
-                        </button>
+                        <button class="govuk-button govuk-button--warning" data-module="govuk-button" data-cy="revoke-revoke-button">Revoke key</button>
                         <a class="govuk-link govuk-link--no-visited-state" th:href="@{${backButtonUrl}}" data-cy="revoke-cancel-button">Cancel</a>
                     </div>
                 </form>
