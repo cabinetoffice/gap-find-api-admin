@@ -6,10 +6,15 @@ const today = new Date().toLocaleDateString("en-GB", {
 
 const apiKeyName = "apiKeyNameCypress";
 
-describe("Technical support usre journey", () => {
+describe("Technical support user journey", () => {
   beforeEach(() => {
-    cy.setMockTokenForTechnicalSupport();
+    cy.setMockTokenForTechnicalSupportFundingOrganisation1();
   });
+  after(() =>
+    cy
+      .task("drop:apiKeyTable", Cypress.env())
+      .then(() => cy.task("create:apiKeyTable", Cypress.env()))
+  );
 
   describe("API key dashboard without keys", () => {
     it("Should render API key dashboard, display no API keys, header and footer", () => {
@@ -44,7 +49,7 @@ describe("Technical support usre journey", () => {
 
       cy.get('[data-cy="api-keys-department-name"]')
         .should("be.visible")
-        .contains("Evil Org");
+        .contains("Test Org");
 
       cy.get('[data-cy="api-keys-no-api-keys"]')
         .should("be.visible")
@@ -197,7 +202,7 @@ describe("Technical support usre journey", () => {
           "When you leave this screen, you will not be able to see this API key again."
         );
 
-      cy.get('[data-cy="new-key-back-to-api-keys"]')
+      cy.get('[data-cy="new-key-back-button"]')
         .should("be.visible")
         .contains("Back to your API keys")
         .click();
@@ -247,7 +252,7 @@ describe("Technical support usre journey", () => {
 
       cy.get('[data-cy="api-keys-department-name"]')
         .should("be.visible")
-        .should("have.text", "Evil Org");
+        .should("have.text", "Test Org");
 
       cy.get('[data-cy="create-key-summary-list"]')
         .children()
