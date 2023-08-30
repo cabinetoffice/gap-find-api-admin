@@ -216,11 +216,11 @@ class ApiKeyServiceTest {
     @Test
     void getApiKeysForSelectedFundingOrganisations_oneSelected() {
         final List<String> fundingOrgName = Collections.singletonList("test org");
-        when(apiKeyRepository.findAll()).thenReturn(List.of(apiKey,apiKey2));
+        when(apiKeyRepository.findByFundingOrganisationName("test org")).thenReturn(List.of(apiKey));
 
         final List<GapApiKey> response = serviceUnderTest.getApiKeysForSelectedFundingOrganisations(fundingOrgName);
 
-        verify(apiKeyRepository).findAll();
+        verify(apiKeyRepository).findByFundingOrganisationName("test org");
         assertThat(response).isEqualTo(Collections.singletonList(apiKey));
     }
 
