@@ -50,32 +50,53 @@ jobs:
       - name: Unit tests
         run: mvn test
 
-#      - name: Read .nvmrc
-#          run: echo "::set-output name=NVMRC::$(cat .nvmrc)"
-#          id: nvm
-#
-#      - name: Setup node
-#        uses: actions/setup-node@master
-#        with:
-#          node-version: "${{ steps.nvm.outputs.NVMRC }}"
-#
-#      - name: Read yarn cache directory path
-#        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
-#        id: yarn-cache-dir-path
-#
-#      - name: Cache dependencies
-#        uses: actions/cache@v2
-#        id: yarn-cache
-#        with:
-#          path: |
-#            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-#            **/node_modules
-#            ~/.cache/Cypress
-#          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-#          restore-keys: |
-#            ${{ runner.os }}-yarn-
+      - name: Read .nvmrc
+          working-directory: src/test/e2e
+          run: echo "::set-output name=NVMRC::$(cat .nvmrc)"
+          id: nvm
 
-      - name: Cypress tests
+      - name: Setup node
+        working-directory: src/test/e2e
+        uses: actions/setup-node@master
+        with:
+          node-version: "${{ steps.nvm.outputs.NVMRC }}"
+
+      - name: Read yarn cache directory path
+        working-directory: src/test/e2e
+        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+        id: yarn-cache-dir-path
+
+      - name: Cache dependencies
+        working-directory: src/test/e2e
+        uses: actions/cache@v2
+        id: yarn-cache
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            **/node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install yarn
+        working-directory: src/test/e2e
+        run: yarn install
+
+      - name: Setup cypress test environment
         run: |
           mvn spring-boot:build-image -DskipTests
           docker compose -f docker-compose.yml up -d
+
+      - name: Run cypress tests
+          working-directory: src/test/e2e
+          uses: cypress-io/github-action@v5
+          with:
+            config-file: cypress.config.js
+            record: false
+            wait-on: 'http://localhost:8084'
+            wait-on-timeout: 60
+            browser: chrome
+            runTests: true
+            spec: cypress/e2e/*
+
