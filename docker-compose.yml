@@ -38,6 +38,9 @@ services:
       - postgres-db
     ports:
       - "8084:8084"
+    environment:
+      spring_datasource_url: jdbc:postgresql://host.docker.internal:5432/gapapply
+      user_service_domain: http://host.docker.internal:8082
     networks:
       - testing-network
 
