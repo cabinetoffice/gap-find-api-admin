@@ -88,9 +88,9 @@ jobs:
           docker compose -f docker-compose.yml up -d
 
       - name: Run cypress tests
-        working-directory: src/test/e2e
         uses: cypress-io/github-action@v5
         with:
+          working-directory: src/test/e2e
           config-file: cypress.config.js
           record: false
           wait-on: 'http://localhost:8084'
