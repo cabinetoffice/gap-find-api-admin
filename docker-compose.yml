@@ -1,0 +1,46 @@
+# docker-compose.yml
+version: '3'
+services:
+
+  #Postgres Database
+  postgres-db:
+    container_name: postgres-db
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: gapapply
+    ports:
+      - "5432:5432"
+    networks:
+      - testing-network
+    volumes: 
+      - ./db/:/docker-entrypoint-initdb.d/ # copies files from db folder into the container and runs the files inside. It's a seeder
+
+  #wiremock
+  wiremock:
+    container_name: wiremock
+    image: wiremock/wiremock:2.35.0
+    ports:
+      - '8082:8080'
+    volumes:
+      - ./mockUserServiceValidation/wiremock:/home/wiremock
+    command:
+      - "--global-response-templating"
+    networks:
+      - testing-network
+
+    #GAP Find API admin app
+  gap-find-api-admin:
+    container_name: gap-find-api-admin
+    image: gap-find-api-admin:latest
+    depends_on:
+      - postgres-db
+    ports:
+      - "8084:8084"
+    networks:
+      - testing-network
+
+
+networks:
+  testing-network:
