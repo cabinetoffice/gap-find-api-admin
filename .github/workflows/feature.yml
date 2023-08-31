@@ -51,9 +51,9 @@ jobs:
         run: mvn test
 
       - name: Read .nvmrc
-          working-directory: src/test/e2e
-          run: echo "::set-output name=NVMRC::$(cat .nvmrc)"
-          id: nvm
+        working-directory: src/test/e2e
+        run: echo "::set-output name=NVMRC::$(cat .nvmrc)"
+        id: nvm
 
       - name: Setup node
         working-directory: src/test/e2e
@@ -89,14 +89,14 @@ jobs:
           docker compose -f docker-compose.yml up -d
 
       - name: Run cypress tests
-          working-directory: src/test/e2e
-          uses: cypress-io/github-action@v5
-          with:
-            config-file: cypress.config.js
-            record: false
-            wait-on: 'http://localhost:8084'
-            wait-on-timeout: 60
-            browser: chrome
-            runTests: true
-            spec: cypress/e2e/*
+        working-directory: src/test/e2e
+        uses: cypress-io/github-action@v5
+        with:
+          config-file: cypress.config.js
+          record: false
+          wait-on: 'http://localhost:8084'
+          wait-on-timeout: 60
+          browser: chrome
+          runTests: true
+          spec: cypress/e2e/*
 
