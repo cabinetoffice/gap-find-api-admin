@@ -56,8 +56,7 @@ jobs:
         id: nvm
 
       - name: Setup node
-        working-directory: src/test/e2e
-        uses: actions/setup-node@master
+        uses: actions/setup-node@v3
         with:
           node-version: "${{ steps.nvm.outputs.NVMRC }}"
 
