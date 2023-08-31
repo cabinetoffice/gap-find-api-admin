@@ -86,12 +86,10 @@ jobs:
 
       - name: Setup cypress test environment
         run: |
-          echo "BANANA"
-          docker ps -a
           docker build -t gap-find-api-admin .
-          echo "PINEAPPLE"
-          docker ps -a
-          docker compose -f docker-compose.yml up -d
+          echo "BANANA"
+          lsof -n -i4TCP:8084
+          docker compose -f docker-compose.yml up
           echo "PEACH"
           docker ps -a
 
