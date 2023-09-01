@@ -24,6 +24,10 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           cache: maven
+        run: |
+          echo ANANAS
+          pwd
+          ls -la
 
       - name: Build with Maven
         run: mvn package --file pom.xml
@@ -109,7 +113,7 @@ jobs:
       - name: Run cypress tests
         uses: cypress-io/github-action@v5
         with:
-          working-directory: src/test/e2e
+          working-directory: src/test/e2e/
           config-file: cypress.config.js
           record: false
           browser: chrome
