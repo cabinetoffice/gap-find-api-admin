@@ -107,9 +107,10 @@ jobs:
           working-directory: src/test/e2e
           config-file: cypress.config.js
           record: false
-          wait-on: 'http://localhost:8080'
+          wait-on: 'http://gap-find-api-admin:8080'
           wait-on-timeout: 60
           browser: chrome
           runTests: true
           spec: cypress/e2e/*
+
 
