@@ -107,7 +107,7 @@ jobs:
           working-directory: src/test/e2e
           config-file: cypress.config.js
           record: false
-          wait-on: 'http://gap-find-api-admin:8080'
+          wait-on: 'http://host.docker.internal:8080'
           wait-on-timeout: 60
           browser: chrome
           runTests: true
