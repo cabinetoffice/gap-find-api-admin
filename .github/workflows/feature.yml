@@ -107,7 +107,7 @@ jobs:
           working-directory: src/test/e2e
           config-file: cypress.config.js
           record: false
-          wait-on: 'http://localhost:8084'
+          wait-on: 'http://localhost:8080'
           wait-on-timeout: 60
           browser: chrome
           runTests: true
