@@ -102,6 +102,10 @@ jobs:
           docker ps -a
           docker network inspect gap-find-api-admin_testing-network
 
+      - name: Let's nap for 30 seconds to make sure the app has started
+        run: |
+          sleep 30
+
       - name: Run cypress tests
         uses: cypress-io/github-action@v5
         with:
