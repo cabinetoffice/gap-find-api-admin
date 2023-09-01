@@ -100,7 +100,7 @@ jobs:
           docker compose -f docker-compose.yml up -d
           echo "PEACH"
           docker ps -a
-          docker network inspect testing-network
+          docker network inspect gap-find-api-admin_testing-network
 
       - name: Run cypress tests
         uses: cypress-io/github-action@v5
