@@ -97,7 +97,7 @@ jobs:
           docker build -t gap-find-api-admin .
           echo "BANANA"
           sudo lsof -n -i4TCP:8084
-          docker compose -f docker-compose.yml up
+          docker compose -f docker-compose.yml up -d
           echo "PEACH"
           docker ps -a
 
