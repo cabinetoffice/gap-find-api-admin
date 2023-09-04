@@ -30,7 +30,6 @@ services:
     command:
       - "--global-response-templating"
 
-
     #GAP Find API admin app
   gap-find-api-admin:
     container_name: gap-find-api-admin
@@ -50,7 +49,6 @@ services:
       aws_region: eu-west-2
     networks:
       - testing-network
-
 
 networks:
   testing-network:

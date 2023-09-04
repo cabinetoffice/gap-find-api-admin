@@ -26,34 +26,29 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: |
-          echo ANANAS
-          pwd
-          ls -la
-          mvn package --file pom.xml
+        run: mvn package --file pom.xml
 
-# TODO uncomment
-#      - name: DependencyCheck
-#        uses: dependency-check/Dependency-Check_Action@main
-#        env:
-#          JAVA_HOME: /opt/jdk
-#        id: DependencyCheck
-#        with:
-#          project: "gap-find-api-admin"
-#          path: "."
-#          format: "HTML"
-#          args: >
-#            --enableRetired
-#            --disableOssIndex true
-#
-#      - name: Upload Test results
-#        uses: actions/upload-artifact@master
-#        with:
-#          name: DependencyCheck report
-#          path: ${{github.workspace}}/reports
-#
-#      - name: Unit tests
-#        run: mvn test
+      - name: DependencyCheck
+        uses: dependency-check/Dependency-Check_Action@main
+        env:
+          JAVA_HOME: /opt/jdk
+        id: DependencyCheck
+        with:
+          project: "gap-find-api-admin"
+          path: "."
+          format: "HTML"
+          args: >
+            --enableRetired
+            --disableOssIndex true
+
+      - name: Upload Test results
+        uses: actions/upload-artifact@master
+        with:
+          name: DependencyCheck report
+          path: ${{github.workspace}}/reports
+
+      - name: Unit tests
+        run: mvn test
 
       - name: Read .nvmrc
         working-directory: src/test/e2e
@@ -64,24 +59,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "${{ steps.nvm.outputs.NVMRC }}"
-
-      - name: Read yarn cache directory path
-        working-directory: src/test/e2e
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
-        id: yarn-cache-dir-path
-
-#      - name: Cache dependencies
-#        working-directory: src/test/e2e
-#        uses: actions/cache@v2
-#        id: yarn-cache
-#        with:
-#          path: |
-#            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-#            **/node_modules
-#            ~/.cache/Cypress
-#          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-#          restore-keys: |
-#            ${{ runner.os }}-yarn-
 
       - name: Install yarn
         working-directory: src/test/e2e
@@ -99,28 +76,33 @@ jobs:
       - name: Setup cypress test environment
         run: |
           docker build -t gap-find-api-admin .
-          docker compose -f docker-compose.yml up -d
-          docker network inspect gap-find-api-admin_testing-network
+          docker compose -f docker-compose.yml up -d          
+
+      - name: Check Health Endpoint
+        id: healthcheck
+        run: |
+          HEALTH_ENDPOINT="https://localhost:8080/find/api/admin/health"
+          MAX_ATTEMPTS=20 
+          SLEEP_INTERVAL=2
           
-
-      - name: Let's nap for 30 seconds to make sure the app has started
-        run: |
-          sleep 15
-
-      - name: check app is running and wiremock is fine
-        run: |
-          curl -X GET "http://localhost:8082/is-user-logged-in"
-          echo is user logged in
-          curl -X GET "http://localhost:8080/find/api/admin/health"
-          echo health check
-          echo hitting localhost:8080/find/api/admin/api-keys
-          curl -X GET "http://localhost:8080/find/api/admin/api-keys" -H "Cookie: user-service-token=eyJraWQiOiJlN2QzZjk0OS01MzdkLTQxMDItODcwNy0wY2NhZDI0YzBjNDAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0Y28uY3lwcmVzcy50ZXN0LnRlY2huaWNhbC5zdXBwb3J0IiwiYXVkIjoiRkdQIiwicm9sZXMiOiJbQVBQTElDQU5ULCBGSU5ELCBURUNITklDQUxfU1VQUE9SVF0iLCJpZFRva2VuIjoiYmFuYW5hIiwiaXNzIjoiYmFuYW5hIiwiZGVwYXJ0bWVudCI6IkJhbmFuYSIsImV4cCI6MTY5Mjk3MzIyMiwiaWF0IjoxNjkyOTY5NjIyLCJlbWFpbCI6ImJhbmFuYUBmcnVpdCIsImp0aSI6ImJhbmFuYSJ9.RK7Rit6kwwXxLEaH2RR2zLGdl_mNSrJFX1sm6xVj1pTkQInRamLQsZrgDvDQjvOcKcXZ4Scb4JIQ9f0kIzB8UqsYeUk1_Wk6L_URavYyWz5TsOfzkzSoZ-7XXZN1p2gvJlKwuD-WFoRDVXNpUxn0gaCoCdtKJWlsrwEK20A--Jr2yTaZo3uSI00I2MYi7ZZnXF_f15xjTj58iUGsjjkxdEYS3fPizR5XoTMmftohDOzgqKuZDxEEbtKaVCsXcMvQn70rdDg08y1VAj2t05KoL4vxSazOotR6n48iiZqq_8XSbXUW2pOPc70qHPwXzqg74PegbvNbNScBA2v-RpaF1A" -w "%{http_code}\n"
-
-      - name: Dump docker logs on failure
-        if: failure()
-        uses: jwalton/gh-docker-logs@v2
-        with:
-          images: gap-find-api-admin
+          # Loop until a 200 status code is received or max attempts reached
+          for ((i=1; i<=$MAX_ATTEMPTS; i++)); do
+            STATUS_CODE=$(curl -o /dev/null -w '%{http_code}' -s $HEALTH_ENDPOINT)
+            if [ $STATUS_CODE -eq 200 ]; then
+              echo "Health check successful (HTTP 200 OK)"
+              break
+            else
+              echo "Health check failed (HTTP $STATUS_CODE)"
+              if [ $i -lt $MAX_ATTEMPTS ]; then
+                echo "Retrying in $SLEEP_INTERVAL seconds..."
+                sleep $SLEEP_INTERVAL
+              else
+                echo "Max attempts reached. Exiting with failure."
+                exit 1
+              fi
+            fi
+          done
+        continue-on-error: false
 
       - name: Run cypress tests
         uses: cypress-io/github-action@v5
@@ -130,6 +112,12 @@ jobs:
           record: false
           browser: chrome
           runTests: true
-          spec: cypress/e2e/technicalSupport/*
+          spec: cypress/e2e/**/*.cy.js
+
+      - name: Dump docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v2
+        with:
+          images: gap-find-api-admin
 
 
