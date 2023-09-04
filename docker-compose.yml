@@ -27,6 +27,8 @@ services:
       - ./mockUserServiceValidation/wiremock:/home/wiremock
     command:
       - "--global-response-templating"
+    networks:
+        - testing-network
 
     #GAP Find API admin app
   gap-find-api-admin:
@@ -39,7 +41,7 @@ services:
       - "8080:8080"
     environment:
       spring_datasource_url: jdbc:postgresql://postgres-db:5432/gapapply
-      userservice_domain: http://host.docker.internal:8082
+      userservice_domain: http://wiremock:8082
       aws_region: eu-west-2
     networks:
       - testing-network
