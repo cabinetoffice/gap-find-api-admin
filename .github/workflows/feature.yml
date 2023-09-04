@@ -110,6 +110,8 @@ jobs:
 
       - name: check app is running and wiremock is fine
         run: |
+          curl -X GET "http://localhost:8082/is-user-logged-in"
+          echo is user logged in
           curl -X GET "http://localhost:8080/find/api/admin/health"
           echo health check
           echo hitting localhost:8080/find/api/admin/api-keys
