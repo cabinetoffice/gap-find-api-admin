@@ -22,7 +22,7 @@ describe('Super Admin Journey', () => {
   after(() => cy.task('drop:apiKeyTable', Cypress.env()).then(() => cy.task('create:apiKeyTable', Cypress.env())));
   it('should show No keys message when no apiKeys are present', () => {
     cy.setMockTokenForSuperAdmin();
-    cy.visit('${/api-keys/manage');
+    cy.visit(`${BASE_URL}/api-keys/manage`);
     cy.get('[data-cy="header"]').should('be.visible');
     cy.get(`[data-cy="beta-banner"]`).should('be.visible');
     cy.get(`[data-cy="admin-dashboard-heading"]`).should('be.visible').should('have.text', 'Manage API keys');
@@ -47,7 +47,7 @@ describe('Super Admin Journey', () => {
 
   it('should show 110 keys and 2 organisation in the filters and the pagination bar', () => {
     cy.setMockTokenForSuperAdmin();
-    cy.visit('${/api-keys/manage');
+    cy.visit(`${BASE_URL}/api-keys/manage`);
 
     //Check filter side
     cy.get(`[data-cy="admin-dashboard-heading"]`).should('be.visible').should('have.text', 'Manage API keys');
@@ -84,7 +84,7 @@ describe('Super Admin Journey', () => {
 
   it('should show only the filtered keys when department filters are set, and clear all filters should reset those filter', () => {
     cy.setMockTokenForSuperAdmin();
-    cy.visit('${/api-keys/manage');
+    cy.visit(`${BASE_URL}/api-keys/manage`);
 
     //select org1
     cy.get(`[data-cy="admin-dashboard-filter-Test Org-checkbox"]`).click();
@@ -132,7 +132,7 @@ describe('Super Admin Journey', () => {
 
   it('should show the correct pagination when going to next pages ', () => {
     cy.setMockTokenForSuperAdmin();
-    cy.visit('${/api-keys/manage');
+    cy.visit(`${BASE_URL}/api-keys/manage`);
     paginationItemHasCurrentAsCssClass(1);
     paginationLinkHasTheRightHref(1);
     paginationLinkHasTheRightHref(2);
@@ -335,7 +335,7 @@ describe('Super Admin Journey', () => {
 
   it('should be able to revoke any key', () => {
     cy.setMockTokenForSuperAdmin();
-    cy.visit('${/api-keys/manage');
+    cy.visit(`${BASE_URL}/api-keys/manage`);
 
     cy.get(`[data-cy="admin-dashboard-list-table-row-Revoked-Org1Cypress005-link"]`).click();
     cy.url().should('include', '${/api-keys/revoke/');

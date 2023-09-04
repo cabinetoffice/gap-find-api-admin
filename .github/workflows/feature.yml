@@ -101,6 +101,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Delete cypress generated Api keys from Api Gateway
+        if: always()
         run: | 
           chmod +x ./scripts/deleteApiKeys.sh
           ./scripts/deleteApiKeys.sh
