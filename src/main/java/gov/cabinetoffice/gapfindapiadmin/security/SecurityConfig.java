@@ -23,7 +23,8 @@ public class SecurityConfig {
     private static final String[] WHITE_LIST = {
             "/webjars/**",
             "/health",
-            "/js/**"
+            "/js/**",
+            "/api-keys/**",
     };
     private final JwtAuthorisationFilter jwtAuthorisationFilter;
 
