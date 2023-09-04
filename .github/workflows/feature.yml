@@ -79,30 +79,9 @@ jobs:
           docker compose -f docker-compose.yml up -d          
 
       - name: Check Health Endpoint
-        id: healthcheck
         run: |
-          HEALTH_ENDPOINT="http://localhost:8080/find/api/admin/health"
-          MAX_ATTEMPTS=20 
-          SLEEP_INTERVAL=2
-          
-          # Loop until a 200 status code is received or max attempts reached
-          for ((i=1; i<=$MAX_ATTEMPTS; i++)); do
-            STATUS_CODE=$(curl -o /dev/null -w '%{http_code}' -s $HEALTH_ENDPOINT)
-            if [ $STATUS_CODE -eq 200 ]; then
-              echo "Health check successful (HTTP 200 OK)"
-              break
-            else
-              echo "Health check failed (HTTP $STATUS_CODE)"
-              if [ $i -lt $MAX_ATTEMPTS ]; then
-                echo "Retrying in $SLEEP_INTERVAL seconds..."
-                sleep $SLEEP_INTERVAL
-              else
-                echo "Max attempts reached. Exiting with failure."
-                exit 1
-              fi
-            fi
-          done
-        continue-on-error: false
+          chmod +x ./scripts/healthCheckScript.sh
+          ./scripts/healthCheckScript.sh "http://localhost:8080/find/api/admin/health"
 
       - name: Run cypress tests
         uses: cypress-io/github-action@v5
@@ -113,6 +92,18 @@ jobs:
           browser: chrome
           runTests: true
           spec: cypress/e2e/**/*.cy.js
+
+      - name: Setup AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Delete cypress generated Api keys from Api Gateway
+        run: | 
+          chmod +x ./scripts/deleteApiKeys.sh
+          ./scripts/deleteApiKeys.sh
 
       - name: Dump docker logs on failure
         if: failure()
