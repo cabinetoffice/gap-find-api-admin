@@ -99,11 +99,7 @@ jobs:
       - name: Setup cypress test environment
         run: |
           docker build -t gap-find-api-admin .
-          echo "BANANA"
-          sudo lsof -n -i4TCP:8084
           docker compose -f docker-compose.yml up -d
-          echo "PEACH"
-          docker ps -a
           docker network inspect gap-find-api-admin_testing-network
 
       - name: Let's nap for 30 seconds to make sure the app has started
