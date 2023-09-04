@@ -99,7 +99,6 @@ jobs:
       - name: Setup cypress test environment
         run: |
           docker build -t gap-find-api-admin .
-          docker compose -f docker-compose-wiremock.yml up -d
           docker compose -f docker-compose.yml up -d
           docker network inspect gap-find-api-admin_testing-network
           
