@@ -39,7 +39,7 @@ services:
       - postgres-db
       - wiremock
     ports:
-      - "8084:8084"
+      - "8080:8086"
     environment:
       spring_datasource_url: jdbc:postgresql://postgres-db:5432/gapapply
       userservice_domain: http://wiremock:8080
