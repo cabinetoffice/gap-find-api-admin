@@ -101,10 +101,22 @@ jobs:
           docker build -t gap-find-api-admin .
           docker compose -f docker-compose.yml up -d
           docker network inspect gap-find-api-admin_testing-network
+          
 
       - name: Let's nap for 30 seconds to make sure the app has started
         run: |
           sleep 30
+
+      - name: check app is running and wiremock is fine
+        run: |
+          echo hitting localhost:8080/find/api/admin/health
+          curl http://localhost:8080/find/api/admin/health
+          echo hitting localhost:8082/__admin/mappings
+          curl http://localhost:8082/__admin/mappings
+          echo hitting gap-find-api-admin/find/api/admin/health
+          curl http://gap-find-api-admin/find/api/admin/health
+          echo hitting wiremock/__admin/mappings
+          curl http://wiremock/__admin/mappings
 
       - name: Run cypress tests
         uses: cypress-io/github-action@v5
