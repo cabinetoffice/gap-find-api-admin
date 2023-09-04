@@ -23,7 +23,6 @@ services:
     image: gap-find-api-admin:latest
     depends_on:
       - postgres-db
-      - wiremock
     ports:
       - "8080:8080"
     environment:
