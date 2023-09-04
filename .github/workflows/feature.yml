@@ -111,10 +111,10 @@ jobs:
         run: |
           echo hitting localhost:8082/__admin/mappings
           curl http://localhost:8082/__admin/mappings
-          echo hitting gap-find-api-admin/find/api/admin/health
-          curl http://gap-find-api-admin/find/api/admin/health
-          echo hitting wiremock/__admin/mappings
-          curl http://wiremock/__admin/mappings
+          curl http://localhost:8082/is-user-logged-in
+          echo hitting localhost:8080/actuator/health
+          curl http://localhost:8080/find/api/admin/health
+
 
       - name: Run cypress tests
         uses: cypress-io/github-action@v5
