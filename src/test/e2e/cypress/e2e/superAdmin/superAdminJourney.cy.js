@@ -110,7 +110,7 @@ describe('Super Admin Journey', () => {
     cy.get(`[data-cy="admin-dashboard-filter-Evil Org-checkbox"]`).should('be.checked');
     cy.get(`[data-cy="admin-dashboard-filter-apply-button"]`).click();
 
-    cy.url().should('eq', '${/api-keys/manage?selectedDepartments=Evil+Org&selectedDepartments=Test+Org');
+    cy.url().should('eq', `${BASE_URL}/api-keys/manage?selectedDepartments=Evil+Org&selectedDepartments=Test+Org`);
     //rows
     cy.get(`[data-cy="admin-dashboard-list-table-body"]`).should('be.visible').find('tr').should('have.length', 10);
     //pagination
@@ -338,13 +338,13 @@ describe('Super Admin Journey', () => {
     cy.visit(`${BASE_URL}/api-keys/manage`);
 
     cy.get(`[data-cy="admin-dashboard-list-table-row-Revoked-Org1Cypress005-link"]`).click();
-    cy.url().should('include', '${/api-keys/revoke/');
+    cy.url().should('include', `${BASE_URL}/api-keys/revoke/`);
     //test cancel button
     cy.get(`[data-cy="revoke-cancel-button"]`).click();
     cy.url().should('eq', `${BASE_URL}/api-keys/manage`);
 
     cy.get(`[data-cy="admin-dashboard-list-table-row-Revoked-Org1Cypress009-link"]`).click();
-    cy.url().should('include', '${/api-keys/revoke/');
+    cy.url().should('include', `${BASE_URL}/api-keys/revoke/`);
     //test revoke button
     cy.get(`[data-cy="revoke-revoke-button"]`).click();
     cy.url().should('eq', `${BASE_URL}/api-keys/manage`);
