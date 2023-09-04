@@ -109,8 +109,6 @@ jobs:
 
       - name: check app is running and wiremock is fine
         run: |
-#          echo hitting localhost:8080/find/api/admin/health
-#          curl http://localhost:8080/find/api/admin/health
           echo hitting localhost:8082/__admin/mappings
           curl http://localhost:8082/__admin/mappings
           echo hitting gap-find-api-admin/find/api/admin/health
