@@ -40,7 +40,7 @@ services:
       - "8080:8080"
     environment:
       spring_datasource_url: jdbc:postgresql://postgres-db:5432/gapapply
-      user-service_domain: http://host.docker.internal:8082
+      user-service_domain: http://wiremock:8082
       aws_apiGatewayId: ${AWS_API_GATEWAY_ID}
       aws_apiGatewayUsagePlanId: ${AWS_API_GATEWAY_USAGE_PLAN_ID}
       aws_secretKey: ${AWS_SECRET_KEY}
