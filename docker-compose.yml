@@ -27,8 +27,6 @@ services:
       - ./mockUserServiceValidation/wiremock:/home/wiremock
     command:
       - "--global-response-templating"
-    networks:
-        - testing-network
 
     #GAP Find API admin app
   gap-find-api-admin:
@@ -42,6 +40,10 @@ services:
     environment:
       spring_datasource_url: jdbc:postgresql://postgres-db:5432/gapapply
       userservice_domain: http://172.18.0.2:8082
+      aws_apiGatewayId: ${AWS_API_GATEWAY_ID}
+      aws_apiGatewayUsagePlanId: ${AWS_API_GATEWAY_USAGE_PLAN_ID}
+      aws_secretKey: ${AWS_SECRET_KEY}
+      aws_accessKeyId: ${AWS_ACCESS_KEY_ID}
       aws_region: eu-west-2
     networks:
       - testing-network
