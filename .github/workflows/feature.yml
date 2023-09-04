@@ -81,7 +81,7 @@ jobs:
       - name: Check Health Endpoint
         id: healthcheck
         run: |
-          HEALTH_ENDPOINT="https://localhost:8080/find/api/admin/health"
+          HEALTH_ENDPOINT="http://localhost:8080/find/api/admin/health"
           MAX_ATTEMPTS=20 
           SLEEP_INTERVAL=2
           
