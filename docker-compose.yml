@@ -17,17 +17,32 @@ services:
     volumes: 
       - ./db/:/docker-entrypoint-initdb.d/ # copies files from db folder into the container and runs the files inside. It's a seeder
 
+  #wiremock
+  wiremock:
+    container_name: wiremock
+    image: wiremock/wiremock:2.35.0
+    ports:
+      - '8082:8080'
+    volumes:
+      - ./mockUserServiceValidation/wiremock:/home/wiremock
+    networks:
+      - testing-network
+    command:
+      - "--global-response-templating"
+
+
     #GAP Find API admin app
   gap-find-api-admin:
     container_name: gap-find-api-admin
     image: gap-find-api-admin:latest
     depends_on:
       - postgres-db
+      - wiremock
     ports:
       - "8080:8080"
     environment:
       spring_datasource_url: jdbc:postgresql://postgres-db:5432/gapapply
-      userservice_domain: http://localhost:8082
+      userservice_domain: http://wiremock:8082
       aws_apiGatewayId: ${AWS_API_GATEWAY_ID}
       aws_apiGatewayUsagePlanId: ${AWS_API_GATEWAY_USAGE_PLAN_ID}
       aws_secretKey: ${AWS_SECRET_KEY}
