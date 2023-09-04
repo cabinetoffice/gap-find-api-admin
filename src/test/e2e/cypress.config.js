@@ -27,7 +27,7 @@ module.exports = defineConfig({
     },
   },
   redirectionLimit: 200,
-  video: false
+  video: false,
   env: {
     DB_NAME: 'gapapply',
     DB_USERNAME: 'postgres',
