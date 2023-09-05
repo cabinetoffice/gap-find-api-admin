@@ -1,7 +1,14 @@
 #!/bin/bash
+USAGE_PLAN_ID="$1"
 
-# Get the list of API keys, filter by names starting with "Org", and extract IDs
-ids=($(aws apigateway get-api-keys | jq -r '.items[] | select(.name | contains("Cypress")) | .id'))
+
+if [ $# -eq 0 ]; then
+  echo "Error: No USAGE_PLAN_ID provided as an argument."
+  exit 1
+fi
+
+# Get the list of API keys, from the usagePlan and extract ids
+ids=($(aws apigateway get-usage-plan-keys --usage-plan-id $USAGE_PLAN_ID | jq -r '.items[] | .id'))
 total_keys="${#ids[@]}"
 current_key=0
 
