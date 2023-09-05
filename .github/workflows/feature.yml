@@ -26,7 +26,7 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: mvn package --file pom.xml
 
       - name: DependencyCheck
         uses: dependency-check/Dependency-Check_Action@main
@@ -49,3 +49,68 @@ jobs:
 
       - name: Unit tests
         run: mvn test
+
+      - name: Read .nvmrc
+        working-directory: src/test/e2e
+        run: echo "::set-output name=NVMRC::$(cat .nvmrc)"
+        id: nvm
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "${{ steps.nvm.outputs.NVMRC }}"
+
+      - name: Install yarn
+        working-directory: src/test/e2e
+        run: yarn install
+
+      - name: Generate .env for docker file
+        run: |
+          cat << EOF > .env
+          AWS_API_GATEWAY_ID=${{ secrets.AWS_API_GATEWAY_ID }}
+          AWS_API_GATEWAY_USAGE_PLAN_ID=${{ secrets.AWS_API_GATEWAY_USAGE_PLAN_ID }}
+          AWS_SECRET_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          EOF
+
+      - name: Setup cypress test environment
+        run: |
+          docker build -t gap-find-api-admin .
+          docker compose -f docker-compose.yml up -d          
+
+      - name: Check Health Endpoint
+        run: |
+          chmod +x ./scripts/healthCheckScript.sh
+          ./scripts/healthCheckScript.sh "http://localhost:8080/find/api/admin/health"
+
+      - name: Run cypress tests
+        uses: cypress-io/github-action@v5
+        with:
+          working-directory: src/test/e2e/
+          config-file: cypress.config.js
+          record: false
+          browser: chrome
+          runTests: true
+          spec: cypress/e2e/**/*.cy.js
+
+      - name: Setup AWS credentials
+        if: always()
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Delete cypress generated Api keys from Api Gateway
+        if: always()
+        run: | 
+          chmod +x ./scripts/deleteTestKeys.sh
+          ./scripts/deleteTestKeys.sh ${{ secrets.AWS_API_GATEWAY_USAGE_PLAN_ID }}
+
+      - name: Dump docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v2
+        with:
+          images: gap-find-api-admin
+
+

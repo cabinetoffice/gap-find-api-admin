@@ -15,9 +15,11 @@ public interface ApiKeyRepository extends CrudRepository<GapApiKey, Integer> {
     GapApiKey findByName(String name);
 
     Long countByIsRevokedFalse();
-
     @Query("select distinct fundingOrganisation.name from GapApiKey")
+
     List<String> findByUniqueFundingOrganisationNames();
+
+    List<GapApiKey> findByFundingOrganisationName(String name);
 
 
 }

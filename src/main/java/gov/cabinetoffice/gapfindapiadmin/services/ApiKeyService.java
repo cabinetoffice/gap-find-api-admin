@@ -14,9 +14,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static gov.cabinetoffice.gapfindapiadmin.controllers.ApiKeyController.SUPER_ADMIN_ROLE;
+import static java.util.Comparator.comparing;
+import static java.util.Optional.ofNullable;
 
 @Service
 @RequiredArgsConstructor
@@ -56,29 +57,32 @@ public class ApiKeyService {
                 .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
     }
 
-    public String generateBackButtonValue(){
-        if(isSuperAdmin()){
+    public String generateBackButtonValue() {
+        if (isSuperAdmin()) {
             return "/api-keys/manage";
         }
         return "/api-keys";
     }
 
-    protected boolean isSuperAdmin(){
+    protected boolean isSuperAdmin() {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(SUPER_ADMIN_ROLE));
     }
 
     public List<GapApiKey> getApiKeysForSelectedFundingOrganisations(List<String> selectedFundingOrgName) {
-        final List<GapApiKey> gapApiKeys = (List<GapApiKey>) apiKeyRepository.findAll();
-        return Optional.ofNullable(selectedFundingOrgName)
-                .map(names -> gapApiKeys.stream()
-                        .filter(key -> names.contains(key.getFundingOrganisation().getName()))
+        List<GapApiKey> gapApiKeys = ofNullable(selectedFundingOrgName)
+                .map(names -> names.stream()
+                        .flatMap(name -> apiKeyRepository.findByFundingOrganisationName(name).stream())
                         .toList())
-                .orElse(gapApiKeys);
+                .orElseGet(() -> (List<GapApiKey>) apiKeyRepository.findAll());
+
+        return gapApiKeys.stream()
+                .sorted(comparing(GapApiKey::isRevoked))
+                .toList();
     }
 
     public Long getActiveKeyCount(List<GapApiKey> gapApiKeys) {
-        return Optional.ofNullable(gapApiKeys)
+        return ofNullable(gapApiKeys)
                 .map(keys -> keys.stream()
                         .filter(key -> !key.isRevoked())
                         .count())

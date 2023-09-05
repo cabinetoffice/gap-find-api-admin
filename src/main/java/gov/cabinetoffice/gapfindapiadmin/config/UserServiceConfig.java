@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @NoArgsConstructor
 @Configuration("cognitoConfigurationProperties")
-@ConfigurationProperties(prefix = "user-service")
+@ConfigurationProperties(prefix = "userservice")
 public class UserServiceConfig {
 
     @NonNull
