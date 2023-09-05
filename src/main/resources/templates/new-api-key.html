@@ -5,10 +5,11 @@
     <title>New API key</title>
     <script type="text/javascript" th:src="@{/js/copy-to-clipboard.js}"></script>
     <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}" />
+    <link th:href="@{/styles/navbar.css}" rel="stylesheet" />
 </head>
 
 <body class="govuk-template__body">
-<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/header :: header(${navBar})}"></div>
 
 <div class="govuk-width-container">
     <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">

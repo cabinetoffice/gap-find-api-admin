@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <title>Create API key</title>
     <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}"/>
+    <link th:href="@{/styles/navbar.css}" rel="stylesheet" />
 </head>
 
 <body class="govuk-template__body">
-<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/header :: header(${navBar})}"></div>
 
 <div class="govuk-width-container">
     <a th:href="@{/api-keys}" class="govuk-back-link" data-cy="create-key-back-button">Back</a>

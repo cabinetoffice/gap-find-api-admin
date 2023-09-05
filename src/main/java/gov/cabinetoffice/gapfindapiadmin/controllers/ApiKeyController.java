@@ -44,14 +44,17 @@ public class ApiKeyController {
 
         return new ModelAndView(ORGANISATION_API_KEYS_PAGE)
                 .addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()))
-                .addObject("departmentName", departmentName);
+                .addObject("departmentName", departmentName)
+                .addObject("navBar", apiKeyService.generateNavBarDto());
     }
 
     @GetMapping("/create")
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
     public ModelAndView showCreateKeyForm() {
         final ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE);
-        return createApiKey.addObject("createApiKeyDTO", new CreateApiKeyDTO());
+        return createApiKey
+                .addObject("createApiKeyDTO", new CreateApiKeyDTO())
+                .addObject("navBar", apiKeyService.generateNavBarDto());
     }
 
     @PostMapping("/create")
@@ -69,11 +72,13 @@ public class ApiKeyController {
         }
         if (bindingResult.hasErrors()) {
             return new ModelAndView(CREATE_API_KEY_FORM_PAGE)
-                    .addObject("createApiKeyDTO", createApiKeyDTO);
+                    .addObject("createApiKeyDTO", createApiKeyDTO)
+                    .addObject("navBar", apiKeyService.generateNavBarDto());
         }
 
         return new ModelAndView(NEW_API_KEY_PAGE)
-                .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()));
+                .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()))
+                .addObject("navBar", apiKeyService.generateNavBarDto());
     }
 
     @GetMapping("/revoke/{apiKeyId}")
@@ -82,8 +87,9 @@ public class ApiKeyController {
         final GapApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
         return new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
                 .addObject("apiKey", apiKey)
-                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue());
-    }
+                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue())
+                .addObject("navBar", apiKeyService.generateNavBarDto());
+            }
 
     @PostMapping("/revoke")
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT') || hasAuthority('SUPER_ADMIN')")
@@ -96,7 +102,10 @@ public class ApiKeyController {
 
     @GetMapping("/error")
     public ModelAndView displayError() {
-        return new ModelAndView(ERROR_PAGE).addObject("backButtonUrl", apiKeyService.generateBackButtonValue());
+        return new ModelAndView(ERROR_PAGE)
+                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue())
+                .addObject("navBar", apiKeyService.generateNavBarDto());
+
     }
 
     @GetMapping("/manage")
@@ -113,7 +122,9 @@ public class ApiKeyController {
                 .addObject("activeKeyCount", apiKeyService.getActiveKeyCount(allApiKeys))
                 .addObject("apiKeysPage", apiKeysPage)
                 .addObject("pageNumbers", paginationHelper.getNumberOfPages(apiKeysPage.getTotalPages()))
-                .addObject("selectedDepartments", selectedDepartment==null? List.of() : selectedDepartment);
+                .addObject("selectedDepartments", selectedDepartment==null? List.of() : selectedDepartment)
+                .addObject("navBar", apiKeyService.generateNavBarDto());
+
     }
 
 

@@ -1,5 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
+import gov.cabinetoffice.gapfindapiadmin.config.NavBarConfigProperties;
+import gov.cabinetoffice.gapfindapiadmin.dtos.NavBarDto;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
@@ -24,6 +26,7 @@ import static java.util.Optional.ofNullable;
 public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
+    private final NavBarConfigProperties navBarConfigProperties;
 
     public List<GapApiKey> getApiKeysForFundingOrganisation(int fundingOrgId) {
         return apiKeyRepository.findByFundingOrganisationId(fundingOrgId);
@@ -110,4 +113,10 @@ public class ApiKeyService {
         return apiKeyRepository.findByUniqueFundingOrganisationNames();
     }
 
+    public NavBarDto generateNavBarDto(){
+        return NavBarDto.builder()
+                .name(isSuperAdmin() ? "Super Admin Dashboard": "Admin Dashboard")
+                .link(isSuperAdmin() ? navBarConfigProperties.getSuperAdminDashboardLink() : navBarConfigProperties.getAdminDashboardLink())
+                .build();
+    }
 }
