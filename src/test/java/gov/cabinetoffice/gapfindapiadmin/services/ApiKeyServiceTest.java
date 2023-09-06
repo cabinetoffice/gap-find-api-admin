@@ -1,5 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
+import gov.cabinetoffice.gapfindapiadmin.config.NavBarConfigProperties;
+import gov.cabinetoffice.gapfindapiadmin.dtos.NavBarDto;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
@@ -72,6 +74,9 @@ class ApiKeyServiceTest {
 
     @Mock
     private Pageable pageable;
+
+    @Mock
+    private NavBarConfigProperties navBarConfigProperties;
 
     @InjectMocks
     private ApiKeyService serviceUnderTest;
@@ -191,18 +196,6 @@ class ApiKeyServiceTest {
         assertThat(actual).isFalse();
     }
 
-    private Authentication createAuthenticationWithRoles(String role) {
-        Collection<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority(role));
-        return new UsernamePasswordAuthenticationToken("username", "password", authorities);
-    }
-
-    private void setSecurityContext() {
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
-    }
-
     @Test
     void getApiKeysForSelectedFundingOrganisations_noneSelected() {
         when(apiKeyRepository.findAll()).thenReturn(Collections.singletonList(apiKey));
@@ -274,5 +267,64 @@ class ApiKeyServiceTest {
 
         verify(apiKeyRepository).findByUniqueFundingOrganisationNames();
         assertThat(response).isEqualTo(orgNames);
+    }
+
+    @Test
+    void generateNavBarDto_admin() {
+        final NavBarDto expectedNavBarDto = NavBarDto.builder()
+                .name("Admin Dashboard")
+                .link("link")
+                .build();
+        SecurityContextHolder.setContext(securityContext);
+
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("link");
+
+        final NavBarDto response = serviceUnderTest.generateNavBarDto();
+
+        assertThat(response).isEqualTo(expectedNavBarDto);
+    }
+
+    @Test
+    void generateNavBarDto_superAdmin() {
+        final NavBarDto expectedNavBarDto = NavBarDto.builder()
+                .name("Super Admin Dashboard")
+                .link("link")
+                .build();
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
+        when(navBarConfigProperties.getSuperAdminDashboardLink()).thenReturn("link");
+
+        final NavBarDto response = serviceUnderTest.generateNavBarDto();
+
+        assertThat(response).isEqualTo(expectedNavBarDto);
+    }
+
+    @Test
+    void isAdmin_returnTrueWhenUserIsAdmin() {
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("ADMIN"));
+        final boolean actual = serviceUnderTest.isAdmin();
+        assertThat(actual).isTrue();
+    }
+
+    @Test
+    void isAdmin_returnFalseWhenUserIsNotAdmin() {
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
+        final boolean actual = serviceUnderTest.isAdmin();
+        assertThat(actual).isFalse();
+    }
+
+    private Authentication createAuthenticationWithRoles(String role) {
+        Collection<GrantedAuthority> authorities = new HashSet<>();
+        authorities.add(new SimpleGrantedAuthority(role));
+        return new UsernamePasswordAuthenticationToken("username", "password", authorities);
+    }
+
+    private void setSecurityContext() {
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
     }
 }

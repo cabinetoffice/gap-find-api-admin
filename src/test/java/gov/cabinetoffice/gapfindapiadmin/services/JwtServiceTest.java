@@ -15,6 +15,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Spy;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,6 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -109,6 +111,35 @@ class JwtServiceTest {
                     .hasMessage("Token is not valid");
         }
 
+    }
+
+    @Nested
+    class generateSimpleGrantedAuthorityList{
+        @Test
+        public void testGenerateSimpleGrantedAuthorityListSuperAdmin() {
+            final List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(true, false);
+
+            assertThat(result.size()).isEqualTo(1);
+            assertThat(result.get(0).getAuthority()).isEqualTo("SUPER_ADMIN");
+        }
+
+        @Test
+        public void testGenerateSimpleGrantedAuthorityListAdmin() {
+            final List<SimpleGrantedAuthority> expected = List.of(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority("TECHNICAL_SUPPORT"));
+
+            List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(false, true);
+
+            assertThat(result.size()).isEqualTo(2);
+            assertThat(result).isEqualTo(expected);
+        }
+
+        @Test
+        public void testGenerateSimpleGrantedAuthorityListTechnicalSupport() {
+            final List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(false, false);
+
+            assertThat(result.size()).isEqualTo(1);
+            assertThat(result.get(0).getAuthority()).isEqualTo("TECHNICAL_SUPPORT");
+        }
     }
 
 }

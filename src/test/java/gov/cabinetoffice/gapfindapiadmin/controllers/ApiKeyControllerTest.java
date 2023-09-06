@@ -1,6 +1,8 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
+import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.dtos.NavBarDto;
 import gov.cabinetoffice.gapfindapiadmin.helpers.PaginationHelper;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
@@ -54,6 +56,9 @@ class ApiKeyControllerTest {
     @Mock
     private PaginationHelper paginationHelper;
 
+    @Mock
+    private UserServiceConfig userServiceConfig;
+
     @InjectMocks
     private ApiKeyController controllerUnderTest;
 
@@ -77,93 +82,257 @@ class ApiKeyControllerTest {
     private final List<GapApiKey> apiKeyList = List.of(apiKey);
     private final List<Integer> pageNumbers = List.of(1);
 
+    private final NavBarDto navBarDto = NavBarDto.builder().link("link").name("name").build();
+
     @Test
-    @WithMockUser()
-    void showKeys_expectedResponse() {
+    void showKeys_expectedResponse_hasNotAdminRole() {
 
         final String apiKey = "Key";
         final List<GapApiKey> expectedApiKeys = List.of(GapApiKey.builder().apiKey(apiKey).build());
         prepareAuthentication();
 
         when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(false);
 
         ModelAndView actualResponse = controllerUnderTest.showKeys();
-
         List<GapApiKey> actualApiKeys = (List<GapApiKey>) actualResponse.getModel().get("apiKeys");
 
+        assertThat(actualResponse.getViewName()).isEqualTo(ApiKeyController.ORGANISATION_API_KEYS_PAGE);
+        assertThat(actualResponse.getModel()).hasSize(3);
         assertThat(actualResponse.getModel()).containsEntry("apiKeys",expectedApiKeys);
         assertThat(actualResponse.getModel()).containsEntry("departmentName",fundingOrganisation.getName());
+        assertThat(actualResponse.getModel()).containsEntry("signOutUrl","domain/v2/logout");
+        assertThat(actualApiKeys.get(0).getApiKey()).isEqualTo(apiKey);
+    }
+
+    @Test
+    void showKeys_expectedResponse_hasAdminRole() {
+        final String apiKey = "Key";
+        final List<GapApiKey> expectedApiKeys = List.of(GapApiKey.builder().apiKey(apiKey).build());
+        prepareAuthentication();
+
+        when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(true);
+        when(apiKeyService.generateNavBarDto()).thenReturn(navBarDto);
+
+        ModelAndView actualResponse = controllerUnderTest.showKeys();
+        List<GapApiKey> actualApiKeys = (List<GapApiKey>) actualResponse.getModel().get("apiKeys");
+
+        assertThat(actualResponse.getViewName()).isEqualTo(ApiKeyController.ORGANISATION_API_KEYS_PAGE);
+        assertThat(actualResponse.getModel()).hasSize(4);
+        assertThat(actualResponse.getModel()).containsEntry("apiKeys",expectedApiKeys);
+        assertThat(actualResponse.getModel()).containsEntry("departmentName",fundingOrganisation.getName());
+        assertThat(actualResponse.getModel()).containsEntry("signOutUrl","domain/v2/logout");
+        assertThat(actualResponse.getModel()).containsEntry("navBar", navBarDto);
         assertThat(actualApiKeys.get(0).getApiKey()).isEqualTo(apiKey);
     }
 
     @Test
     void showKeys_expectedResponse_emptyList() {
-
         List<GapApiKey> expectedApiKeys = new ArrayList<>();
         prepareAuthentication();
         when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(false);
 
         ModelAndView actualResponse = controllerUnderTest.showKeys();
+
+        assertThat(actualResponse.getViewName()).isEqualTo(ApiKeyController.ORGANISATION_API_KEYS_PAGE);
+        assertThat(actualResponse.getModel()).hasSize(3);
         assertThat(actualResponse.getModel()).containsEntry("apiKeys",expectedApiKeys);
+        assertThat(actualResponse.getModel()).containsEntry("departmentName",fundingOrganisation.getName());
+        assertThat(actualResponse.getModel()).containsEntry("signOutUrl","domain/v2/logout");
 
     }
 
     @Test
-    void showCreateApiKeyFormPage_ShouldShowTheCorrectViewAndAttachedObject() {
+    void showCreateApiKeyFormPage_ShouldShowTheCorrectViewAndAttachedObject_hasNotAdminRole() {
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(false);
+
         final ModelAndView methodResponse = controllerUnderTest.showCreateKeyForm();
+
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
+        assertThat(methodResponse.getModel()).hasSize(2);
         assertThat(methodResponse.getModel().get("createApiKeyDTO")).isInstanceOf(CreateApiKeyDTO.class);
+        assertThat(methodResponse.getModel()).containsEntry("signOutUrl","domain/v2/logout");
     }
 
     @Test
-    void createKey_ShouldShowTheCorrectViewAndAttachedObject() {
+    void showCreateApiKeyFormPage_ShouldShowTheCorrectViewAndAttachedObject_hasAdminRole() {
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(true);
+        when(apiKeyService.generateNavBarDto()).thenReturn(navBarDto);
+
+        final ModelAndView methodResponse = controllerUnderTest.showCreateKeyForm();
+
+        assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
+        assertThat(methodResponse.getModel()).hasSize(3);
+        assertThat(methodResponse.getModel().get("createApiKeyDTO")).isInstanceOf(CreateApiKeyDTO.class);
+        assertThat(methodResponse.getModel()).containsEntry("signOutUrl","domain/v2/logout");
+        assertThat(methodResponse.getModel()).containsEntry("navBar", navBarDto);
+    }
+
+    @Test
+    void createKey_ShouldShowTheCorrectViewAndAttachedObject_hasNotAdminRole() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
+
         when(apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName())).thenReturn("keyValue");
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(false);
 
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
 
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.NEW_API_KEY_PAGE);
+        assertThat(methodResponse.getModel()).hasSize(2);
         assertThat(methodResponse.getModel()).containsEntry("keyValue", "keyValue");
+        assertThat(methodResponse.getModel()).containsEntry("signOutUrl","domain/v2/logout");
     }
 
     @Test
-    void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyDtoIsEmpty() {
+    void createKey_ShouldShowTheCorrectViewAndAttachedObject_hasAdminRole() {
+        final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
+
+        when(apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName())).thenReturn("keyValue");
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(true);
+        when(apiKeyService.generateNavBarDto()).thenReturn(navBarDto);
+
+        final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
+
+        assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.NEW_API_KEY_PAGE);
+        assertThat(methodResponse.getModel()).hasSize(3);
+        assertThat(methodResponse.getModel()).containsEntry("keyValue", "keyValue");
+        assertThat(methodResponse.getModel()).containsEntry("signOutUrl","domain/v2/logout");
+        assertThat(methodResponse.getModel()).containsEntry("navBar", navBarDto);
+
+    }
+
+    @Test
+    void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyDtoIsEmpty_hasNotAdminRole() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().build();
+
         when(bindingResult.hasErrors()).thenReturn(true);
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(false);
 
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
 
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
-        assertThat(methodResponse.getModel().get("createApiKeyDTO")).isInstanceOf(CreateApiKeyDTO.class);
+        assertThat(methodResponse.getModel()).hasSize(2);
+        assertThat(methodResponse.getModel()).containsEntry("createApiKeyDTO", createApiKeyDTO);
+        assertThat(methodResponse.getModel()).containsEntry("signOutUrl","domain/v2/logout");
     }
 
     @Test
-    void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyAlreadyExists() {
+    void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyDtoIsEmpty_hasAdminRole() {
+        final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().build();
+
+        when(bindingResult.hasErrors()).thenReturn(true);
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(true);
+        when(apiKeyService.generateNavBarDto()).thenReturn(navBarDto);
+
+        final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
+
+        assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
+        assertThat(methodResponse.getModel()).hasSize(3);
+        assertThat(methodResponse.getModel()).containsEntry("createApiKeyDTO", createApiKeyDTO);
+        assertThat(methodResponse.getModel()).containsEntry("signOutUrl","domain/v2/logout");
+        assertThat(methodResponse.getModel()).containsEntry("navBar", navBarDto);
+
+    }
+
+    @Test
+    void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyAlreadyExists_hasNotAdminRole() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
+
         when(apiKeyService.doesApiKeyExist(createApiKeyDTO.getKeyName())).thenReturn(true);
         when(bindingResult.hasErrors()).thenReturn(true);
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(false);
+
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
 
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
-        assertThat(methodResponse.getModel().get("createApiKeyDTO")).isInstanceOf(CreateApiKeyDTO.class);
-    }
-
-    private void prepareAuthentication() {
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
+        assertThat(methodResponse.getModel()).hasSize(2);
+        assertThat(methodResponse.getModel()).containsEntry("createApiKeyDTO", createApiKeyDTO);
+        assertThat(methodResponse.getModel()).containsEntry("signOutUrl","domain/v2/logout");
     }
 
     @Test
-    void showRevokeApiKeyPage_showsCorrectView() {
+    void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyAlreadyExists_hasAdminRole() {
+        final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
+
+        when(apiKeyService.doesApiKeyExist(createApiKeyDTO.getKeyName())).thenReturn(true);
+        when(bindingResult.hasErrors()).thenReturn(true);
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(true);
+        when(apiKeyService.generateNavBarDto()).thenReturn(navBarDto);
+
+        final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
+
+        assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
+        assertThat(methodResponse.getModel()).hasSize(3);
+        assertThat(methodResponse.getModel()).containsEntry("createApiKeyDTO", createApiKeyDTO);
+        assertThat(methodResponse.getModel()).containsEntry("signOutUrl","domain/v2/logout");
+        assertThat(methodResponse.getModel()).containsEntry("navBar", navBarDto);
+    }
+
+    @Test
+    void showRevokeApiKeyPage_showsCorrectView_hasNotAdminOrSuperAdminRole() {
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(false);
+        when(apiKeyService.isSuperAdmin()).thenReturn(false);
+        when(apiKeyService.generateBackButtonValue()).thenReturn("/backButtonUrl");
 
         final ModelAndView response = controllerUnderTest.showRevokeApiKeyConfirmation(API_KEY_ID);
 
         assertThat(response.getViewName()).isEqualTo(ApiKeyController.REVOKE_API_KEY_CONFIRMATION_PAGE);
+        assertThat(response.getModel()).hasSize(3);
         assertThat(response.getModel()).containsEntry("apiKey", apiKey);
+        assertThat(response.getModel()).containsEntry("backButtonUrl", "/backButtonUrl");
+        assertThat(response.getModel()).containsEntry("signOutUrl","domain/v2/logout");
     }
 
+    @Test
+    void showRevokeApiKeyPage_showsCorrectView_hasAdminRole() {
+        when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isAdmin()).thenReturn(true);
+        when(apiKeyService.generateBackButtonValue()).thenReturn("/backButtonUrl");
+        when(apiKeyService.generateNavBarDto()).thenReturn(navBarDto);
+
+        final ModelAndView response = controllerUnderTest.showRevokeApiKeyConfirmation(API_KEY_ID);
+
+        assertThat(response.getViewName()).isEqualTo(ApiKeyController.REVOKE_API_KEY_CONFIRMATION_PAGE);
+        assertThat(response.getModel()).hasSize(4);
+        assertThat(response.getModel()).containsEntry("apiKey", apiKey);
+        assertThat(response.getModel()).containsEntry("backButtonUrl", "/backButtonUrl");
+        assertThat(response.getModel()).containsEntry("signOutUrl","domain/v2/logout");
+        assertThat(response.getModel()).containsEntry("navBar", navBarDto);
+    }
+
+    @Test
+    void showRevokeApiKeyPage_showsCorrectView_hasSuperAdminRole() {
+        when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
+        when(userServiceConfig.getDomain()).thenReturn("domain");
+        when(apiKeyService.isSuperAdmin()).thenReturn(true);
+        when(apiKeyService.generateBackButtonValue()).thenReturn("/backButtonUrl");
+        when(apiKeyService.generateNavBarDto()).thenReturn(navBarDto);
+
+        final ModelAndView response = controllerUnderTest.showRevokeApiKeyConfirmation(API_KEY_ID);
+
+        assertThat(response.getViewName()).isEqualTo(ApiKeyController.REVOKE_API_KEY_CONFIRMATION_PAGE);
+        assertThat(response.getModel()).hasSize(4);
+        assertThat(response.getModel()).containsEntry("apiKey", apiKey);
+        assertThat(response.getModel()).containsEntry("backButtonUrl", "/backButtonUrl");
+        assertThat(response.getModel()).containsEntry("signOutUrl","domain/v2/logout");
+        assertThat(response.getModel()).containsEntry("navBar", navBarDto);
+    }
     @Test
     void revokeApiKeyPost_returnsExpectedResponse() {
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
@@ -192,15 +361,20 @@ class ApiKeyControllerTest {
         when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));
         when(paginationHelper.getGapApiKeysPage(apiKeyList,1)).thenReturn(apiKeyPage);
         when(paginationHelper.getNumberOfPages(apiKeyPage.getTotalPages())).thenReturn(List.of(1));
+        when(apiKeyService.generateNavBarDto()).thenReturn(navBarDto);
+        when(userServiceConfig.getDomain()).thenReturn("domain");
 
         final ModelAndView response = controllerUnderTest.displaySuperAdminPage(selectedDepartments, of(1));
 
         assertThat(response.getViewName()).isEqualTo(ApiKeyController.SUPER_ADMIN_PAGE);
+        assertThat(response.getModel()).hasSize(7);
         assertThat(response.getModel()).containsEntry("departments", departments);
         assertThat(response.getModel()).containsEntry("activeKeyCount", 1L);
         assertThat(response.getModel()).containsEntry("apiKeysPage", apiKeyPage);
         assertThat(response.getModel()).containsEntry("pageNumbers", pageNumbers);
         assertThat(response.getModel()).containsEntry("selectedDepartments", selectedDepartments);
+        assertThat(response.getModel()).containsEntry("navBar", navBarDto);
+        assertThat(response.getModel()).containsEntry("signOutUrl","domain/v2/logout");
     }
 
     @Test
@@ -210,15 +384,25 @@ class ApiKeyControllerTest {
         when(apiKeyService.getActiveKeyCount(apiKeyList)).thenReturn(Long.valueOf(1));
         when(paginationHelper.getGapApiKeysPage(apiKeyList,1)).thenReturn(apiKeyPage);
         when(paginationHelper.getNumberOfPages(apiKeyPage.getTotalPages())).thenReturn(List.of(1));
+        when(apiKeyService.generateNavBarDto()).thenReturn(navBarDto);
+        when(userServiceConfig.getDomain()).thenReturn("domain");
 
         final ModelAndView response = controllerUnderTest.displaySuperAdminPage(null, empty());
 
         assertThat(response.getViewName()).isEqualTo(ApiKeyController.SUPER_ADMIN_PAGE);
+        assertThat(response.getModel()).hasSize(7);
         assertThat(response.getModel()).containsEntry("departments", departments);
         assertThat(response.getModel()).containsEntry("activeKeyCount", 1L);
         assertThat(response.getModel()).containsEntry("apiKeysPage", apiKeyPage);
         assertThat(response.getModel()).containsEntry("pageNumbers", pageNumbers);
         assertThat(response.getModel()).containsEntry("selectedDepartments", List.of());
+        assertThat(response.getModel()).containsEntry("navBar", navBarDto);
+        assertThat(response.getModel()).containsEntry("signOutUrl","domain/v2/logout");
     }
 
+    private void prepareAuthentication() {
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
+    }
 }
