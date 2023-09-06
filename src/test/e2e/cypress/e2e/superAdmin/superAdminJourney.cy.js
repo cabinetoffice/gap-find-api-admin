@@ -10,6 +10,7 @@ import {
   paginationPreviousItemHasTheRightHref,
 } from '../../utils/superAdminHelpers';
 
+import { checkNavBarItemIsRightForTheUserRole, signOutIsPresent } from '../../utils/helpers';
 const today = new Date().toLocaleDateString('en-GB', {
   day: 'numeric',
   month: 'long',
@@ -23,6 +24,8 @@ describe('Super Admin Journey', () => {
   it('should show No keys message when no apiKeys are present', () => {
     cy.setMockTokenForSuperAdmin();
     cy.visit(`${BASE_URL}/api-keys/manage`);
+    checkNavBarItemIsRightForTheUserRole('SUPER_ADMIN');
+    signOutIsPresent();
     cy.get('[data-cy="header"]').should('be.visible');
     cy.get(`[data-cy="beta-banner"]`).should('be.visible');
     cy.get(`[data-cy="admin-dashboard-heading"]`).should('be.visible').should('have.text', 'Manage API keys');
@@ -146,6 +149,8 @@ describe('Super Admin Journey', () => {
     //go to page 2
     cy.get(`[data-cy="admin-dashboard-pagination-page-2-link"]`).click();
     cy.url().should('eq', `${BASE_URL}/api-keys/manage?page=2`);
+    checkNavBarItemIsRightForTheUserRole('SUPER_ADMIN');
+    signOutIsPresent();
     paginationPreviousItemHasTheRightHref(1);
     paginationLinkHasTheRightHref(1);
     paginationItemHasNotCurrentAsCssClass(1);
@@ -340,6 +345,8 @@ describe('Super Admin Journey', () => {
     cy.get(`[data-cy="admin-dashboard-list-table-row-Revoked-Org1Cypress005-link"]`).click();
     cy.url().should('include', `${BASE_URL}/api-keys/revoke/`);
     //test cancel button
+    checkNavBarItemIsRightForTheUserRole('SUPER_ADMIN');
+    signOutIsPresent();
     cy.get(`[data-cy="revoke-cancel-button"]`).click();
     cy.url().should('eq', `${BASE_URL}/api-keys/manage`);
 
