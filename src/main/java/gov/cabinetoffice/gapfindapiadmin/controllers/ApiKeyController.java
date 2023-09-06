@@ -14,7 +14,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -30,7 +35,6 @@ public class ApiKeyController {
     public static final String REVOKE_API_KEY_CONFIRMATION_PAGE = "revoke-api-key-confirmation";
     public static final String ERROR_PAGE = "error-page";
     public static final String SUPER_ADMIN_PAGE = "super-admin-api-keys";
-    public static final String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
 
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
@@ -41,20 +45,19 @@ public class ApiKeyController {
     public ModelAndView showKeys() {
         final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final String departmentName = grantAdmin.getFunder().getName();
-
-        return new ModelAndView(ORGANISATION_API_KEYS_PAGE)
+        ModelAndView model = new ModelAndView(ORGANISATION_API_KEYS_PAGE)
                 .addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()))
-                .addObject("departmentName", departmentName)
-                .addObject("navBar", apiKeyService.generateNavBarDto());
+                .addObject("departmentName", departmentName);
+
+        return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
     }
 
     @GetMapping("/create")
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
     public ModelAndView showCreateKeyForm() {
-        final ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE);
-        return createApiKey
-                .addObject("createApiKeyDTO", new CreateApiKeyDTO())
-                .addObject("navBar", apiKeyService.generateNavBarDto());
+        final ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE).addObject("createApiKeyDTO", new CreateApiKeyDTO());
+
+        return apiKeyService.isAdmin() ? createApiKey.addObject("navBar", apiKeyService.generateNavBarDto()) : createApiKey;
     }
 
     @PostMapping("/create")
@@ -71,25 +74,27 @@ public class ApiKeyController {
             bindingResult.addError(duplicateKey);
         }
         if (bindingResult.hasErrors()) {
-            return new ModelAndView(CREATE_API_KEY_FORM_PAGE)
-                    .addObject("createApiKeyDTO", createApiKeyDTO)
-                    .addObject("navBar", apiKeyService.generateNavBarDto());
-        }
+            ModelAndView model = new ModelAndView(CREATE_API_KEY_FORM_PAGE)
+                    .addObject("createApiKeyDTO", createApiKeyDTO);
 
-        return new ModelAndView(NEW_API_KEY_PAGE)
-                .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()))
-                .addObject("navBar", apiKeyService.generateNavBarDto());
+            return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
+        }
+        ModelAndView model = new ModelAndView(NEW_API_KEY_PAGE)
+                .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()));
+
+        return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
     }
 
     @GetMapping("/revoke/{apiKeyId}")
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT') || hasAuthority('SUPER_ADMIN')")
     public ModelAndView showRevokeApiKeyConfirmation(@PathVariable int apiKeyId) {
         final GapApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
-        return new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
+        ModelAndView model = new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
                 .addObject("apiKey", apiKey)
-                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue())
-                .addObject("navBar", apiKeyService.generateNavBarDto());
-            }
+                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue());
+
+        return apiKeyService.isAdmin() || apiKeyService.isSuperAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
+    }
 
     @PostMapping("/revoke")
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT') || hasAuthority('SUPER_ADMIN')")
@@ -97,37 +102,32 @@ public class ApiKeyController {
         // TODO: see if we can do this in one transaction
         apiGatewayService.deleteApiKey(apiKeyService.getApiKeyById(apiKey.getId()));
         apiKeyService.revokeApiKey(apiKey.getId());
+
         return "redirect:" + apiKeyService.generateBackButtonValue();
     }
 
     @GetMapping("/error")
     public ModelAndView displayError() {
-        return new ModelAndView(ERROR_PAGE)
-                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue())
-                .addObject("navBar", apiKeyService.generateNavBarDto());
+        ModelAndView model = new ModelAndView(ERROR_PAGE)
+                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue());
 
+        return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
     }
 
     @GetMapping("/manage")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ModelAndView displaySuperAdminPage(@RequestParam(value = "selectedDepartments", required = false) List<String> selectedDepartment,
-                                 @RequestParam(value = "page", required = false) Optional<Integer> page) {
+                                              @RequestParam(value = "page", required = false) Optional<Integer> page) {
         final List<GapApiKey> allApiKeys = apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartment);
         final int currentPage = page.orElse(1);
         final Page<GapApiKey> apiKeysPage = paginationHelper.getGapApiKeysPage(allApiKeys, currentPage);
-
 
         return new ModelAndView(SUPER_ADMIN_PAGE)
                 .addObject("departments", apiKeyService.getFundingOrgForAllApiKeys())
                 .addObject("activeKeyCount", apiKeyService.getActiveKeyCount(allApiKeys))
                 .addObject("apiKeysPage", apiKeysPage)
                 .addObject("pageNumbers", paginationHelper.getNumberOfPages(apiKeysPage.getTotalPages()))
-                .addObject("selectedDepartments", selectedDepartment==null? List.of() : selectedDepartment)
+                .addObject("selectedDepartments", selectedDepartment == null ? List.of() : selectedDepartment)
                 .addObject("navBar", apiKeyService.generateNavBarDto());
-
     }
-
-
-
-
 }
