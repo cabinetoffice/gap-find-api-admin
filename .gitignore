@@ -32,3 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 /src/test/e2e/node_modules/
+
+### Local properties ###
+application-local.properties
+.env.local
