@@ -1,5 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
+import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
 import gov.cabinetoffice.gapfindapiadmin.helpers.PaginationHelper;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
@@ -39,6 +40,7 @@ public class ApiKeyController {
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
     private final PaginationHelper paginationHelper;
+    private final UserServiceConfig userServiceConfig;
 
     @GetMapping
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
@@ -47,7 +49,8 @@ public class ApiKeyController {
         final String departmentName = grantAdmin.getFunder().getName();
         ModelAndView model = new ModelAndView(ORGANISATION_API_KEYS_PAGE)
                 .addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()))
-                .addObject("departmentName", departmentName);
+                .addObject("departmentName", departmentName)
+                .addObject("signOutUrl", userServiceConfig.getDomain() + "/v2/logout");
 
         return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
     }
@@ -55,7 +58,9 @@ public class ApiKeyController {
     @GetMapping("/create")
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
     public ModelAndView showCreateKeyForm() {
-        final ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE).addObject("createApiKeyDTO", new CreateApiKeyDTO());
+        final ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE)
+                .addObject("createApiKeyDTO", new CreateApiKeyDTO())
+                .addObject("signOutUrl", userServiceConfig.getDomain() + "/v2/logout");
 
         return apiKeyService.isAdmin() ? createApiKey.addObject("navBar", apiKeyService.generateNavBarDto()) : createApiKey;
     }
@@ -75,12 +80,14 @@ public class ApiKeyController {
         }
         if (bindingResult.hasErrors()) {
             ModelAndView model = new ModelAndView(CREATE_API_KEY_FORM_PAGE)
-                    .addObject("createApiKeyDTO", createApiKeyDTO);
+                    .addObject("createApiKeyDTO", createApiKeyDTO)
+                    .addObject("signOutUrl", userServiceConfig.getDomain() + "/v2/logout");
 
             return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
         }
         ModelAndView model = new ModelAndView(NEW_API_KEY_PAGE)
-                .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()));
+                .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()))
+                .addObject("signOutUrl", userServiceConfig.getDomain() + "/v2/logout");
 
         return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
     }
@@ -91,7 +98,8 @@ public class ApiKeyController {
         final GapApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
         ModelAndView model = new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
                 .addObject("apiKey", apiKey)
-                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue());
+                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue())
+                .addObject("signOutUrl", userServiceConfig.getDomain() + "/v2/logout");
 
         return apiKeyService.isAdmin() || apiKeyService.isSuperAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
     }
@@ -108,10 +116,8 @@ public class ApiKeyController {
 
     @GetMapping("/error")
     public ModelAndView displayError() {
-        ModelAndView model = new ModelAndView(ERROR_PAGE)
+        return new ModelAndView(ERROR_PAGE)
                 .addObject("backButtonUrl", apiKeyService.generateBackButtonValue());
-
-        return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
     }
 
     @GetMapping("/manage")
@@ -128,6 +134,8 @@ public class ApiKeyController {
                 .addObject("apiKeysPage", apiKeysPage)
                 .addObject("pageNumbers", paginationHelper.getNumberOfPages(apiKeysPage.getTotalPages()))
                 .addObject("selectedDepartments", selectedDepartment == null ? List.of() : selectedDepartment)
-                .addObject("navBar", apiKeyService.generateNavBarDto());
+                .addObject("navBar", apiKeyService.generateNavBarDto())
+                .addObject("signOutUrl", userServiceConfig.getDomain() + "/v2/logout");
+
     }
 }

@@ -8,7 +8,7 @@
 </head>
 
 <body class="govuk-template__body">
-<div th:replace="~{fragments/header :: header(${navBar})}"></div>
+<div th:replace="~{fragments/header :: header(navBar=${navBar}, signOutUrl=${signOutUrl})}"></div>
 
 <div class="govuk-width-container">
     <a th:href="@{/api-keys}" class="govuk-back-link" data-cy="create-key-back-button">Back</a>
