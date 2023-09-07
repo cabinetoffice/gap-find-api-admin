@@ -81,7 +81,7 @@ jobs:
       - name: Check Health Endpoint
         run: |
           chmod +x ./scripts/healthCheckScript.sh
-          ./scripts/healthCheckScript.sh "http://localhost:8080/find/api/admin/health"
+          ./scripts/healthCheckScript.sh "http://localhost:8086/find/api/admin/health"
 
       - name: Run cypress tests
         uses: cypress-io/github-action@v5
