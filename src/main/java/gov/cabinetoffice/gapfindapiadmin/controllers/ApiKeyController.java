@@ -36,7 +36,6 @@ public class ApiKeyController {
     public static final String REVOKE_API_KEY_CONFIRMATION_PAGE = "revoke-api-key-confirmation";
     public static final String ERROR_PAGE = "error-page";
     public static final String SUPER_ADMIN_PAGE = "super-admin-api-keys";
-    public static final String LOGOUT_PATH = "/v2/logout";
 
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
@@ -52,7 +51,7 @@ public class ApiKeyController {
         ModelAndView model = new ModelAndView(ORGANISATION_API_KEYS_PAGE)
                 .addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()))
                 .addObject("departmentName", departmentName)
-                .addObject("signOutUrl", userServiceConfig.getDomain() + LOGOUT_PATH);
+                .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
         return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
     }
@@ -62,7 +61,7 @@ public class ApiKeyController {
     public ModelAndView showCreateKeyForm() {
         final ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE)
                 .addObject("createApiKeyDTO", new CreateApiKeyDTO())
-                .addObject("signOutUrl", userServiceConfig.getDomain() + LOGOUT_PATH);
+                .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
         return apiKeyService.isAdmin() ? createApiKey.addObject("navBar", apiKeyService.generateNavBarDto()) : createApiKey;
     }
@@ -83,13 +82,13 @@ public class ApiKeyController {
         if (bindingResult.hasErrors()) {
             ModelAndView model = new ModelAndView(CREATE_API_KEY_FORM_PAGE)
                     .addObject("createApiKeyDTO", createApiKeyDTO)
-                    .addObject("signOutUrl", userServiceConfig.getDomain() + LOGOUT_PATH);
+                    .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
             return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
         }
         ModelAndView model = new ModelAndView(NEW_API_KEY_PAGE)
                 .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()))
-                .addObject("signOutUrl", userServiceConfig.getDomain() + LOGOUT_PATH);
+                .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
         return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
     }
@@ -101,7 +100,7 @@ public class ApiKeyController {
         ModelAndView model = new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
                 .addObject("apiKey", apiKey)
                 .addObject("backButtonUrl", apiKeyService.generateBackButtonValue())
-                .addObject("signOutUrl", userServiceConfig.getDomain() + LOGOUT_PATH);
+                .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
         return apiKeyService.isAdmin() || apiKeyService.isSuperAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
     }
@@ -137,7 +136,7 @@ public class ApiKeyController {
                 .addObject("pageNumbers", paginationHelper.getNumberOfPages(apiKeysPage.getTotalPages()))
                 .addObject("selectedDepartments", selectedDepartment == null ? List.of() : selectedDepartment)
                 .addObject("navBar", apiKeyService.generateNavBarDto())
-                .addObject("signOutUrl", userServiceConfig.getDomain() + LOGOUT_PATH);
+                .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
     }
 }

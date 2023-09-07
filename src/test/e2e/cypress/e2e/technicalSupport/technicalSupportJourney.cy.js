@@ -10,7 +10,7 @@ const BASE_URL = 'http://localhost:8080/find/api/admin';
 
 describe('Technical support user journey', () => {
   beforeEach(() => {
-    cy.setMockTokenForTechnicalSupportFundingOrganisation1();
+    cy.setMockTokenForTechnicalSupportAndAdminFundingOrganisation1();
   });
   after(() => cy.task('drop:apiKeyTable', Cypress.env()).then(() => cy.task('create:apiKeyTable', Cypress.env())));
 

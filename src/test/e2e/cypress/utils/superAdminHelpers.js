@@ -57,7 +57,7 @@ function checkFirst10RowsContent(today) {
 }
 
 function createKeyForFundingOrganisation1(baseUrl, startingPoint, endingPoint) {
-  cy.setMockTokenForTechnicalSupportFundingOrganisation1();
+  cy.setMockTokenForTechnicalSupportAndAdminFundingOrganisation1();
   for (let i = startingPoint; i < endingPoint; i++) {
     const paddedNumber = (i + 1).toString().padStart(3, '0');
     const keyName = `Org1Cypress${paddedNumber}`;
