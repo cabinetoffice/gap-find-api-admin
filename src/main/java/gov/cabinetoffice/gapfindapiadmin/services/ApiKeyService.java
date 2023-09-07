@@ -5,6 +5,7 @@ import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ import static java.util.Optional.ofNullable;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
@@ -42,8 +44,14 @@ public class ApiKeyService {
     }
 
     public void revokeApiKey(int apiKeyId) {
-        final GapApiKey apiKey = getApiKeyById(apiKeyId);
         final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        GapApiKey apiKey;
+        try {
+            apiKey = getApiKeyById(apiKeyId);
+        } catch (InvalidApiKeyIdException e) {
+            log.info(e.getMessage());
+            return;
+        }
 
         apiKey.setRevokedBy(grantAdmin.getGapUser().getId());
         apiKey.setRevocationDate(ZonedDateTime.now());
