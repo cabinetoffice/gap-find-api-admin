@@ -57,7 +57,7 @@ function checkFirst10RowsContent(today) {
 }
 
 function createKeyForFundingOrganisation1(baseUrl, startingPoint, endingPoint) {
-  cy.setMockTokenForTechnicalSupportAndAdminFundingOrganisation1();
+  cy.setMockTokenForUserWithTechnicalSupportAndAdminRoleWithFundingOrganisation1();
   for (let i = startingPoint; i < endingPoint; i++) {
     const paddedNumber = (i + 1).toString().padStart(3, '0');
     const keyName = `Org1Cypress${paddedNumber}`;
@@ -70,7 +70,7 @@ function createKeyForFundingOrganisation1(baseUrl, startingPoint, endingPoint) {
 }
 
 function createKeyForFundingOrganisation2(baseUrl, startingPoint, endingPoint) {
-  cy.setMockTokenForTechnicalSupportFundingOrganisation2();
+  cy.setMockTokenForUserWithTechnicalSupportRoleWithFundingOrganisation2();
   for (let i = startingPoint; i < endingPoint; i++) {
     const paddedNumber = (i + 1).toString().padStart(3, '0');
     const keyName = `Org1Cypress${paddedNumber}`;

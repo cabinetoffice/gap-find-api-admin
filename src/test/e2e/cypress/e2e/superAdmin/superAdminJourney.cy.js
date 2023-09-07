@@ -17,7 +17,7 @@ const today = new Date().toLocaleDateString('en-GB', {
   year: 'numeric',
 });
 
-const BASE_URL = 'http://localhost:8080/find/api/admin';
+const BASE_URL = 'http://localhost:8086/find/api/admin';
 
 describe('Super Admin Journey', () => {
   after(() => cy.task('drop:apiKeyTable', Cypress.env()).then(() => cy.task('create:apiKeyTable', Cypress.env())));

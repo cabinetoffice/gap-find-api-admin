@@ -79,7 +79,7 @@
         </div>
     </nav>
 
-    <nav th:if="${navBar != null}" class="app-navigation govuk-clearfix g2_navigation govuk-width-container">
+    <nav th:if="${navBar != null}" class="app-navigation govuk-clearfix g2_navigation govuk-width-container" data-cy="header-navbar">
         <ul class="app-navigation__list app-width-container g2_navigation__menu gap_nav-wrapper">
             <li data-value="parent" class="app-navigation__list-item " id="backToDashboard">
                 <a class="govuk-link govuk-link--no-visited-state app-navigation__link" data-cy="header-navbar-back-to-dashboard-link" th:data-topnav="${navBar.name}"
