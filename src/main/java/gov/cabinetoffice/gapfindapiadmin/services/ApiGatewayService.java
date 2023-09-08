@@ -8,10 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.apigateway.ApiGatewayClient;
-import software.amazon.awssdk.services.apigateway.model.CreateApiKeyRequest;
-import software.amazon.awssdk.services.apigateway.model.CreateApiKeyResponse;
-import software.amazon.awssdk.services.apigateway.model.CreateUsagePlanKeyRequest;
-import software.amazon.awssdk.services.apigateway.model.DeleteApiKeyRequest;
+import software.amazon.awssdk.services.apigateway.model.*;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
