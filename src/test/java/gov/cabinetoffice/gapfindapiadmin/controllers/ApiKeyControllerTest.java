@@ -30,8 +30,8 @@ import java.util.List;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ApiKeyControllerTest {
@@ -174,6 +174,17 @@ class ApiKeyControllerTest {
         verify(apiKeyService).revokeApiKey(apiKey.getId());
         verify(apiGatewayService).deleteApiKey(apiKey);
         assertThat(response).isEqualTo("redirect:/backButtonUrl");
+    }
+
+    @Test
+    void revokeApiKeyPost_rollsBackDatabaseRevoke() {
+        when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
+        doThrow(new RuntimeException("Test exception")).when(apiGatewayService).deleteApiKey(apiKey);
+
+        assertThrows(RuntimeException.class, () -> controllerUnderTest.revokeApiKey(apiKey) );
+
+        verify(apiKeyService).revokeApiKey(apiKey.getId());
+        assertThat(apiKey.isRevoked()).isFalse();
     }
 
     @Test

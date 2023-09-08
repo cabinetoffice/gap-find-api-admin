@@ -6,8 +6,10 @@ import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +25,7 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/api-keys")
 @RequiredArgsConstructor
+@Slf4j
 public class ApiKeyController {
     public static final String CREATE_API_KEY_FORM_PAGE = "create-api-key-form";
     public static final String NEW_API_KEY_PAGE = "new-api-key";
@@ -87,10 +90,16 @@ public class ApiKeyController {
 
     @PostMapping("/revoke")
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT') || hasAuthority('SUPER_ADMIN')")
+    @Transactional
     public String revokeApiKey(@ModelAttribute GapApiKey apiKey) {
-        // TODO: see if we can do this in one transaction
-        apiGatewayService.deleteApiKey(apiKeyService.getApiKeyById(apiKey.getId()));
-        apiKeyService.revokeApiKey(apiKey.getId());
+        try {
+            apiKeyService.revokeApiKey(apiKey.getId());
+            apiGatewayService.deleteApiKey(apiKeyService.getApiKeyById(apiKey.getId()));
+        } catch (Exception e) {
+            log.error("An error occurred", e.getStackTrace());
+            throw e;
+        }
+
         return "redirect:" + apiKeyService.generateBackButtonValue();
     }
 

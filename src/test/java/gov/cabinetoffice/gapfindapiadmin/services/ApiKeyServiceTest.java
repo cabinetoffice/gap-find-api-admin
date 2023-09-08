@@ -121,6 +121,17 @@ class ApiKeyServiceTest {
     }
 
     @Test
+    void revokeApiKey_throwsInvalidApiKeyIdException() {
+        setSecurityContext();
+        when(apiKeyRepository.findById(API_KEY_ID)).thenThrow(new InvalidApiKeyIdException());
+
+        serviceUnderTest.revokeApiKey(API_KEY_ID);
+
+        verify(apiKeyRepository).findById(API_KEY_ID);
+        assertThat(apiKey.isRevoked()).isFalse();
+    }
+
+    @Test
     void doesApiKeyExist_apiKeyExists() {
         final String apiKeyName = "Key Name";
 
