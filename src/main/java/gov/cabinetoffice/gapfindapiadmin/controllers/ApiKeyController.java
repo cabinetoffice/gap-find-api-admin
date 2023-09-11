@@ -85,7 +85,7 @@ public class ApiKeyController {
         final GapApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
         return new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
                 .addObject("apiKey", apiKey)
-                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue());
+                .addObject("backButtonUrl", apiKeyService.generateRedirectionValue());
     }
 
     @PostMapping("/revoke")
@@ -100,12 +100,12 @@ public class ApiKeyController {
             throw e;
         }
 
-        return "redirect:" + apiKeyService.generateBackButtonValue();
+        return "redirect:" + apiKeyService.generateRedirectionValue();
     }
 
     @GetMapping("/error")
     public ModelAndView displayError() {
-        return new ModelAndView(ERROR_PAGE).addObject("backButtonUrl", apiKeyService.generateBackButtonValue());
+        return new ModelAndView(ERROR_PAGE).addObject("backButtonUrl", apiKeyService.generateRedirectionValue());
     }
 
     @GetMapping("/manage")

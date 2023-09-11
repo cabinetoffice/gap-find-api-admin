@@ -65,14 +65,14 @@ public class ApiKeyService {
                 .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
     }
 
-    public String generateBackButtonValue() {
+    public String generateRedirectionValue() {
         if (isSuperAdmin()) {
             return "/api-keys/manage";
         }
         return "/api-keys";
     }
 
-    protected boolean isSuperAdmin() {
+    public boolean isSuperAdmin() {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(SUPER_ADMIN_ROLE));
     }

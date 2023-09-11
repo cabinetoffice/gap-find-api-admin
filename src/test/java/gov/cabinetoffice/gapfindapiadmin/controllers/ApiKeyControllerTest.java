@@ -167,7 +167,7 @@ class ApiKeyControllerTest {
     @Test
     void revokeApiKeyPost_returnsExpectedResponse() {
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
-        when(apiKeyService.generateBackButtonValue()).thenReturn("/backButtonUrl");
+        when(apiKeyService.generateRedirectionValue()).thenReturn("/backButtonUrl");
 
         final String response = controllerUnderTest.revokeApiKey(apiKey);
 
