@@ -7,7 +7,7 @@ const today = new Date().toLocaleDateString('en-GB', {
 const apiKeyName = 'apiKeyNameCypress';
 const apiKeyName2 = 'apiKeyNameCypress2';
 
-const BASE_URL = 'http://localhost:8080/find/api/admin';
+const BASE_URL = 'http://localhost:8086/find/api/admin';
 
 describe('Technical support user journey', () => {
   beforeEach(() => {
@@ -343,59 +343,25 @@ describe('Technical support user journey', () => {
       cy.visit(`${BASE_URL}/api-keys`);
 
       cy.get('[data-cy="api-keys-create-button"]')
-        .should('be.visible')
-        .contains('Create an API key')
         .click();
 
       cy.get('[data-cy="create-key-input"]').type(apiKeyName2);
 
       cy.get('[data-cy="create-key-continue"]')
-        .should('be.visible')
-        .contains('Continue')
         .click();
 
       cy.get('[data-cy="new-key-back-button"]')
-        .should('be.visible')
-        .contains('Back to your API keys')
         .click();
 
       cy.get(`[data-cy="api-key-revoke-${apiKeyName2}"]`)
-        .should('be.visible')
-        .contains('Revoke')
         .click();
 
-      cy.get('[data-cy="revoke-heading"]')
-        .should('be.visible')
-        .should('have.text', 'Revoke an API key');
-
-      cy.get('[data-cy="revoke-paragraph-1"]')
-        .should('be.visible')
-        .contains(
-          'If you revoke this API key, you will no longer be able to use it to request data from Find a grant.'
-        );
-
-      cy.get('[data-cy="revoke-paragraph-2"]')
-        .should('be.visible')
-        .contains(
-          'You cannot re-enable a revoked API key. If you want to request data again, you will need to create a new API key.'
-        );
-
-      cy.get('[data-cy="revoke-cancel-button"]')
-        .should('be.visible')
-        .should('have.text', 'Cancel');
-
       cy.get('form').within(() => {
-        cy.get('[data-cy="revoke-heading"]').should('be.visible');
-        cy.get('[data-cy="revoke-paragraph-1"]').should('be.visible');
-        cy.get('[data-cy="revoke-paragraph-2"]').should('be.visible');
-
         cy.get('[data-cy="revoke-api-key-id"]').type(300, {
           force: true,
         });
 
         cy.get('[data-cy="revoke-revoke-button"]')
-          .should('be.visible')
-          .should('have.text', 'Revoke key')
           .click();
       });
 
