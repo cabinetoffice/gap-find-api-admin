@@ -7,7 +7,7 @@ const today = new Date().toLocaleDateString('en-GB', {
 const apiKeyName = 'apiKeyNameCypress';
 const apiKeyName2 = 'apiKeyNameCypress2';
 
-const BASE_URL = 'http://localhost:8086/find/api/admin';
+const BASE_URL = 'http://localhost:8080/find/api/admin';
 
 describe('Technical support user journey', () => {
   beforeEach(() => {
