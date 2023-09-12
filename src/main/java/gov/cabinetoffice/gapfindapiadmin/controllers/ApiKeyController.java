@@ -17,7 +17,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -51,7 +56,11 @@ public class ApiKeyController {
                 .addObject("departmentName", departmentName)
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
-        return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
+        if (apiKeyService.isAdmin()) {
+            model.addObject("navBar", apiKeyService.generateNavBarDto());
+        }
+
+        return model;
     }
 
     @GetMapping("/create")
@@ -61,7 +70,11 @@ public class ApiKeyController {
                 .addObject("createApiKeyDTO", new CreateApiKeyDTO())
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
-        return apiKeyService.isAdmin() ? createApiKey.addObject("navBar", apiKeyService.generateNavBarDto()) : createApiKey;
+        if (apiKeyService.isAdmin()) {
+            createApiKey.addObject("navBar", apiKeyService.generateNavBarDto());
+        }
+
+        return createApiKey;
     }
 
     @PostMapping("/create")
@@ -81,14 +94,21 @@ public class ApiKeyController {
             ModelAndView model = new ModelAndView(CREATE_API_KEY_FORM_PAGE)
                     .addObject("createApiKeyDTO", createApiKeyDTO)
                     .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
-
-            return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
+            if (apiKeyService.isAdmin()) {
+                model.addObject("navBar", apiKeyService.generateNavBarDto());
+            }
+            return model;
         }
+
         ModelAndView model = new ModelAndView(NEW_API_KEY_PAGE)
                 .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()))
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
-        return apiKeyService.isAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
+        if (apiKeyService.isAdmin()) {
+            model.addObject("navBar", apiKeyService.generateNavBarDto());
+        }
+
+        return model;
     }
 
     @GetMapping("/revoke/{apiKeyId}")
@@ -100,7 +120,11 @@ public class ApiKeyController {
                 .addObject("backButtonUrl", apiKeyService.generateBackButtonValue())
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
-        return apiKeyService.isAdmin() || apiKeyService.isSuperAdmin() ? model.addObject("navBar", apiKeyService.generateNavBarDto()) : model;
+        if (apiKeyService.isAdmin() || apiKeyService.isSuperAdmin()) {
+            model.addObject("navBar", apiKeyService.generateNavBarDto());
+        }
+
+        return model;
     }
 
     @PostMapping("/revoke")

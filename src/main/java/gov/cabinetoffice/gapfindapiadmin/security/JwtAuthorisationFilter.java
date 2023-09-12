@@ -47,12 +47,12 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
 
         final JwtPayload jwtPayload = this.jwtService.getPayloadFromJwt(decodedJWT);
         final boolean isSuperAdmin = jwtPayload.getRoles().contains(SUPER_ADMIN_ROLE);
-        Pattern pattern = Pattern.compile("\\b" + ADMIN_ROLE + "\\b");
+        final Pattern pattern = Pattern.compile("\\b" + ADMIN_ROLE + "\\b");
         final boolean isAdmin = pattern.matcher(jwtPayload.getRoles()).find();
         if (!jwtPayload.getRoles().contains(TECHNICAL_SUPPORT_ROLE) && !isSuperAdmin) {
             throw new UnauthorizedException("User does not have the required roles to access this resource");
         }
-        List<SimpleGrantedAuthority> simpleGrantedAuthorityList = jwtService.generateSimpleGrantedAuthorityList(isSuperAdmin, isAdmin);
+        final List<SimpleGrantedAuthority> simpleGrantedAuthorityList = jwtService.generateSimpleGrantedAuthorityList(isSuperAdmin, isAdmin);
 
         final GrantAdmin grantAdmin = this.grantAdminService.getGrantAdminForUser(jwtPayload.getSub());
 
