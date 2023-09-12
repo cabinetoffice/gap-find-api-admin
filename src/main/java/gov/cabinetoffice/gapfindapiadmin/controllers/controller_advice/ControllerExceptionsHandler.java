@@ -43,9 +43,4 @@ public class ControllerExceptionsHandler extends ResponseEntityExceptionHandler 
     public String handleException(NotFoundException ex, WebRequest request) {
         return ERROR_PAGE_REDIRECT;
     }
-
-    @ExceptionHandler(value = {AccessDeniedException.class})
-    public String handleException(AccessDeniedException ex, WebRequest request) {
-        return ERROR_PAGE_REDIRECT;
-    }
 }
