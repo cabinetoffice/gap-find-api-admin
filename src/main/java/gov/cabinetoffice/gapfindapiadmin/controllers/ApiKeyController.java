@@ -51,7 +51,7 @@ public class ApiKeyController {
         final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final String departmentName = grantAdmin.getFunder().getName();
 
-        ModelAndView model = new ModelAndView(ORGANISATION_API_KEYS_PAGE)
+        final ModelAndView model = new ModelAndView(ORGANISATION_API_KEYS_PAGE)
                 .addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()))
                 .addObject("departmentName", departmentName)
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
@@ -91,7 +91,7 @@ public class ApiKeyController {
             bindingResult.addError(duplicateKey);
         }
         if (bindingResult.hasErrors()) {
-            ModelAndView model = new ModelAndView(CREATE_API_KEY_FORM_PAGE)
+            final ModelAndView model = new ModelAndView(CREATE_API_KEY_FORM_PAGE)
                     .addObject("createApiKeyDTO", createApiKeyDTO)
                     .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
             if (apiKeyService.isAdmin()) {
@@ -100,7 +100,7 @@ public class ApiKeyController {
             return model;
         }
 
-        ModelAndView model = new ModelAndView(NEW_API_KEY_PAGE)
+        final ModelAndView model = new ModelAndView(NEW_API_KEY_PAGE)
                 .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()))
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
@@ -115,7 +115,7 @@ public class ApiKeyController {
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT') || hasAuthority('SUPER_ADMIN')")
     public ModelAndView showRevokeApiKeyConfirmation(@PathVariable int apiKeyId) {
         final GapApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
-        ModelAndView model = new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
+        final ModelAndView model = new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
                 .addObject("apiKey", apiKey)
                 .addObject("backButtonUrl", apiKeyService.generateBackButtonValue())
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
