@@ -27,6 +27,7 @@ import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
 
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.TECHNICAL_SUPPORT_ROLE;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.Mockito.*;
@@ -39,7 +40,7 @@ class JwtAuthorisationFilterTest {
     private final DecodedJWT decodedJWT = JWT.decode(jwt);
     private final JwtPayload jwtPayload = JwtPayload.builder()
             .sub("sub")
-            .roles("TECHNICAL_SUPPORT")
+            .roles(TECHNICAL_SUPPORT_ROLE)
             .build();
     @Captor
     ArgumentCaptor<Authentication> authenticationCaptor;

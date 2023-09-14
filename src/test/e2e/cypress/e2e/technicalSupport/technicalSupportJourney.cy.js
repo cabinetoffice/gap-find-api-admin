@@ -7,11 +7,13 @@ const today = new Date().toLocaleDateString('en-GB', {
 const apiKeyName = 'apiKeyNameCypress';
 const apiKeyName2 = 'apiKeyNameCypress2';
 
-const BASE_URL = 'http://localhost:8080/find/api/admin';
+const BASE_URL = 'http://localhost:8086/find/api/admin';
 
-describe('Technical support user journey', () => {
+import { checkNavBarItemIsRightForTheUserRole, signOutIsPresent } from '../../utils/helpers';
+
+describe('Technical support and Admin Roles User journey ', () => {
   beforeEach(() => {
-    cy.setMockTokenForTechnicalSupportFundingOrganisation1();
+    cy.setMockTokenForUserWithTechnicalSupportAndAdminRoleWithFundingOrganisation1();
   });
   after(() =>
     cy
@@ -27,6 +29,9 @@ describe('Technical support user journey', () => {
         .contains('Find a Grant');
 
       cy.get('[data-cy="beta-banner"]').should('be.visible').contains('BETA');
+      signOutIsPresent();
+
+      checkNavBarItemIsRightForTheUserRole('ADMIN');
 
       cy.get('[data-cy="header-feedback-link"]')
         .should(
@@ -79,6 +84,10 @@ describe('Technical support user journey', () => {
         .click();
 
       cy.url().should('include', 'api-keys/create');
+
+      signOutIsPresent();
+
+      checkNavBarItemIsRightForTheUserRole('ADMIN');
 
       cy.get('[data-cy="create-key-error-banner"]').should('not.exist');
 
@@ -162,6 +171,10 @@ describe('Technical support user journey', () => {
         .click();
 
       cy.url().should('include', '/admin/api-keys/create');
+
+      signOutIsPresent();
+
+      checkNavBarItemIsRightForTheUserRole('ADMIN');
 
       cy.get('[data-cy="new-key-heading"]')
         .should('be.visible')
@@ -291,6 +304,10 @@ describe('Technical support user journey', () => {
       cy.get('[data-cy="revoke-heading"]')
         .should('be.visible')
         .should('have.text', 'Revoke an API key');
+
+      signOutIsPresent();
+
+      checkNavBarItemIsRightForTheUserRole('ADMIN');
 
       cy.get('[data-cy="revoke-paragraph-1"]')
         .should('be.visible')

@@ -22,15 +22,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @RequiredArgsConstructor
 public class JwtAuthorisationFilter extends OncePerRequestFilter {
 
-    private static final String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
-    private static final String TECHNICAL_SUPPORT_ROLE = "TECHNICAL_SUPPORT";
+    public static final String ADMIN_ROLE = "ADMIN";
+    public static final String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
+    public static final String TECHNICAL_SUPPORT_ROLE = "TECHNICAL_SUPPORT";
     private final JwtService jwtService;
     private final GrantAdminService grantAdminService;
     private final UserServiceConfig userServiceConfig;
@@ -45,16 +47,17 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
 
         final JwtPayload jwtPayload = this.jwtService.getPayloadFromJwt(decodedJWT);
         final boolean isSuperAdmin = jwtPayload.getRoles().contains(SUPER_ADMIN_ROLE);
-
+        final Pattern pattern = Pattern.compile("\\b" + ADMIN_ROLE + "\\b");
+        final boolean isAdmin = pattern.matcher(jwtPayload.getRoles()).find();
         if (!jwtPayload.getRoles().contains(TECHNICAL_SUPPORT_ROLE) && !isSuperAdmin) {
             throw new UnauthorizedException("User does not have the required roles to access this resource");
         }
-        final SimpleGrantedAuthority simpleGrantedAuthority = isSuperAdmin ? new SimpleGrantedAuthority(SUPER_ADMIN_ROLE) : new SimpleGrantedAuthority(TECHNICAL_SUPPORT_ROLE);
+        final List<SimpleGrantedAuthority> simpleGrantedAuthorityList = jwtService.generateSimpleGrantedAuthorityList(isSuperAdmin, isAdmin);
+
         final GrantAdmin grantAdmin = this.grantAdminService.getGrantAdminForUser(jwtPayload.getSub());
 
-
         final Authentication auth = new UsernamePasswordAuthenticationToken(grantAdmin, null,
-                Collections.singletonList(simpleGrantedAuthority));
+                simpleGrantedAuthorityList);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         filterChain.doFilter(request, response);

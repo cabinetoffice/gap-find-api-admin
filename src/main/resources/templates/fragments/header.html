@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-    <div th:fragment="header" data-cy="header">
-        <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
+<div th:fragment="header (navBar, signOutUrl)" data-cy="header">
+    <a href="#main-content" class="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
 
-        <header class="govuk-header " role="banner" data-module="govuk-header">
-            <div class="govuk-header__container govuk-width-container">
-                <div class="govuk-header__logo">
-                    <a href="/" class="govuk-header__link govuk-header__link--homepage">
+    <header class="govuk-header " role="banner" data-module="govuk-header">
+        <div class="govuk-header__container govuk-width-container">
+            <div class="govuk-header__logo">
+                <a href="/" class="govuk-header__link govuk-header__link--homepage">
                       <span class="govuk-header__logotype">
                         <!--[if gt IE 8]><!-->
                         <svg
@@ -30,27 +30,27 @@
                           GOV.UK
                         </span>
                       </span>
-                    </a>
-                </div>
-
-                <div class="govuk-header__content">
-                    <a th:href="${homePageUrl}" class="govuk-header__link govuk-header__service-name">
-                        Find a Grant
-                    </a>
-                </div>
+                </a>
             </div>
-        </header>
 
-        <nav data-cy="beta-banner">
-            <div class="govuk-width-container">
-                <div class="govuk-phase-banner">
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-three-quarters">
-                            <p class="govuk-phase-banner__content">
-                                <strong class="govuk-tag govuk-phase-banner__content__tag">
-                                    BETA
-                                </strong>
-                                <span class="govuk-phase-banner__text">
+            <div class="govuk-header__content">
+                <a th:href="${homePageUrl}" class="govuk-header__link govuk-header__service-name">
+                    Find a Grant
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <nav data-cy="beta-banner">
+        <div class="govuk-width-container">
+            <div class="govuk-phase-banner">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-three-quarters">
+                        <p class="govuk-phase-banner__content">
+                            <strong class="govuk-tag govuk-phase-banner__content__tag">
+                                BETA
+                            </strong>
+                            <span class="govuk-phase-banner__text">
                                 This is a new service – your
                                 <a
                                         href="https://docs.google.com/forms/d/e/1FAIpQLSd2V0IqOMpb2_yQnz_Ges0WCYFnDOTxZpF299gePV1j8kMdLA/viewform"
@@ -63,11 +63,30 @@
                                 </a>
                                 will help us to improve it.
                             </span>
-                            </p>
-                        </div>
+                        </p>
+                    </div>
+                    <div class="govuk-grid-column-one-quarter">
+                        <p class="govuk-!-text-align-right govuk-!-font-size-19 govuk-!-margin-0">
+                            <a th:href="${signOutUrl}"
+                               data-cy="header-sign-out-link" class="govuk-link"
+                               aria-disabled="false">
+                                Sign out
+                            </a>
+                        </p>
                     </div>
                 </div>
             </div>
-        </nav>
-    </div>
+        </div>
+    </nav>
+
+    <nav th:if="${navBar != null}" class="app-navigation govuk-clearfix g2_navigation govuk-width-container" data-cy="header-navbar">
+        <ul class="app-navigation__list app-width-container g2_navigation__menu gap_nav-wrapper">
+            <li data-value="parent" class="app-navigation__list-item " id="backToDashboard">
+                <a class="govuk-link govuk-link--no-visited-state app-navigation__link" data-cy="header-navbar-back-to-dashboard-link" th:data-topnav="${navBar.name}"
+                   th:text="${navBar.name}" th:href="${navBar.link}">
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
 </html>

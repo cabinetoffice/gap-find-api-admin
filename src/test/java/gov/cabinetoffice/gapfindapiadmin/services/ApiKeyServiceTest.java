@@ -15,14 +15,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -72,6 +71,7 @@ class ApiKeyServiceTest {
 
     @Mock
     private Pageable pageable;
+
 
     @InjectMocks
     private ApiKeyService serviceUnderTest;
@@ -172,47 +172,6 @@ class ApiKeyServiceTest {
         verify(apiKeyRepository).findById(API_KEY_ID);
     }
 
-    @Test
-    void generateBackButtonValue_returnExpectedWhenUserIsASuperAdmin() {
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
-        assertThat(serviceUnderTest.generateBackButtonValue()).isEqualTo("/api-keys/manage");
-    }
-
-    @Test
-    void generateBackButtonValue_returnExpectedWhenUserIsATechnicalSupport() {
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
-        assertThat(serviceUnderTest.generateBackButtonValue()).isEqualTo("/api-keys");
-    }
-
-    @Test
-    void isSuperAdmin_returnTrueWhenUserIsASuperAdmin() {
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
-        final boolean actual = serviceUnderTest.isSuperAdmin();
-        assertThat(actual).isTrue();
-    }
-
-    @Test
-    void isSuperAdmin_returnFalseWhenUserIsASuperAdmin() {
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
-        final boolean actual = serviceUnderTest.isSuperAdmin();
-        assertThat(actual).isFalse();
-    }
-
-    private Authentication createAuthenticationWithRoles(String role) {
-        Collection<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority(role));
-        return new UsernamePasswordAuthenticationToken("username", "password", authorities);
-    }
-
-    private void setSecurityContext() {
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
-    }
 
     @Test
     void getApiKeysForSelectedFundingOrganisations_noneSelected() {
@@ -249,7 +208,7 @@ class ApiKeyServiceTest {
     void getActiveKeyCount_forAllFilteredKeys() {
         when(apiKeyRepository.countByIsRevokedFalse()).thenReturn(Long.valueOf(2));
 
-        final Long response = serviceUnderTest.getActiveKeyCount(List.of(apiKey,apiKey2));
+        final Long response = serviceUnderTest.getActiveKeyCount(List.of(apiKey, apiKey2));
 
         assertThat(response).isEqualTo(Long.valueOf(2));
     }
@@ -285,5 +244,12 @@ class ApiKeyServiceTest {
 
         verify(apiKeyRepository).findByUniqueFundingOrganisationNames();
         assertThat(response).isEqualTo(orgNames);
+    }
+
+
+    private void setSecurityContext() {
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
     }
 }

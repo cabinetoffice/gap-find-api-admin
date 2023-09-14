@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import static gov.cabinetoffice.gapfindapiadmin.controllers.ApiKeyController.SUPER_ADMIN_ROLE;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 
@@ -26,6 +25,7 @@ import static java.util.Optional.ofNullable;
 public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
+
 
     public List<GapApiKey> getApiKeysForFundingOrganisation(int fundingOrgId) {
         return apiKeyRepository.findByFundingOrganisationId(fundingOrgId);
@@ -65,17 +65,6 @@ public class ApiKeyService {
                 .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
     }
 
-    public String generateBackButtonValue() {
-        if (isSuperAdmin()) {
-            return "/api-keys/manage";
-        }
-        return "/api-keys";
-    }
-
-    protected boolean isSuperAdmin() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(SUPER_ADMIN_ROLE));
-    }
 
     public List<GapApiKey> getApiKeysForSelectedFundingOrganisations(List<String> selectedFundingOrgName) {
         List<GapApiKey> gapApiKeys = ofNullable(selectedFundingOrgName)
@@ -117,5 +106,6 @@ public class ApiKeyService {
     public List<String> getFundingOrgForAllApiKeys() {
         return apiKeyRepository.findByUniqueFundingOrganisationNames();
     }
+
 
 }
