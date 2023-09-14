@@ -2,6 +2,7 @@ package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
+import gov.cabinetoffice.gapfindapiadmin.dtos.NavBarDto;
 import gov.cabinetoffice.gapfindapiadmin.helpers.PaginationHelper;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
@@ -27,6 +28,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 import java.util.Optional;
+
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.ADMIN_ROLE;
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.SUPER_ADMIN_ROLE;
 
 @Controller
 @RequestMapping("/api-keys")
@@ -164,5 +168,29 @@ public class ApiKeyController {
                 .addObject("selectedDepartments", selectedDepartment == null ? List.of() : selectedDepartment)
                 .addObject("navBar", apiKeyService.generateNavBarDto())
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
+    }
+
+    private NavBarDto generateNavBarDto() {
+        return NavBarDto.builder()
+                .name(isSuperAdmin() ? "Super Admin Dashboard" : "Admin Dashboard")
+                .link(isSuperAdmin() ? navBarConfigProperties.getSuperAdminDashboardLink() : navBarConfigProperties.getAdminDashboardLink())
+                .build();
+    }
+
+    public boolean isSuperAdmin() {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals(SUPER_ADMIN_ROLE));
+    }
+
+    public boolean isAdmin() {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals(ADMIN_ROLE));
+    }
+
+    public String generateBackButtonValue() {
+        if (isSuperAdmin()) {
+            return "/api-keys/manage";
+        }
+        return "/api-keys";
     }
 }

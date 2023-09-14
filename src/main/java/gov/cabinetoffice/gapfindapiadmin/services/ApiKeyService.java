@@ -70,12 +70,7 @@ public class ApiKeyService {
                 .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
     }
 
-    public String generateBackButtonValue() {
-        if (isSuperAdmin()) {
-            return "/api-keys/manage";
-        }
-        return "/api-keys";
-    }
+
 
     public List<GapApiKey> getApiKeysForSelectedFundingOrganisations(List<String> selectedFundingOrgName) {
         List<GapApiKey> gapApiKeys = ofNullable(selectedFundingOrgName)
@@ -118,20 +113,7 @@ public class ApiKeyService {
         return apiKeyRepository.findByUniqueFundingOrganisationNames();
     }
 
-    public NavBarDto generateNavBarDto() {
-        return NavBarDto.builder()
-                .name(isSuperAdmin() ? "Super Admin Dashboard" : "Admin Dashboard")
-                .link(isSuperAdmin() ? navBarConfigProperties.getSuperAdminDashboardLink() : navBarConfigProperties.getAdminDashboardLink())
-                .build();
-    }
 
-    public boolean isSuperAdmin() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(SUPER_ADMIN_ROLE));
-    }
 
-    public boolean isAdmin() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(ADMIN_ROLE));
-    }
+
 }
