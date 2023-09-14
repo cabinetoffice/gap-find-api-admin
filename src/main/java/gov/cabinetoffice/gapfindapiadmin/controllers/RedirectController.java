@@ -15,10 +15,10 @@ import org.springframework.web.servlet.view.RedirectView;
 @Slf4j
 public class RedirectController {
 
-    private final ApiKeyService apiKeyService;
+    private final ApiKeyController apiKeyController;
 
     @GetMapping()
     public RedirectView redirectUser(HttpServletRequest httpServletRequest) {
-        return new RedirectView(httpServletRequest.getContextPath() + apiKeyService.generateRedirectionValue());
+        return new RedirectView(httpServletRequest.getContextPath() + apiKeyController.generateRedirectValue());
     }
 }

@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class RedirectControllerTest {
     @Mock
-    private ApiKeyService apiKeyService;
+    private ApiKeyController apiKeyController;
 
     @Mock
     HttpServletRequest httpServletRequest;
@@ -24,7 +24,7 @@ class RedirectControllerTest {
     private RedirectController controllerUnderTest;
     @Test
     void redirectUser() {
-        when(apiKeyService.generateRedirectionValue()).thenReturn("someValue");
+        when(apiKeyController.generateRedirectValue()).thenReturn("someValue");
         when(httpServletRequest.getContextPath()).thenReturn("someContextPath");
         final RedirectView expectedRedirectView = new RedirectView("someContextPath" + "someValue");
 
