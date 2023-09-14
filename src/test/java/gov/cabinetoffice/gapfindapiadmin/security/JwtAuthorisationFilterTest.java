@@ -20,6 +20,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -110,7 +111,7 @@ class JwtAuthorisationFilterTest {
         when(jwtService.verifyToken(jwt)).thenReturn(decodedJWT);
         when(jwtService.getPayloadFromJwt(decodedJWT)).thenReturn(jwtPayload);
 
-        assertThatExceptionOfType(UnauthorizedException.class)
+        assertThatExceptionOfType(AccessDeniedException.class)
                 .isThrownBy(() -> jwtAuthorisationFilter.doFilterInternal(request, response, filterChain))
                 .withMessage("User does not have the required roles to access this resource");
     }
