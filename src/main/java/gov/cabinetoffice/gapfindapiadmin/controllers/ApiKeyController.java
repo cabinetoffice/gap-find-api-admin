@@ -123,7 +123,7 @@ public class ApiKeyController {
         final GapApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
         final ModelAndView model = new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
                 .addObject("apiKey", apiKey)
-                .addObject("backButtonUrl", generateBackButtonValue())
+                .addObject("backButtonUrl", generateRedirectValue())
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
         if (isAdmin() || isSuperAdmin()) {
@@ -145,13 +145,13 @@ public class ApiKeyController {
             throw e;
         }
 
-        return "redirect:" + generateBackButtonValue();
+        return "redirect:" + generateRedirectValue();
     }
 
     @GetMapping("/error")
     public ModelAndView displayError() {
         return new ModelAndView(ERROR_PAGE)
-                .addObject("backButtonUrl", generateBackButtonValue());
+                .addObject("backButtonUrl", generateRedirectValue());
     }
 
     @GetMapping("/manage")
@@ -189,7 +189,7 @@ public class ApiKeyController {
                 .anyMatch(a -> a.getAuthority().equals(ADMIN_ROLE));
     }
 
-    protected String generateBackButtonValue() {
+    protected String generateRedirectValue() {
         if (isSuperAdmin()) {
             return "/api-keys/manage";
         }

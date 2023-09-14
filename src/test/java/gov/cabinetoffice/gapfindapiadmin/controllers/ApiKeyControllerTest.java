@@ -451,14 +451,14 @@ class ApiKeyControllerTest {
     void generateBackButtonValue_returnExpectedWhenUserIsASuperAdmin() {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(SUPER_ADMIN_ROLE));
-        assertThat(controllerUnderTest.generateBackButtonValue()).isEqualTo("/api-keys/manage");
+        assertThat(controllerUnderTest.generateRedirectValue()).isEqualTo("/api-keys/manage");
     }
 
     @Test
     void generateBackButtonValue_returnExpectedWhenUserIsATechnicalSupport() {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
-        assertThat(controllerUnderTest.generateBackButtonValue()).isEqualTo("/api-keys");
+        assertThat(controllerUnderTest.generateRedirectValue()).isEqualTo("/api-keys");
     }
 
     @Test
