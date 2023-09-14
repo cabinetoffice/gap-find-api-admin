@@ -19,6 +19,9 @@ public class UserServiceConfig {
     private String cookieName;
 
     @NonNull
+    private String logoutUrl;
+
+    @NonNull
     private String loginUrl;
 
 }

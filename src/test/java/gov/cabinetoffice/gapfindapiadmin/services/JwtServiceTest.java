@@ -9,12 +9,15 @@ import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,14 +27,17 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.SUPER_ADMIN_ROLE;
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.TECHNICAL_SUPPORT_ROLE;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@SpringJUnitConfig
+@ExtendWith(MockitoExtension.class)
 class JwtServiceTest {
 
     @Mock
@@ -40,7 +46,6 @@ class JwtServiceTest {
     @Mock
     private RestTemplate restTemplate;
 
-    @Spy
     @InjectMocks
     private JwtService jwtService;
 
@@ -76,7 +81,7 @@ class JwtServiceTest {
             JwtPayload payloadFromJwt = jwtService.getPayloadFromJwt(JWT.decode(encodedJwt));
             assertThat(payloadFromJwt.getDepartmentName()).isEqualTo("Cabinet Office");
             assertThat(payloadFromJwt.getEmailAddress()).isEqualTo("test.user@and.digital");
-            assertThat(payloadFromJwt.getRoles()).contains("TECHNICAL_SUPPORT");
+            assertThat(payloadFromJwt.getRoles()).contains(TECHNICAL_SUPPORT_ROLE);
             assertThat(payloadFromJwt.getSub()).isEqualTo("106b1a34-cd3a-45d7-924f-beedc33acc70");
         }
 
@@ -109,6 +114,35 @@ class JwtServiceTest {
                     .hasMessage("Token is not valid");
         }
 
+    }
+
+    @Nested
+    class generateSimpleGrantedAuthorityList{
+        @Test
+        void testGenerateSimpleGrantedAuthorityListSuperAdmin() {
+            final List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(true, false);
+
+            assertThat(result.size()).isEqualTo(1);
+            assertThat(result.get(0).getAuthority()).isEqualTo(SUPER_ADMIN_ROLE);
+        }
+
+        @Test
+        void testGenerateSimpleGrantedAuthorityListAdmin() {
+            final List<SimpleGrantedAuthority> expected = List.of(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority(TECHNICAL_SUPPORT_ROLE));
+
+            List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(false, true);
+
+            assertThat(result.size()).isEqualTo(2);
+            assertThat(result).isEqualTo(expected);
+        }
+
+        @Test
+        void testGenerateSimpleGrantedAuthorityListTechnicalSupport() {
+            final List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(false, false);
+
+            assertThat(result.size()).isEqualTo(1);
+            assertThat(result.get(0).getAuthority()).isEqualTo(TECHNICAL_SUPPORT_ROLE);
+        }
     }
 
 }

@@ -11,8 +11,15 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.ADMIN_ROLE;
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.SUPER_ADMIN_ROLE;
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.TECHNICAL_SUPPORT_ROLE;
 
 @RequiredArgsConstructor
 @Service
@@ -52,4 +59,22 @@ public class JwtService {
         return JwtPayload.builder().sub(sub).roles(roles).emailAddress(emailAddress).departmentName(department).iss(iss)
                 .aud(aud).exp(exp).iat(iat).build();
     }
+
+    public List<SimpleGrantedAuthority> generateSimpleGrantedAuthorityList(boolean isSuperAdmin, boolean isAdmin) {
+        List<SimpleGrantedAuthority> simpleGrantedAuthorityList;
+
+        if (isSuperAdmin) {
+            simpleGrantedAuthorityList = List.of(new SimpleGrantedAuthority(SUPER_ADMIN_ROLE));
+        } else if (isAdmin) {
+            simpleGrantedAuthorityList = List.of(
+                    new SimpleGrantedAuthority(ADMIN_ROLE),
+                    new SimpleGrantedAuthority(TECHNICAL_SUPPORT_ROLE)
+            );
+        } else {
+            simpleGrantedAuthorityList = List.of(new SimpleGrantedAuthority(TECHNICAL_SUPPORT_ROLE));
+        }
+
+        return simpleGrantedAuthorityList;
+    }
+
 }

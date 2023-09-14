@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <title>Revoke an API key</title>
     <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}"/>
+    <link th:href="@{/styles/navbar.css}" rel="stylesheet" />
 </head>
 
 <body class="govuk-template__body">
-<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/header :: header(navBar=${navBar}, signOutUrl=${signOutUrl})}"></div>
 
 <div class="govuk-width-container">
     <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
@@ -23,7 +24,7 @@
                         You cannot re-enable a revoked API key. If you want to request data again, you will need to
                         create a new API key.
                     </p>
-                    <input type="hidden" th:field="*{id}">
+                    <input type="hidden" th:field="*{id}" data-cy="revoke-api-key-id">
                     <input type="hidden" th:field="*{name}">
                     <div class="govuk-button-group">
                         <button class="govuk-button govuk-button--warning" data-module="govuk-button" data-cy="revoke-revoke-button">Revoke key</button>
