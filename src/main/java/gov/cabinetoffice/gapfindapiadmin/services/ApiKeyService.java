@@ -1,7 +1,5 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
-import gov.cabinetoffice.gapfindapiadmin.config.NavBarConfigProperties;
-import gov.cabinetoffice.gapfindapiadmin.dtos.NavBarDto;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
@@ -18,8 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.ADMIN_ROLE;
-import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.SUPER_ADMIN_ROLE;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 
@@ -29,7 +25,6 @@ import static java.util.Optional.ofNullable;
 public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
-    private final NavBarConfigProperties navBarConfigProperties;
 
 
     public List<GapApiKey> getApiKeysForFundingOrganisation(int fundingOrgId) {
@@ -69,7 +64,6 @@ public class ApiKeyService {
         return apiKeyRepository.findById(apiKeyId)
                 .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
     }
-
 
 
     public List<GapApiKey> getApiKeysForSelectedFundingOrganisations(List<String> selectedFundingOrgName) {
@@ -112,8 +106,6 @@ public class ApiKeyService {
     public List<String> getFundingOrgForAllApiKeys() {
         return apiKeyRepository.findByUniqueFundingOrganisationNames();
     }
-
-
 
 
 }

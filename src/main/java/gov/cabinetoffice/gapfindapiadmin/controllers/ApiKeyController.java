@@ -1,5 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
+import gov.cabinetoffice.gapfindapiadmin.config.NavBarConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
 import gov.cabinetoffice.gapfindapiadmin.dtos.NavBarDto;
@@ -48,6 +49,7 @@ public class ApiKeyController {
     private final ApiGatewayService apiGatewayService;
     private final PaginationHelper paginationHelper;
     private final UserServiceConfig userServiceConfig;
+    private final NavBarConfigProperties navBarConfigProperties;
 
     @GetMapping
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
@@ -60,8 +62,8 @@ public class ApiKeyController {
                 .addObject("departmentName", departmentName)
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
-        if (apiKeyService.isAdmin()) {
-            model.addObject("navBar", apiKeyService.generateNavBarDto());
+        if (isAdmin()) {
+            model.addObject("navBar", generateNavBarDto());
         }
 
         return model;
@@ -74,8 +76,8 @@ public class ApiKeyController {
                 .addObject("createApiKeyDTO", new CreateApiKeyDTO())
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
-        if (apiKeyService.isAdmin()) {
-            createApiKey.addObject("navBar", apiKeyService.generateNavBarDto());
+        if (isAdmin()) {
+            createApiKey.addObject("navBar", generateNavBarDto());
         }
 
         return createApiKey;
@@ -98,8 +100,8 @@ public class ApiKeyController {
             final ModelAndView model = new ModelAndView(CREATE_API_KEY_FORM_PAGE)
                     .addObject("createApiKeyDTO", createApiKeyDTO)
                     .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
-            if (apiKeyService.isAdmin()) {
-                model.addObject("navBar", apiKeyService.generateNavBarDto());
+            if (isAdmin()) {
+                model.addObject("navBar", generateNavBarDto());
             }
             return model;
         }
@@ -108,8 +110,8 @@ public class ApiKeyController {
                 .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()))
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
-        if (apiKeyService.isAdmin()) {
-            model.addObject("navBar", apiKeyService.generateNavBarDto());
+        if (isAdmin()) {
+            model.addObject("navBar", generateNavBarDto());
         }
 
         return model;
@@ -121,11 +123,11 @@ public class ApiKeyController {
         final GapApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
         final ModelAndView model = new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
                 .addObject("apiKey", apiKey)
-                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue())
+                .addObject("backButtonUrl", generateBackButtonValue())
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
-        if (apiKeyService.isAdmin() || apiKeyService.isSuperAdmin()) {
-            model.addObject("navBar", apiKeyService.generateNavBarDto());
+        if (isAdmin() || isSuperAdmin()) {
+            model.addObject("navBar", generateNavBarDto());
         }
 
         return model;
@@ -143,13 +145,13 @@ public class ApiKeyController {
             throw e;
         }
 
-        return "redirect:" + apiKeyService.generateBackButtonValue();
+        return "redirect:" + generateBackButtonValue();
     }
 
     @GetMapping("/error")
     public ModelAndView displayError() {
         return new ModelAndView(ERROR_PAGE)
-                .addObject("backButtonUrl", apiKeyService.generateBackButtonValue());
+                .addObject("backButtonUrl", generateBackButtonValue());
     }
 
     @GetMapping("/manage")
@@ -166,28 +168,28 @@ public class ApiKeyController {
                 .addObject("apiKeysPage", apiKeysPage)
                 .addObject("pageNumbers", paginationHelper.getNumberOfPages(apiKeysPage.getTotalPages()))
                 .addObject("selectedDepartments", selectedDepartment == null ? List.of() : selectedDepartment)
-                .addObject("navBar", apiKeyService.generateNavBarDto())
+                .addObject("navBar", generateNavBarDto())
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
     }
 
-    private NavBarDto generateNavBarDto() {
+    protected NavBarDto generateNavBarDto() {
         return NavBarDto.builder()
                 .name(isSuperAdmin() ? "Super Admin Dashboard" : "Admin Dashboard")
                 .link(isSuperAdmin() ? navBarConfigProperties.getSuperAdminDashboardLink() : navBarConfigProperties.getAdminDashboardLink())
                 .build();
     }
 
-    public boolean isSuperAdmin() {
+    protected boolean isSuperAdmin() {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(SUPER_ADMIN_ROLE));
     }
 
-    public boolean isAdmin() {
+    protected boolean isAdmin() {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(ADMIN_ROLE));
     }
 
-    public String generateBackButtonValue() {
+    protected String generateBackButtonValue() {
         if (isSuperAdmin()) {
             return "/api-keys/manage";
         }
