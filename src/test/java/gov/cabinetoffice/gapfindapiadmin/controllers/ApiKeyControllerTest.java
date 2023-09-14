@@ -34,6 +34,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.ADMIN_ROLE;
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.SUPER_ADMIN_ROLE;
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.TECHNICAL_SUPPORT_ROLE;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,7 +92,7 @@ class ApiKeyControllerTest {
         final List<GapApiKey> expectedApiKeys = List.of(GapApiKey.builder().apiKey(apiKey).build());
 
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
 
@@ -109,7 +112,7 @@ class ApiKeyControllerTest {
         final String apiKey = "Key";
         final List<GapApiKey> expectedApiKeys = List.of(GapApiKey.builder().apiKey(apiKey).build());
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
         when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
 
         when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
@@ -133,7 +136,7 @@ class ApiKeyControllerTest {
     void showKeys_expectedResponse_emptyList() {
         List<GapApiKey> expectedApiKeys = new ArrayList<>();
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
 
@@ -150,7 +153,7 @@ class ApiKeyControllerTest {
     @Test
     void showCreateApiKeyFormPage_ShouldShowTheCorrectViewAndAttachedObject_hasNotAdminRole() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
 
         final ModelAndView methodResponse = controllerUnderTest.showCreateKeyForm();
@@ -165,7 +168,7 @@ class ApiKeyControllerTest {
     void showCreateApiKeyFormPage_ShouldShowTheCorrectViewAndAttachedObject_hasAdminRole() {
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
         when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
 
         final ModelAndView methodResponse = controllerUnderTest.showCreateKeyForm();
@@ -184,7 +187,7 @@ class ApiKeyControllerTest {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
 
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName())).thenReturn("keyValue");
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
 
@@ -200,7 +203,7 @@ class ApiKeyControllerTest {
     void createKey_ShouldShowTheCorrectViewAndAttachedObject_hasAdminRole() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
         when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
         when(apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName())).thenReturn("keyValue");
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
@@ -220,7 +223,7 @@ class ApiKeyControllerTest {
     void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyDtoIsEmpty_hasNotAdminRole() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().build();
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(bindingResult.hasErrors()).thenReturn(true);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
 
@@ -236,7 +239,7 @@ class ApiKeyControllerTest {
     void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyDtoIsEmpty_hasAdminRole() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().build();
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
         when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
         when(bindingResult.hasErrors()).thenReturn(true);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
@@ -256,7 +259,7 @@ class ApiKeyControllerTest {
     void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyAlreadyExists_hasNotAdminRole() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(apiKeyService.doesApiKeyExist(createApiKeyDTO.getKeyName())).thenReturn(true);
         when(bindingResult.hasErrors()).thenReturn(true);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
@@ -273,7 +276,7 @@ class ApiKeyControllerTest {
     void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyAlreadyExists_hasAdminRole() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
         when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
         when(apiKeyService.doesApiKeyExist(createApiKeyDTO.getKeyName())).thenReturn(true);
         when(bindingResult.hasErrors()).thenReturn(true);
@@ -293,7 +296,7 @@ class ApiKeyControllerTest {
     @Test
     void showRevokeApiKeyPage_showsCorrectView_hasNotAdminOrSuperAdminRole() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
 
@@ -309,7 +312,7 @@ class ApiKeyControllerTest {
     @Test
     void showRevokeApiKeyPage_showsCorrectView_hasAdminRole() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
         when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
@@ -329,7 +332,7 @@ class ApiKeyControllerTest {
     @Test
     void showRevokeApiKeyPage_showsCorrectView_hasSuperAdminRole() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(SUPER_ADMIN_ROLE));
         when(navBarConfigProperties.getSuperAdminDashboardLink()).thenReturn("superAdminLink");
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
@@ -349,7 +352,7 @@ class ApiKeyControllerTest {
     @Test
     void revokeApiKeyPost_returnsExpectedResponse_TechnicalSupport() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
 
         final String response = controllerUnderTest.revokeApiKey(apiKey);
@@ -362,7 +365,7 @@ class ApiKeyControllerTest {
     @Test
     void revokeApiKeyPost_returnsExpectedResponse_SuperAdmin() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(SUPER_ADMIN_ROLE));
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
 
         final String response = controllerUnderTest.revokeApiKey(apiKey);
@@ -393,7 +396,7 @@ class ApiKeyControllerTest {
     void displaySuperAdminPage_showsCorrectViewWithRequestParams() {
         final List<String> selectedDepartments = List.of("testDepartmentName");
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(SUPER_ADMIN_ROLE));
         when(navBarConfigProperties.getSuperAdminDashboardLink()).thenReturn("superAdminLink");
         when(apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartments))
                 .thenReturn(apiKeyList);
@@ -420,7 +423,7 @@ class ApiKeyControllerTest {
     @Test
     void displaySuperAdminPage_showsCorrectViewNoRequestParams() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(SUPER_ADMIN_ROLE));
         when(navBarConfigProperties.getSuperAdminDashboardLink()).thenReturn("superAdminLink");
         when(apiKeyService.getApiKeysForSelectedFundingOrganisations(null)).thenReturn(apiKeyList);
         when(apiKeyService.getFundingOrgForAllApiKeys()).thenReturn(departments);
@@ -447,21 +450,21 @@ class ApiKeyControllerTest {
     @Test
     void generateBackButtonValue_returnExpectedWhenUserIsASuperAdmin() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(SUPER_ADMIN_ROLE));
         assertThat(controllerUnderTest.generateBackButtonValue()).isEqualTo("/api-keys/manage");
     }
 
     @Test
     void generateBackButtonValue_returnExpectedWhenUserIsATechnicalSupport() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         assertThat(controllerUnderTest.generateBackButtonValue()).isEqualTo("/api-keys");
     }
 
     @Test
     void isSuperAdmin_returnTrueWhenUserIsASuperAdmin() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(SUPER_ADMIN_ROLE));
         final boolean actual = controllerUnderTest.isSuperAdmin();
         assertThat(actual).isTrue();
     }
@@ -469,7 +472,7 @@ class ApiKeyControllerTest {
     @Test
     void isSuperAdmin_returnFalseWhenUserIsASuperAdmin() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         final boolean actual = controllerUnderTest.isSuperAdmin();
         assertThat(actual).isFalse();
     }
@@ -483,7 +486,7 @@ class ApiKeyControllerTest {
                 .build();
         SecurityContextHolder.setContext(securityContext);
 
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("TECHNICAL_SUPPORT"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("link");
 
         final NavBarDto response = controllerUnderTest.generateNavBarDto();
@@ -498,7 +501,7 @@ class ApiKeyControllerTest {
                 .link("link")
                 .build();
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(SUPER_ADMIN_ROLE));
         when(navBarConfigProperties.getSuperAdminDashboardLink()).thenReturn("link");
 
         final NavBarDto response = controllerUnderTest.generateNavBarDto();
@@ -509,7 +512,7 @@ class ApiKeyControllerTest {
     @Test
     void isAdmin_returnTrueWhenUserIsAdmin() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
         final boolean actual = controllerUnderTest.isAdmin();
         assertThat(actual).isTrue();
     }
@@ -517,7 +520,7 @@ class ApiKeyControllerTest {
     @Test
     void isAdmin_returnFalseWhenUserIsNotAdmin() {
         SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles("SUPER_ADMIN"));
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(SUPER_ADMIN_ROLE));
         final boolean actual = controllerUnderTest.isAdmin();
         assertThat(actual).isFalse();
     }

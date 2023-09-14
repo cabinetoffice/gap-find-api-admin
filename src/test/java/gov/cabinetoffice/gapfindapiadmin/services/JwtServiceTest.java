@@ -9,10 +9,12 @@ import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -33,7 +35,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@SpringJUnitConfig
+@ExtendWith(MockitoExtension.class)
 class JwtServiceTest {
 
     @Mock
@@ -42,7 +44,6 @@ class JwtServiceTest {
     @Mock
     private RestTemplate restTemplate;
 
-    @Spy
     @InjectMocks
     private JwtService jwtService;
 
@@ -116,7 +117,7 @@ class JwtServiceTest {
     @Nested
     class generateSimpleGrantedAuthorityList{
         @Test
-        public void testGenerateSimpleGrantedAuthorityListSuperAdmin() {
+        void testGenerateSimpleGrantedAuthorityListSuperAdmin() {
             final List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(true, false);
 
             assertThat(result.size()).isEqualTo(1);
@@ -124,7 +125,7 @@ class JwtServiceTest {
         }
 
         @Test
-        public void testGenerateSimpleGrantedAuthorityListAdmin() {
+        void testGenerateSimpleGrantedAuthorityListAdmin() {
             final List<SimpleGrantedAuthority> expected = List.of(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority("TECHNICAL_SUPPORT"));
 
             List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(false, true);
@@ -134,7 +135,7 @@ class JwtServiceTest {
         }
 
         @Test
-        public void testGenerateSimpleGrantedAuthorityListTechnicalSupport() {
+        void testGenerateSimpleGrantedAuthorityListTechnicalSupport() {
             final List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(false, false);
 
             assertThat(result.size()).isEqualTo(1);
