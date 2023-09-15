@@ -26,9 +26,11 @@ public class SecurityConfig {
             "/js/**"
     };
     private final JwtAuthorisationFilter jwtAuthorisationFilter;
+    private final CustomAuthenticationEntryPoint authenticationEntryPointFilter;
 
 
     public SecurityConfig(final JwtService jwtService, final GrantAdminService grantAdminService, UserServiceConfig userServiceConfig) {
+        this.authenticationEntryPointFilter = new CustomAuthenticationEntryPoint(userServiceConfig);
         this.jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, grantAdminService, userServiceConfig);
     }
 
@@ -51,7 +53,9 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthorisationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling
-                                .accessDeniedHandler(new CustomAccessDeniedHandler()));
+                                .authenticationEntryPoint(authenticationEntryPointFilter)
+                                .accessDeniedHandler(new CustomAccessDeniedHandler())
+                );
 
         return http.build();
     }

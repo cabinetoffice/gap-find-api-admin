@@ -21,4 +21,7 @@ public class UserServiceConfig {
     @NonNull
     private String logoutUrl;
 
+    @NonNull
+    private String loginUrl;
+
 }

@@ -1,0 +1,15 @@
+{
+  "id" : "201b5d72-0b07-46ea-865f-41531883e295",
+  "request" : {
+    "url" : "/v2/login?redirectUrl=http://localhost:8086/find/api/admin/redirect",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 302,
+    "headers" : {
+      "Location" : "http://localhost:8086/find/api/admin/redirect",
+      "Set-Cookie" : "user-service-token=eyJraWQiOiJlN2QzZjk0OS01MzdkLTQxMDItODcwNy0wY2NhZDIwYzBjNDAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0Y28uY3lwcmVzcy50ZXN0LnN1cGVyLmFkbWluIiwiYXVkIjoiRkdQIiwicm9sZXMiOiJbQVBQTElDQU5ULCBGSU5ELCBURUNITklDQUxfU1VQUE9SVCwgU1VQRVJfQURNSU5dIiwiaWRUb2tlbiI6ImJhbmFuYSIsImlzcyI6ImJhbmFuYSIsImRlcGFydG1lbnQiOiJCYW5hbmEiLCJleHAiOjE2OTI5NzMyMjIsImlhdCI6MTY5Mjk2OTYyMiwiZW1haWwiOiJiYW5hbmFAZnJ1aXQiLCJqdGkiOiJiYW5hbmEifQ.pDsgFxc1gijJhRmbYkCgJzD4eApYTxi8ue1Ziq29-MhzQCeUubj8i6_rvG3FzVZHI2wGkGqRL-ZDOSH4hVBfuFxP04SNOkQb3dq4uFvAaTngJYvz62GEUC-vwiiMDX9sp8LQrwW-bCkIvjPeAdJ2NxcSTyb1iaz7y2XFwxL_DBG2D4I8hbCekM5eOYmF9JGEVsxufqe350b-D6n-ojI8f1uPocYpHXdnMwI8S0tKYtef62XLPhPTSH-EsS0segvGvWcxeNBCTEKrKfhE6qvbN_heX52oOGhA4wpGoBkFqyWAiao8nlaPbmlmX1hpfxCA4csVhA2BHMMtjgNHIqb6Pg; Path=/; HttpOnly"
+    }
+  },
+  "uuid" : "201b5d72-0b07-46ea-865f-41531883e295"
+}

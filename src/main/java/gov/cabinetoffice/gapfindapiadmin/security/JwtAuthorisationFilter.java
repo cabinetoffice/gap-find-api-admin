@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -50,7 +51,7 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
         final Pattern pattern = Pattern.compile("\\b" + ADMIN_ROLE + "\\b");
         final boolean isAdmin = pattern.matcher(jwtPayload.getRoles()).find();
         if (!jwtPayload.getRoles().contains(TECHNICAL_SUPPORT_ROLE) && !isSuperAdmin) {
-            throw new UnauthorizedException("User does not have the required roles to access this resource");
+            throw new AccessDeniedException("User does not have the required roles to access this resource");
         }
         final List<SimpleGrantedAuthority> simpleGrantedAuthorityList = jwtService.generateSimpleGrantedAuthorityList(isSuperAdmin, isAdmin);
 
