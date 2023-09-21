@@ -155,11 +155,13 @@
 					</execution>
 				</executions>
 			</plugin>
-
 			<plugin>
 				<groupId>org.owasp</groupId>
 				<artifactId>dependency-check-maven</artifactId>
-				<version>8.3.1</version>
+				<version>8.4.0</version>
+				<configuration>
+					<failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
