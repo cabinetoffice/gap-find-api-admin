@@ -32,16 +32,19 @@ class ApiGatewayServiceTest {
 
     private final String API_KEY_NAME = "apikeyName";
     private final String API_KEY_DESCRIPTION = "apikeyDescription";
+    private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder().id(1).name("Funding org").build();
+    private final FundingOrganisation fundingOrganisation2 = FundingOrganisation.builder().id(1).name("Funding org2").build();
     private final GapApiKey gapApiKey = GapApiKey.builder()
             .id(1)
             .apiGatewayId("apiGatewayId")
             .isRevoked(false)
+            .fundingOrganisation(fundingOrganisation)
             .build();
     private final ApiKey apiKey = ApiKey.builder().id("apiGatewayId").name(API_KEY_NAME).build();
     private final GetApiKeysResponse getApiKeysResponse = GetApiKeysResponse.builder().items(List.of(apiKey)).build();
-    private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder().id(1).build();
     private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
     private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
+    private final GrantAdmin grantAdminDifferentDept = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation2).build();
 
     @Mock
     ApiGatewayConfigProperties apiGatewayConfigProperties;
@@ -53,16 +56,16 @@ class ApiGatewayServiceTest {
     Principal principal;
 
     @Mock
-    ApiKeyService apiKeyService;
-
-    @Mock
-    GrantAdminService grantAdminService;
-
-    @Mock
     private SecurityContext securityContext;
 
     @Mock
     private Authentication authentication;
+
+    @Mock
+    ApiKeyService apiKeyService;
+
+    @Mock
+    GrantAdminService grantAdminService;
 
     @Mock
     ZonedDateTime zonedDateTime;
@@ -72,7 +75,7 @@ class ApiGatewayServiceTest {
 
     @Test
     void createApiKeysInAwsAndDb() {
-        prepareAuthentication();
+        prepareAuthentication(grantAdmin);
         CreateApiKeyResponse apiKeyRequest = CreateApiKeyResponse.builder().name(API_KEY_NAME).value("apiKeyValue").build();
         when(apiGatewayClient.createApiKey(any(CreateApiKeyRequest.class))).thenReturn(apiKeyRequest);
         CreateUsagePlanKeyResponse usagePlanKeyResponse = CreateUsagePlanKeyResponse.builder().build();
@@ -126,7 +129,7 @@ class ApiGatewayServiceTest {
         assertThat(actualApiKey.getApiKey()).isNotEqualTo(apiKeyValue);
 
     }
-    private void prepareAuthentication() {
+    private void prepareAuthentication(GrantAdmin grantAdmin) {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
@@ -134,6 +137,7 @@ class ApiGatewayServiceTest {
 
     @Test
     void deleteApiKeys() {
+        prepareAuthentication(grantAdmin);
         final ArgumentCaptor<DeleteApiKeyRequest> deleteApiKeyRequestArgumentCaptor = ArgumentCaptor.forClass(DeleteApiKeyRequest.class);
         when(apiGatewayClient.deleteApiKey(any(DeleteApiKeyRequest.class))).thenReturn(DeleteApiKeyResponse.builder().build());
 
@@ -145,7 +149,14 @@ class ApiGatewayServiceTest {
 
     @Test
     void deleteApiKeys_throwsException() {
+        prepareAuthentication(grantAdmin);
         when(apiGatewayClient.deleteApiKey(any(DeleteApiKeyRequest.class))).thenThrow(ApiGatewayException.class);
         assertThrows(ApiGatewayException.class, () -> apiGatewayService.deleteApiKey(gapApiKey));
+    }
+
+    @Test
+    void deleteApiKeys_throwsUnauthorizedException() {
+        prepareAuthentication(grantAdminDifferentDept);
+        assertThrows(gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException.class, () -> apiGatewayService.deleteApiKey(gapApiKey));
     }
 }

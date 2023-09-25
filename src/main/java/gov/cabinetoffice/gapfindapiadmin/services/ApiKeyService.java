@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
+import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
@@ -53,11 +54,14 @@ public class ApiKeyService {
             return;
         }
 
-        apiKey.setRevokedBy(grantAdmin.getGapUser().getId());
-        apiKey.setRevocationDate(ZonedDateTime.now());
-        apiKey.setRevoked(true);
-
-        apiKeyRepository.save(apiKey);
+        if(grantAdmin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName())) {
+            apiKey.setRevokedBy(grantAdmin.getGapUser().getId());
+            apiKey.setRevocationDate(ZonedDateTime.now());
+            apiKey.setRevoked(true);
+            apiKeyRepository.save(apiKey);
+        } else {
+            throw new UnauthorizedException("User is unauthorised to revoke this API key");
+        }
     }
 
     public GapApiKey getApiKeyById(int apiKeyId) {
