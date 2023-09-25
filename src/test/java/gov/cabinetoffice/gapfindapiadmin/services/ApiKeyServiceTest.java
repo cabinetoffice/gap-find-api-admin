@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
+import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
@@ -43,6 +44,7 @@ class ApiKeyServiceTest {
 
     private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
     private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
+    private final GrantAdmin grantAdmin2 = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation2).build();
     private final Integer API_KEY_ID = 1;
 
     private final GapApiKey apiKey = GapApiKey.builder()
@@ -110,7 +112,7 @@ class ApiKeyServiceTest {
 
     @Test
     void revokeApiKey_returnsExpectedResponse() {
-        setSecurityContext();
+        setSecurityContext(grantAdmin);
         when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(Optional.ofNullable(apiKey));
 
         serviceUnderTest.revokeApiKey(API_KEY_ID);
@@ -122,10 +124,23 @@ class ApiKeyServiceTest {
 
     @Test
     void revokeApiKey_throwsInvalidApiKeyIdException() {
-        setSecurityContext();
+        setSecurityContext(grantAdmin);
         when(apiKeyRepository.findById(API_KEY_ID)).thenThrow(new InvalidApiKeyIdException());
 
         serviceUnderTest.revokeApiKey(API_KEY_ID);
+
+        verify(apiKeyRepository).findById(API_KEY_ID);
+        assertThat(apiKey.isRevoked()).isFalse();
+    }
+
+    @Test
+    void revokeApiKey_throwsUnauthorizedException() {
+        setSecurityContext(grantAdmin2);
+        when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(Optional.ofNullable(apiKey));
+
+        assertThatThrownBy(() -> serviceUnderTest.revokeApiKey(API_KEY_ID))
+                .isInstanceOf(UnauthorizedException.class)
+                .hasMessage("User is unauthorised to revoke this API key");
 
         verify(apiKeyRepository).findById(API_KEY_ID);
         assertThat(apiKey.isRevoked()).isFalse();
@@ -247,7 +262,7 @@ class ApiKeyServiceTest {
     }
 
 
-    private void setSecurityContext() {
+    private void setSecurityContext(GrantAdmin grantAdmin) {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
