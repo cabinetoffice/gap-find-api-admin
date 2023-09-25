@@ -79,16 +79,16 @@
         </div>
     </nav>
 
-    <nav th:if="${navBar != null && apiDocumentationLink != null}" class="app-navigation govuk-clearfix g2_navigation govuk-width-container" data-cy="header-navbar">
+    <nav th:if="${navBar != null || apiDocumentationLink != null}" class="app-navigation govuk-clearfix g2_navigation govuk-width-container" data-cy="header-navbar">
         <ul class="app-navigation__list app-width-container g2_navigation__menu gap_nav-wrapper">
             <li th:if="${navBar != null}" data-value="parent" class="app-navigation__list-item " id="backToDashboard">
                 <a class="govuk-link govuk-link--no-visited-state app-navigation__link" data-cy="header-navbar-back-to-dashboard-link" th:data-topnav="${navBar.name}"
                    th:text="${navBar.name}" th:href="${navBar.link}">
                 </a>
             </li>
-            <li th:if="${apiDocumentationLink != null}"data-value="parent" class="app-navigation__list-item " id="apiDocumentation">
-                <a class="govuk-link govuk-link--no-visited-state app-navigation__link" data-cy="header-navbar-api-documentation-link" th:data-topnav="api-documentation"
-                   th:text="Api documentation" th:href="${apiDocumentationLink}">
+            <li th:if="${apiDocumentationLink != null}" data-value="parent" class="app-navigation__list-item " id="apiDocumentation">
+                <a class="govuk-link govuk-link--no-visited-state app-navigation__link" data-cy="header-navbar-api-documentation-link" data-topnav="api-documentation"
+                   th:href="${apiDocumentationLink}">Api documentation
                 </a>
             </li>
         </ul>

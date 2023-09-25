@@ -136,7 +136,7 @@ class ApiKeyControllerTest {
         assertThat(actualResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
         assertThat(actualResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
         assertThat(actualApiKeys.get(0).getApiKey()).isEqualTo(apiKey);
-        assertThat(actualNavBarDto.getName()).isEqualTo("Admin Dashboard");
+        assertThat(actualNavBarDto.getName()).isEqualTo("Admin dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("adminLink");
     }
 
@@ -191,7 +191,7 @@ class ApiKeyControllerTest {
         assertThat(methodResponse.getModel().get("createApiKeyDTO")).isInstanceOf(CreateApiKeyDTO.class);
         assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
         assertThat(methodResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
-        assertThat(actualNavBarDto.getName()).isEqualTo("Admin Dashboard");
+        assertThat(actualNavBarDto.getName()).isEqualTo("Admin dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("adminLink");
     }
 
@@ -233,7 +233,7 @@ class ApiKeyControllerTest {
         assertThat(methodResponse.getModel()).containsEntry("keyValue", "keyValue");
         assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
         assertThat(methodResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
-        assertThat(actualNavBarDto.getName()).isEqualTo("Admin Dashboard");
+        assertThat(actualNavBarDto.getName()).isEqualTo("Admin dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("adminLink");
     }
 
@@ -275,7 +275,7 @@ class ApiKeyControllerTest {
         assertThat(methodResponse.getModel()).containsEntry("createApiKeyDTO", createApiKeyDTO);
         assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
         assertThat(methodResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
-        assertThat(actualNavBarDto.getName()).isEqualTo("Admin Dashboard");
+        assertThat(actualNavBarDto.getName()).isEqualTo("Admin dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("adminLink");
     }
 
@@ -319,7 +319,7 @@ class ApiKeyControllerTest {
         assertThat(methodResponse.getModel()).containsEntry("createApiKeyDTO", createApiKeyDTO);
         assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
         assertThat(methodResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
-        assertThat(actualNavBarDto.getName()).isEqualTo("Admin Dashboard");
+        assertThat(actualNavBarDto.getName()).isEqualTo("Admin dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("adminLink");
     }
 
@@ -339,7 +339,6 @@ class ApiKeyControllerTest {
         assertThat(response.getModel()).containsEntry("backButtonUrl", "/api-keys");
         assertThat(response.getModel()).containsEntry("signOutUrl", "logoutUrl");
         assertThat(response.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
-
     }
 
     @Test
@@ -349,16 +348,18 @@ class ApiKeyControllerTest {
         when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
         final ModelAndView response = controllerUnderTest.showRevokeApiKeyConfirmation(API_KEY_ID);
         final NavBarDto actualNavBarDto = (NavBarDto) response.getModel().get("navBar");
 
         assertThat(response.getViewName()).isEqualTo(ApiKeyController.REVOKE_API_KEY_CONFIRMATION_PAGE);
-        assertThat(response.getModel()).hasSize(4);
+        assertThat(response.getModel()).hasSize(5);
         assertThat(response.getModel()).containsEntry("apiKey", apiKey);
         assertThat(response.getModel()).containsEntry("backButtonUrl", "/api-keys");
         assertThat(response.getModel()).containsEntry("signOutUrl", "logoutUrl");
-        assertThat(actualNavBarDto.getName()).isEqualTo("Admin Dashboard");
+        assertThat(response.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
+        assertThat(actualNavBarDto.getName()).isEqualTo("Admin dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("adminLink");
     }
 
@@ -378,7 +379,7 @@ class ApiKeyControllerTest {
         assertThat(response.getModel()).containsEntry("apiKey", apiKey);
         assertThat(response.getModel()).containsEntry("backButtonUrl", "/api-keys/manage");
         assertThat(response.getModel()).containsEntry("signOutUrl", "logoutUrl");
-        assertThat(actualNavBarDto.getName()).isEqualTo("Super Admin Dashboard");
+        assertThat(actualNavBarDto.getName()).isEqualTo("Super admin dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("superAdminLink");
     }
 
@@ -449,7 +450,7 @@ class ApiKeyControllerTest {
         assertThat(response.getModel()).containsEntry("pageNumbers", pageNumbers);
         assertThat(response.getModel()).containsEntry("selectedDepartments", selectedDepartments);
         assertThat(response.getModel()).containsEntry("signOutUrl", "logoutUrl");
-        assertThat(actualNavBarDto.getName()).isEqualTo("Super Admin Dashboard");
+        assertThat(actualNavBarDto.getName()).isEqualTo("Super admin dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("superAdminLink");
     }
 
@@ -476,7 +477,7 @@ class ApiKeyControllerTest {
         assertThat(response.getModel()).containsEntry("pageNumbers", pageNumbers);
         assertThat(response.getModel()).containsEntry("selectedDepartments", List.of());
         assertThat(response.getModel()).containsEntry("signOutUrl", "logoutUrl");
-        assertThat(actualNavBarDto.getName()).isEqualTo("Super Admin Dashboard");
+        assertThat(actualNavBarDto.getName()).isEqualTo("Super admin dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("superAdminLink");
     }
 
@@ -514,7 +515,7 @@ class ApiKeyControllerTest {
     @Test
     void generateNavBarDto_admin() {
         final NavBarDto expectedNavBarDto = NavBarDto.builder()
-                .name("Admin Dashboard")
+                .name("Admin dashboard")
                 .link("link")
                 .build();
         SecurityContextHolder.setContext(securityContext);
@@ -530,7 +531,7 @@ class ApiKeyControllerTest {
     @Test
     void generateNavBarDto_superAdmin() {
         final NavBarDto expectedNavBarDto = NavBarDto.builder()
-                .name("Super Admin Dashboard")
+                .name("Super admin dashboard")
                 .link("link")
                 .build();
         SecurityContextHolder.setContext(securityContext);

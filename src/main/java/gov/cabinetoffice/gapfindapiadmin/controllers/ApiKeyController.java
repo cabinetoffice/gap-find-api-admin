@@ -132,9 +132,10 @@ public class ApiKeyController {
                 .addObject("backButtonUrl", generateRedirectValue())
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
-        if (!isAdmin() && !isSuperAdmin()) {
+        if (!isSuperAdmin()) {
                 model.addObject("apiDocumentationLink", swaggerConfigProperties.getDocumentationLink());
         }
+
         if (isAdmin() || isSuperAdmin()) {
             model.addObject("navBar", generateNavBarDto());
         }
@@ -184,7 +185,7 @@ public class ApiKeyController {
 
     protected NavBarDto generateNavBarDto() {
         return NavBarDto.builder()
-                .name(isSuperAdmin() ? "Super Admin Dashboard" : "Admin Dashboard")
+                .name(isSuperAdmin() ? "Super admin dashboard" : "Admin dashboard")
                 .link(isSuperAdmin() ? navBarConfigProperties.getSuperAdminDashboardLink() : navBarConfigProperties.getAdminDashboardLink())
                 .build();
     }
