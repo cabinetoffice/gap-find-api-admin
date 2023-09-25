@@ -2,6 +2,7 @@ package gov.cabinetoffice.gapfindapiadmin.controllers.controller_advice;
 
 import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyException;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
+import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,6 +33,9 @@ class ControllerExceptionsHandlerTest {
 
     @Mock
     private NotFoundException notFoundException;
+
+    @Mock
+    private UnauthorizedException unauthorizedException;
 
     @Mock
     private WebRequest webRequest;
@@ -74,6 +78,14 @@ class ControllerExceptionsHandlerTest {
     @Test
     void testHandleException_NotFoundException() {
         final String responseEntity = controllerExceptionsHandler.handleException(notFoundException,
+                webRequest);
+
+        assertThat(responseEntity).isEqualTo(ERROR_PAGE_REDIRECT);
+    }
+
+    @Test
+    void testHandleException_UnauthorizedException() {
+        final String responseEntity = controllerExceptionsHandler.handleException(unauthorizedException,
                 webRequest);
 
         assertThat(responseEntity).isEqualTo(ERROR_PAGE_REDIRECT);
