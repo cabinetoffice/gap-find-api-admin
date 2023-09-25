@@ -6,10 +6,14 @@ const today = new Date().toLocaleDateString('en-GB', {
 
 const apiKeyName = 'apiKeyNameCypress';
 const apiKeyName2 = 'apiKeyNameCypress2';
+const apiKeyNameAnotherDept = 'apiKeyNameCypress3';
 
 const BASE_URL = 'http://localhost:8086/find/api/admin';
 
-import { checkNavBarItemIsRightForTheUserRole, signOutIsPresent } from '../../utils/helpers';
+import {
+  checkNavBarItemIsRightForTheUserRole,
+  signOutIsPresent,
+} from '../../utils/helpers';
 
 describe('Technical support and Admin Roles User journey ', () => {
   beforeEach(() => {
@@ -253,6 +257,42 @@ describe('Technical support and Admin Roles User journey ', () => {
         .should('have.text', 'Back')
         .click();
     });
+
+    it('Should not allow user to create key for another department', () => {
+      cy.visit(`${BASE_URL}/api-keys`);
+      cy.get('[data-cy="api-keys-create-button"]')
+        .should('be.visible')
+        .contains('Create an API key')
+        .click();
+
+      cy.url().should('include', 'api-keys/create');
+
+      signOutIsPresent();
+
+      checkNavBarItemIsRightForTheUserRole('ADMIN');
+
+      cy.setMockTokenForUserWithTechnicalSupportRoleWithFundingOrganisation2();
+
+      cy.get('[data-cy="create-key-input"]').type(apiKeyNameAnotherDept);
+
+      cy.get('[data-cy="create-key-continue"]')
+        .should('be.visible')
+        .contains('Continue')
+        .click();
+
+      cy.get('[data-cy="new-key-back-button"]')
+        .should('be.visible')
+        .contains('Back to your API keys')
+        .click();
+
+      cy.get('[data-cy="api-keys-heading"]')
+        .should('be.visible')
+        .should('have.text', 'Manage API keys');
+
+      cy.get('[data-cy="api-keys-department-name"]')
+        .should('be.visible')
+        .contains('Evil Org');
+    });
   });
 
   describe('API key dashboard with keys', () => {
@@ -356,30 +396,26 @@ describe('Technical support and Admin Roles User journey ', () => {
         .should('be.visible')
         .should('have.text', 'Revoked ' + today);
     });
+
     it('Should throw exception when revoking API key', () => {
       cy.visit(`${BASE_URL}/api-keys`);
 
-      cy.get('[data-cy="api-keys-create-button"]')
-        .click();
+      cy.get('[data-cy="api-keys-create-button"]').click();
 
       cy.get('[data-cy="create-key-input"]').type(apiKeyName2);
 
-      cy.get('[data-cy="create-key-continue"]')
-        .click();
+      cy.get('[data-cy="create-key-continue"]').click();
 
-      cy.get('[data-cy="new-key-back-button"]')
-        .click();
+      cy.get('[data-cy="new-key-back-button"]').click();
 
-      cy.get(`[data-cy="api-key-revoke-${apiKeyName2}"]`)
-        .click();
+      cy.get(`[data-cy="api-key-revoke-${apiKeyName2}"]`).click();
 
       cy.get('form').within(() => {
         cy.get('[data-cy="revoke-api-key-id"]').type(300, {
           force: true,
         });
 
-        cy.get('[data-cy="revoke-revoke-button"]')
-          .click();
+        cy.get('[data-cy="revoke-revoke-button"]').click();
       });
 
       cy.get('[data-cy="error-heading"]')
@@ -408,7 +444,66 @@ describe('Technical support and Admin Roles User journey ', () => {
 
       cy.get(`[data-cy="api-key-revoke-${apiKeyName2}"]`)
         .should('be.visible')
-        .should('have.attr', 'href', '/find/api/admin/api-keys/revoke/2')
+        .should('have.attr', 'href', '/find/api/admin/api-keys/revoke/3')
+        .contains('Revoke');
+    });
+
+    it('Should not allow user to revoke API key from another department', () => {
+      cy.visit(`${BASE_URL}/api-keys`);
+
+      cy.get(`[data-cy="api-key-revoke-${apiKeyName2}"]`)
+        .should('be.visible')
+        .contains('Revoke')
+        .click();
+
+      cy.get('[data-cy="revoke-heading"]')
+        .should('be.visible')
+        .should('have.text', 'Revoke an API key');
+
+      cy.setMockTokenForUserWithTechnicalSupportRoleWithFundingOrganisation2();
+
+      cy.get('[data-cy="revoke-revoke-button"]')
+        .should('be.visible')
+        .should('have.text', 'Revoke key')
+        .click();
+
+      cy.setMockTokenForUserWithTechnicalSupportAndAdminRoleWithFundingOrganisation1();
+
+      cy.get('[data-cy="error-heading"]')
+        .should('be.visible')
+        .should('have.text', 'Something went wrong');
+
+      cy.get('[data-cy="error-paragraph"]')
+        .should('be.visible')
+        .should(
+          'have.text',
+          'Something went wrong while trying to complete your request.'
+        );
+
+      cy.get('[data-cy="error-paragraph-with-link"]')
+        .should('be.visible')
+        .contains('You can return to the API dashboard to try again.');
+
+      cy.get('[data-cy="error-back-link"]')
+        .should('have.attr', 'href', '/find/api/admin/api-keys')
+        .contains('return to the API dashboard')
+        .click();
+      //cy.visit(`${BASE_URL}/api-keys`);
+
+      cy.get('[data-cy="create-key-summary-list"]')
+        .children()
+        .should('have.length', 2);
+
+      cy.get(`[data-cy="api-key-name-${apiKeyName2}"]`)
+        .should('be.visible')
+        .should('have.text', apiKeyName2);
+
+      cy.get(`[data-cy="api-key-created-date-${apiKeyName2}"]`)
+        .should('be.visible')
+        .should('have.text', 'Created ' + today);
+
+      cy.get(`[data-cy="api-key-revoke-${apiKeyName2}"]`)
+        .should('be.visible')
         .contains('Revoke');
     });
   });
