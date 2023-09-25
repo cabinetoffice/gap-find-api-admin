@@ -2,6 +2,7 @@ package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyException;
+import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.ZonedDateTime;
+
+import static java.util.Optional.ofNullable;
 
 @Service
 @RequiredArgsConstructor
@@ -92,9 +95,17 @@ public class ApiGatewayService {
     }
 
     public void deleteApiKey(GapApiKey apiKey) {
-        apiGatewayClient.deleteApiKey(DeleteApiKeyRequest.builder()
-                .apiKey(apiKey.getApiGatewayId())
-                .build());
+        final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal(); ofNullable(grantAdmin)
+                .filter(admin -> admin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName()))
+                .ifPresentOrElse(
+                        admin -> apiGatewayClient.deleteApiKey(DeleteApiKeyRequest.builder()
+                                .apiKey(apiKey.getApiGatewayId())
+                                .build()),
+                        () -> {
+                            throw new UnauthorizedException("User is unauthorized to revoke this API key");
+                        }
+                );
     }
+
 
 }
