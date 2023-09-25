@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.config.NavBarConfigProperties;
+import gov.cabinetoffice.gapfindapiadmin.config.SwaggerConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
 import gov.cabinetoffice.gapfindapiadmin.dtos.NavBarDto;
@@ -81,6 +82,9 @@ class ApiKeyControllerTest {
 
     @Mock
     private NavBarConfigProperties navBarConfigProperties;
+
+    @Mock
+    private SwaggerConfigProperties swaggerConfigProperties;
     @InjectMocks
     private ApiKeyController controllerUnderTest;
 
@@ -95,15 +99,17 @@ class ApiKeyControllerTest {
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
         ModelAndView actualResponse = controllerUnderTest.showKeys();
         List<GapApiKey> actualApiKeys = (List<GapApiKey>) actualResponse.getModel().get("apiKeys");
 
         assertThat(actualResponse.getViewName()).isEqualTo(ApiKeyController.ORGANISATION_API_KEYS_PAGE);
-        assertThat(actualResponse.getModel()).hasSize(3);
+        assertThat(actualResponse.getModel()).hasSize(4);
         assertThat(actualResponse.getModel()).containsEntry("apiKeys", expectedApiKeys);
         assertThat(actualResponse.getModel()).containsEntry("departmentName", fundingOrganisation.getName());
         assertThat(actualResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
+        assertThat(actualResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
         assertThat(actualApiKeys.get(0).getApiKey()).isEqualTo(apiKey);
     }
 
@@ -111,22 +117,24 @@ class ApiKeyControllerTest {
     void showKeys_expectedResponse_hasAdminRole() {
         final String apiKey = "Key";
         final List<GapApiKey> expectedApiKeys = List.of(GapApiKey.builder().apiKey(apiKey).build());
+
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
         when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
-
         when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
         ModelAndView actualResponse = controllerUnderTest.showKeys();
         List<GapApiKey> actualApiKeys = (List<GapApiKey>) actualResponse.getModel().get("apiKeys");
         final NavBarDto actualNavBarDto = (NavBarDto) actualResponse.getModel().get("navBar");
 
         assertThat(actualResponse.getViewName()).isEqualTo(ApiKeyController.ORGANISATION_API_KEYS_PAGE);
-        assertThat(actualResponse.getModel()).hasSize(4);
+        assertThat(actualResponse.getModel()).hasSize(5);
         assertThat(actualResponse.getModel()).containsEntry("apiKeys", expectedApiKeys);
         assertThat(actualResponse.getModel()).containsEntry("departmentName", fundingOrganisation.getName());
         assertThat(actualResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
+        assertThat(actualResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
         assertThat(actualApiKeys.get(0).getApiKey()).isEqualTo(apiKey);
         assertThat(actualNavBarDto.getName()).isEqualTo("Admin Dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("adminLink");
@@ -139,15 +147,16 @@ class ApiKeyControllerTest {
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
         ModelAndView actualResponse = controllerUnderTest.showKeys();
 
         assertThat(actualResponse.getViewName()).isEqualTo(ApiKeyController.ORGANISATION_API_KEYS_PAGE);
-        assertThat(actualResponse.getModel()).hasSize(3);
+        assertThat(actualResponse.getModel()).hasSize(4);
         assertThat(actualResponse.getModel()).containsEntry("apiKeys", expectedApiKeys);
         assertThat(actualResponse.getModel()).containsEntry("departmentName", fundingOrganisation.getName());
         assertThat(actualResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
-
+        assertThat(actualResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
     }
 
     @Test
@@ -155,13 +164,15 @@ class ApiKeyControllerTest {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
         final ModelAndView methodResponse = controllerUnderTest.showCreateKeyForm();
 
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
-        assertThat(methodResponse.getModel()).hasSize(2);
+        assertThat(methodResponse.getModel()).hasSize(3);
         assertThat(methodResponse.getModel().get("createApiKeyDTO")).isInstanceOf(CreateApiKeyDTO.class);
         assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
+        assertThat(methodResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
     }
 
     @Test
@@ -170,14 +181,16 @@ class ApiKeyControllerTest {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
         when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
         final ModelAndView methodResponse = controllerUnderTest.showCreateKeyForm();
         final NavBarDto actualNavBarDto = (NavBarDto) methodResponse.getModel().get("navBar");
 
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
-        assertThat(methodResponse.getModel()).hasSize(3);
+        assertThat(methodResponse.getModel()).hasSize(4);
         assertThat(methodResponse.getModel().get("createApiKeyDTO")).isInstanceOf(CreateApiKeyDTO.class);
         assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
+        assertThat(methodResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
         assertThat(actualNavBarDto.getName()).isEqualTo("Admin Dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("adminLink");
     }
@@ -190,31 +203,36 @@ class ApiKeyControllerTest {
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName())).thenReturn("keyValue");
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
-
-        assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.NEW_API_KEY_PAGE);
-        assertThat(methodResponse.getModel()).hasSize(2);
-        assertThat(methodResponse.getModel()).containsEntry("keyValue", "keyValue");
-        assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
-    }
-
-    @Test
-    void createKey_ShouldShowTheCorrectViewAndAttachedObject_hasAdminRole() {
-        final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
-        when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
-        when(apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName())).thenReturn("keyValue");
-        when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
-
-        final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
-        final NavBarDto actualNavBarDto = (NavBarDto) methodResponse.getModel().get("navBar");
 
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.NEW_API_KEY_PAGE);
         assertThat(methodResponse.getModel()).hasSize(3);
         assertThat(methodResponse.getModel()).containsEntry("keyValue", "keyValue");
         assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
+        assertThat(methodResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
+    }
+
+    @Test
+    void createKey_ShouldShowTheCorrectViewAndAttachedObject_hasAdminRole() {
+        final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
+
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
+        when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
+        when(apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName())).thenReturn("keyValue");
+        when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
+
+        final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
+        final NavBarDto actualNavBarDto = (NavBarDto) methodResponse.getModel().get("navBar");
+
+        assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.NEW_API_KEY_PAGE);
+        assertThat(methodResponse.getModel()).hasSize(4);
+        assertThat(methodResponse.getModel()).containsEntry("keyValue", "keyValue");
+        assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
+        assertThat(methodResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
         assertThat(actualNavBarDto.getName()).isEqualTo("Admin Dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("adminLink");
     }
@@ -222,35 +240,41 @@ class ApiKeyControllerTest {
     @Test
     void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyDtoIsEmpty_hasNotAdminRole() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().build();
+
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(bindingResult.hasErrors()).thenReturn(true);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
-
-        assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
-        assertThat(methodResponse.getModel()).hasSize(2);
-        assertThat(methodResponse.getModel()).containsEntry("createApiKeyDTO", createApiKeyDTO);
-        assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
-    }
-
-    @Test
-    void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyDtoIsEmpty_hasAdminRole() {
-        final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().build();
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
-        when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
-        when(bindingResult.hasErrors()).thenReturn(true);
-        when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
-
-        final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
-        final NavBarDto actualNavBarDto = (NavBarDto) methodResponse.getModel().get("navBar");
 
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
         assertThat(methodResponse.getModel()).hasSize(3);
         assertThat(methodResponse.getModel()).containsEntry("createApiKeyDTO", createApiKeyDTO);
         assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
+        assertThat(methodResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
+    }
+
+    @Test
+    void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyDtoIsEmpty_hasAdminRole() {
+        final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().build();
+
+        SecurityContextHolder.setContext(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
+        when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
+        when(bindingResult.hasErrors()).thenReturn(true);
+        when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
+
+        final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
+        final NavBarDto actualNavBarDto = (NavBarDto) methodResponse.getModel().get("navBar");
+
+        assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
+        assertThat(methodResponse.getModel()).hasSize(4);
+        assertThat(methodResponse.getModel()).containsEntry("createApiKeyDTO", createApiKeyDTO);
+        assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
+        assertThat(methodResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
         assertThat(actualNavBarDto.getName()).isEqualTo("Admin Dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("adminLink");
     }
@@ -258,37 +282,43 @@ class ApiKeyControllerTest {
     @Test
     void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyAlreadyExists_hasNotAdminRole() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
+
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(apiKeyService.doesApiKeyExist(createApiKeyDTO.getKeyName())).thenReturn(true);
         when(bindingResult.hasErrors()).thenReturn(true);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
 
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
-        assertThat(methodResponse.getModel()).hasSize(2);
+        assertThat(methodResponse.getModel()).hasSize(3);
         assertThat(methodResponse.getModel()).containsEntry("createApiKeyDTO", createApiKeyDTO);
         assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
+        assertThat(methodResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
     }
 
     @Test
     void createKey_ShouldShowTheCorrectViewAndAttachedObject_WhenApiKeyAlreadyExists_hasAdminRole() {
         final CreateApiKeyDTO createApiKeyDTO = CreateApiKeyDTO.builder().keyName("keyName").build();
+
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
         when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
         when(apiKeyService.doesApiKeyExist(createApiKeyDTO.getKeyName())).thenReturn(true);
         when(bindingResult.hasErrors()).thenReturn(true);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
         final ModelAndView methodResponse = controllerUnderTest.createKey(createApiKeyDTO, bindingResult);
         final NavBarDto actualNavBarDto = (NavBarDto) methodResponse.getModel().get("navBar");
 
         assertThat(methodResponse.getViewName()).isEqualTo(ApiKeyController.CREATE_API_KEY_FORM_PAGE);
-        assertThat(methodResponse.getModel()).hasSize(3);
+        assertThat(methodResponse.getModel()).hasSize(4);
         assertThat(methodResponse.getModel()).containsEntry("createApiKeyDTO", createApiKeyDTO);
         assertThat(methodResponse.getModel()).containsEntry("signOutUrl", "logoutUrl");
+        assertThat(methodResponse.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
         assertThat(actualNavBarDto.getName()).isEqualTo("Admin Dashboard");
         assertThat(actualNavBarDto.getLink()).isEqualTo("adminLink");
     }
@@ -299,14 +329,17 @@ class ApiKeyControllerTest {
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
+        when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
         final ModelAndView response = controllerUnderTest.showRevokeApiKeyConfirmation(API_KEY_ID);
 
         assertThat(response.getViewName()).isEqualTo(ApiKeyController.REVOKE_API_KEY_CONFIRMATION_PAGE);
-        assertThat(response.getModel()).hasSize(3);
+        assertThat(response.getModel()).hasSize(4);
         assertThat(response.getModel()).containsEntry("apiKey", apiKey);
         assertThat(response.getModel()).containsEntry("backButtonUrl", "/api-keys");
         assertThat(response.getModel()).containsEntry("signOutUrl", "logoutUrl");
+        assertThat(response.getModel()).containsEntry("apiDocumentationLink", "documentationLink");
+
     }
 
     @Test
