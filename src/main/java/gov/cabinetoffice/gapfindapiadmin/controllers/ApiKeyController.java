@@ -150,7 +150,7 @@ public class ApiKeyController {
     public String revokeApiKey(@ModelAttribute GapApiKey apiKey) {
         try {
             apiKeyService.revokeApiKey(apiKey.getId());
-            apiGatewayService.deleteApiKey(apiKeyService.getApiKeyById(apiKey.getId()));
+            apiGatewayService.deleteApiKey(apiKeyService.getApiKeyById(apiKey.getId()), isSuperAdmin());
         } catch (Exception e) {
             log.error("An error occurred", e.getStackTrace());
             throw e;
@@ -190,7 +190,7 @@ public class ApiKeyController {
                 .build();
     }
 
-    public boolean isSuperAdmin() {
+    protected boolean isSuperAdmin() {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(SUPER_ADMIN_ROLE));
     }

@@ -29,8 +29,6 @@ public class ApiGatewayService {
 
     private final ApiKeyService apiKeyService;
 
-    private final ApiKeyController apiKeyController;
-
     public String createApiKeysInAwsAndDb(String keyName) {
         final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         //create the api key in aws api gateway
@@ -97,10 +95,9 @@ public class ApiGatewayService {
 
     }
 
-    public void deleteApiKey(GapApiKey apiKey) {
+    public void deleteApiKey(GapApiKey apiKey, boolean isSuperAdmin) {
         final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        ofNullable(grantAdmin).filter(admin -> admin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName()) || apiKeyController.isSuperAdmin())
+        ofNullable(grantAdmin).filter(admin -> admin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName()) || isSuperAdmin)
                 .ifPresentOrElse(
                         admin -> apiGatewayClient.deleteApiKey(DeleteApiKeyRequest.builder()
                                 .apiKey(apiKey.getApiGatewayId())

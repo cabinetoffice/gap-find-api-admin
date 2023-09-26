@@ -71,9 +71,6 @@ class ApiGatewayServiceTest {
     @Mock
     ZonedDateTime zonedDateTime;
 
-    @Mock
-    ApiKeyController apiKeyController;
-
     @InjectMocks
     ApiGatewayService apiGatewayService;
 
@@ -145,7 +142,7 @@ class ApiGatewayServiceTest {
         final ArgumentCaptor<DeleteApiKeyRequest> deleteApiKeyRequestArgumentCaptor = ArgumentCaptor.forClass(DeleteApiKeyRequest.class);
         when(apiGatewayClient.deleteApiKey(any(DeleteApiKeyRequest.class))).thenReturn(DeleteApiKeyResponse.builder().build());
 
-        apiGatewayService.deleteApiKey(gapApiKey);
+        apiGatewayService.deleteApiKey(gapApiKey, false);
 
         verify(apiGatewayClient).deleteApiKey(deleteApiKeyRequestArgumentCaptor.capture());
         assertThat(deleteApiKeyRequestArgumentCaptor.getValue().apiKey()).isEqualTo(gapApiKey.getApiGatewayId());
@@ -155,13 +152,12 @@ class ApiGatewayServiceTest {
     void deleteApiKeys_throwsException() {
         prepareAuthentication(grantAdmin);
         when(apiGatewayClient.deleteApiKey(any(DeleteApiKeyRequest.class))).thenThrow(ApiGatewayException.class);
-        assertThrows(ApiGatewayException.class, () -> apiGatewayService.deleteApiKey(gapApiKey));
+        assertThrows(ApiGatewayException.class, () -> apiGatewayService.deleteApiKey(gapApiKey, false));
     }
 
     @Test
     void deleteApiKeys_throwsUnauthorizedException() {
         prepareAuthentication(grantAdminDifferentDept);
-        when(apiKeyController.isSuperAdmin()).thenReturn(false);
-        assertThrows(gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException.class, () -> apiGatewayService.deleteApiKey(gapApiKey));
+        assertThrows(gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException.class, () -> apiGatewayService.deleteApiKey(gapApiKey,false));
     }
 }
