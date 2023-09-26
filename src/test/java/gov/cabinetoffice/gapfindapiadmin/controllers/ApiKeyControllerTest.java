@@ -392,7 +392,7 @@ class ApiKeyControllerTest {
         final String response = controllerUnderTest.revokeApiKey(apiKey);
 
         verify(apiKeyService).revokeApiKey(apiKey.getId());
-        verify(apiGatewayService).deleteApiKey(apiKey);
+        verify(apiGatewayService).deleteApiKey(apiKey, false);
         assertThat(response).isEqualTo("redirect:/api-keys");
     }
 
@@ -405,14 +405,14 @@ class ApiKeyControllerTest {
         final String response = controllerUnderTest.revokeApiKey(apiKey);
 
         verify(apiKeyService).revokeApiKey(apiKey.getId());
-        verify(apiGatewayService).deleteApiKey(apiKey);
+        verify(apiGatewayService).deleteApiKey(apiKey,true);
         assertThat(response).isEqualTo("redirect:/api-keys/manage");
     }
 
     @Test
     void revokeApiKeyPost_rollsBackDatabaseRevoke() {
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
-        doThrow(new RuntimeException("Test exception")).when(apiGatewayService).deleteApiKey(apiKey);
+        doThrow(new RuntimeException("Test exception")).when(apiGatewayService).deleteApiKey(apiKey,false);
 
         assertThrows(RuntimeException.class, () -> controllerUnderTest.revokeApiKey(apiKey));
 
