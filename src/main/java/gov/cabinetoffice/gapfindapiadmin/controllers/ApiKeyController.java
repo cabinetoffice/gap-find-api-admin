@@ -190,7 +190,7 @@ public class ApiKeyController {
                 .build();
     }
 
-    protected boolean isSuperAdmin() {
+    public boolean isSuperAdmin() {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(SUPER_ADMIN_ROLE));
     }

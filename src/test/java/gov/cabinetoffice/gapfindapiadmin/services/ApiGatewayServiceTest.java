@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
+import gov.cabinetoffice.gapfindapiadmin.controllers.ApiKeyController;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
@@ -69,6 +70,9 @@ class ApiGatewayServiceTest {
 
     @Mock
     ZonedDateTime zonedDateTime;
+
+    @Mock
+    ApiKeyController apiKeyController;
 
     @InjectMocks
     ApiGatewayService apiGatewayService;
@@ -157,6 +161,7 @@ class ApiGatewayServiceTest {
     @Test
     void deleteApiKeys_throwsUnauthorizedException() {
         prepareAuthentication(grantAdminDifferentDept);
+        when(apiKeyController.isSuperAdmin()).thenReturn(false);
         assertThrows(gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException.class, () -> apiGatewayService.deleteApiKey(gapApiKey));
     }
 }

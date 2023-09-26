@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
+import gov.cabinetoffice.gapfindapiadmin.controllers.ApiKeyController;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyException;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
@@ -27,6 +28,8 @@ public class ApiGatewayService {
     private final ApiGatewayClient apiGatewayClient;
 
     private final ApiKeyService apiKeyService;
+
+    private final ApiKeyController apiKeyController;
 
     public String createApiKeysInAwsAndDb(String keyName) {
         final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -95,8 +98,9 @@ public class ApiGatewayService {
     }
 
     public void deleteApiKey(GapApiKey apiKey) {
-        final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal(); ofNullable(grantAdmin)
-                .filter(admin -> admin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName()))
+        final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        ofNullable(grantAdmin).filter(admin -> admin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName()) || apiKeyController.isSuperAdmin())
                 .ifPresentOrElse(
                         admin -> apiGatewayClient.deleteApiKey(DeleteApiKeyRequest.builder()
                                 .apiKey(apiKey.getApiGatewayId())
