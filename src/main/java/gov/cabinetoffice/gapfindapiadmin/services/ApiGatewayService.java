@@ -6,6 +6,8 @@ import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.apigateway.ApiGatewayClient;
@@ -15,7 +17,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.ZonedDateTime;
+import java.util.List;
 
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.SUPER_ADMIN_ROLE;
 import static java.util.Optional.ofNullable;
 
 @Service
@@ -95,8 +99,13 @@ public class ApiGatewayService {
     }
 
     public void deleteApiKey(GapApiKey apiKey) {
-        final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal(); ofNullable(grantAdmin)
-                .filter(admin -> admin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName()))
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        final List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) auth.getAuthorities();
+        final boolean isSuperAdmin = authorities.contains(new SimpleGrantedAuthority(SUPER_ADMIN_ROLE));
+        final GrantAdmin grantAdmin = (GrantAdmin) auth.getPrincipal();
+
+        ofNullable(grantAdmin)
+                .filter(admin -> admin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName()) || isSuperAdmin)
                 .ifPresentOrElse(
                         admin -> apiGatewayClient.deleteApiKey(DeleteApiKeyRequest.builder()
                                 .apiKey(apiKey.getApiGatewayId())
