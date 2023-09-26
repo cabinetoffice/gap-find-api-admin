@@ -22,6 +22,7 @@
   padding: 0 govuk-spacing(3);
   float: left;
   line-height: 50px;
+  padding-right: 20px;
 }
 
 .app-navigation__list-item--current {

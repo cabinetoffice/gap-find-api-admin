@@ -1,6 +1,7 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
 import gov.cabinetoffice.gapfindapiadmin.config.NavBarConfigProperties;
+import gov.cabinetoffice.gapfindapiadmin.config.SwaggerConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
 import gov.cabinetoffice.gapfindapiadmin.dtos.NavBarDto;
@@ -50,6 +51,7 @@ public class ApiKeyController {
     private final PaginationHelper paginationHelper;
     private final UserServiceConfig userServiceConfig;
     private final NavBarConfigProperties navBarConfigProperties;
+    private final SwaggerConfigProperties swaggerConfigProperties;
 
     @GetMapping
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
@@ -60,7 +62,8 @@ public class ApiKeyController {
         final ModelAndView model = new ModelAndView(ORGANISATION_API_KEYS_PAGE)
                 .addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()))
                 .addObject("departmentName", departmentName)
-                .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
+                .addObject("signOutUrl", userServiceConfig.getLogoutUrl())
+                .addObject("apiDocumentationLink", swaggerConfigProperties.getDocumentationLink());
 
         if (isAdmin()) {
             model.addObject("navBar", generateNavBarDto());
@@ -74,7 +77,8 @@ public class ApiKeyController {
     public ModelAndView showCreateKeyForm() {
         final ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE)
                 .addObject("createApiKeyDTO", new CreateApiKeyDTO())
-                .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
+                .addObject("signOutUrl", userServiceConfig.getLogoutUrl())
+                .addObject("apiDocumentationLink", swaggerConfigProperties.getDocumentationLink());
 
         if (isAdmin()) {
             createApiKey.addObject("navBar", generateNavBarDto());
@@ -99,7 +103,8 @@ public class ApiKeyController {
         if (bindingResult.hasErrors()) {
             final ModelAndView model = new ModelAndView(CREATE_API_KEY_FORM_PAGE)
                     .addObject("createApiKeyDTO", createApiKeyDTO)
-                    .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
+                    .addObject("signOutUrl", userServiceConfig.getLogoutUrl())
+                    .addObject("apiDocumentationLink", swaggerConfigProperties.getDocumentationLink());
             if (isAdmin()) {
                 model.addObject("navBar", generateNavBarDto());
             }
@@ -108,7 +113,8 @@ public class ApiKeyController {
 
         final ModelAndView model = new ModelAndView(NEW_API_KEY_PAGE)
                 .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()))
-                .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
+                .addObject("signOutUrl", userServiceConfig.getLogoutUrl())
+                .addObject("apiDocumentationLink", swaggerConfigProperties.getDocumentationLink());
 
         if (isAdmin()) {
             model.addObject("navBar", generateNavBarDto());
@@ -126,9 +132,14 @@ public class ApiKeyController {
                 .addObject("backButtonUrl", generateRedirectValue())
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
+        if (!isSuperAdmin()) {
+                model.addObject("apiDocumentationLink", swaggerConfigProperties.getDocumentationLink());
+        }
+
         if (isAdmin() || isSuperAdmin()) {
             model.addObject("navBar", generateNavBarDto());
         }
+
 
         return model;
     }
@@ -174,7 +185,7 @@ public class ApiKeyController {
 
     protected NavBarDto generateNavBarDto() {
         return NavBarDto.builder()
-                .name(isSuperAdmin() ? "Super Admin Dashboard" : "Admin Dashboard")
+                .name(isSuperAdmin() ? "Super admin dashboard" : "Admin dashboard")
                 .link(isSuperAdmin() ? navBarConfigProperties.getSuperAdminDashboardLink() : navBarConfigProperties.getAdminDashboardLink())
                 .build();
     }
