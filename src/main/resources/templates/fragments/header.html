@@ -65,7 +65,7 @@
                             </span>
                         </p>
                     </div>
-                    <div class="govuk-grid-column-one-quarter">
+                    <div th:if="${signOutUrl != null}"class="govuk-grid-column-one-quarter">
                         <p class="govuk-!-text-align-right govuk-!-font-size-19 govuk-!-margin-0">
                             <a th:href="${signOutUrl}"
                                data-cy="header-sign-out-link" class="govuk-link"
