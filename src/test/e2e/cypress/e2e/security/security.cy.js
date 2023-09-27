@@ -1,3 +1,5 @@
+import { ERROR_PAGE_BODY_SUPER_ADMIN, ERROR_PAGE_BODY_TECHNICAL_SUPPORT } from '../../utils/errorPageString';
+
 const BASE_URL = 'http://localhost:8086/find/api/admin';
 const SUPERADMIN_COOKIE =
   'user-service-token=eyJraWQiOiJlN2QzZjk0OS01MzdkLTQxMDItODcwNy0wY2NhZDIwYzBjNDAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0Y28uY3lwcmVzcy50ZXN0LnN1cGVyLmFkbWluIiwiYXVkIjoiRkdQIiwicm9sZXMiOiJbQVBQTElDQU5ULCBGSU5ELCBTVVBFUl9BRE1JTl0iLCJpZFRva2VuIjoiYmFuYW5hIiwiaXNzIjoiYmFuYW5hIiwiZGVwYXJ0bWVudCI6IkJhbmFuYSIsImV4cCI6MTY5Mjk3MzIyMiwiaWF0IjoxNjkyOTY5NjIyLCJlbWFpbCI6ImJhbmFuYUBmcnVpdCIsImp0aSI6ImJhbmFuYSJ9.pjRY3K8YmVFzzzHZ5lBf9oHbqnzda4nQMoA03R4b-gLG6V0L9mfr7gktui1dzBiPYCtAb0oNIlaS-CcRsqNYNwOufLAblsLjZOF_HUTzsqVdRBR1gIwRiiv08GQ-e0FbBHQ47I3L7qlQCfjuyeoym4N01jT26ydnbfEjkYlekd9fQSuGTlCSd1J3hAj3mlOtpVnBxxf-fqGTRdbLXEvV3wn7yXRpYHhf-j2h9j1Hicx1t8FFjF7UVk3si31befzjyX4705xst2KMOQMtCDNgmywBPyIS2o7XnRUjXpMhqfomfCnL5q5GdUMn8xun9V8_CpvsZ33Bv46NhXMgWGoiSw';
@@ -11,17 +13,6 @@ const SQL_AS_SUB_AND_SUPER_ADMIN_ROLE_COOKIE =
   'user-service-token=eyJraWQiOiJlN2QzZjk0OS01MzdkLTQxMDItODcwNy0wY2NhZDIwYzBjNDAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJTZWxlY3QgKiBmcm9tIGdhcF91c2VyOyIsImF1ZCI6IkZHUCIsInJvbGVzIjoiW0FQUExJQ0FOVCwgRklORCwgU1VQRVJfQURNSU5dIiwiaWRUb2tlbiI6ImJhbmFuYSIsImlzcyI6ImJhbmFuYSIsImRlcGFydG1lbnQiOiJCYW5hbmEiLCJleHAiOjE2OTI5NzMyMjIsImlhdCI6MTY5Mjk2OTYyMiwiZW1haWwiOiJiYW5hbmFAZnJ1aXQiLCJqdGkiOiJiYW5hbmEifQ.3Jrgc7rmSGZxt9NZP5eMt1yHEtfPblySG09ij9hp__a_J1919YEa2ly5D3oQihST13p2r1Ow2zpFWQbdXGgCBKy-578xmtzywkvpa1Z-rAsuQyaHE2h4OTYAuXNgbrMVtGUljGvd3eWKImLUug15sjIvNV3KlaT38E2JgR9mNefv47mOS-0uZrNPrmnIS1Slr7VjZ6jmhJSXMAmX8DoFie9-aKOhgYmD0Fbyh9GAPndyIyUD9vbyttSOAfMQaMS1I7idu7q4qcB7T_ntpxZWJeM0SDsza3BzQok-Y1dKUgWGKFY2VA8s0hrXltgfXK_jw1L_0aFg0EC7l1QoiQUs2g';
 
 describe('Security for all roles journey ', () => {
-  describe('API not accessible by any other roles', () => {
-    it('Should not allow users with role of Find, Admin or Applicant to access the app', () => {
-      cy.setMockTokenForUserWithFindRole();
-
-      cy.visit(`${BASE_URL}/api-keys`);
-      // this happens because we mock the user-service login process and we log the user with a superAdmin role.
-      // in real if a user with no Technical support or SuperAdmin role try to access the app, we send them back to one login login page.
-      cy.url().should('eq', `${BASE_URL}/api-keys/manage`);
-    });
-  });
-
   describe('Using invalid data returns an error and does not expose any unexpected information', () => {
     it('should return the error page if a superAdmin try to directly send a POST request to create keys /api-keys/create', () => {
       cy.request(
@@ -38,6 +29,7 @@ describe('Security for all roles journey ', () => {
       ).then((r) => {
         expect(r.status).to.eq(200);
         expect(r.redirects[0]).to.eq(`302: ${BASE_URL}/api-keys/error`);
+        expect(r.body).to.eq(ERROR_PAGE_BODY_SUPER_ADMIN);
       });
     });
 
@@ -51,6 +43,7 @@ describe('Security for all roles journey ', () => {
       }).then((r) => {
         expect(r.status).to.eq(200);
         expect(r.redirects[0]).to.eq(`302: ${BASE_URL}/api-keys/error`);
+        expect(r.body).to.eq(ERROR_PAGE_BODY_SUPER_ADMIN);
       });
     });
 
@@ -64,6 +57,7 @@ describe('Security for all roles journey ', () => {
       }).then((r) => {
         expect(r.status).to.eq(200);
         expect(r.redirects[0]).to.eq(`302: ${BASE_URL}/api-keys/error`);
+        expect(r.body).to.eq(ERROR_PAGE_BODY_SUPER_ADMIN);
       });
     });
     it('should return the error page if a technical_Support try to directly send a GET request to get the /api-keys/create', () => {
@@ -76,10 +70,14 @@ describe('Security for all roles journey ', () => {
       }).then((r) => {
         expect(r.status).to.eq(200);
         expect(r.redirects[0]).to.eq(`302: ${BASE_URL}/api-keys/error`);
+        expect(r.body).to.eq(ERROR_PAGE_BODY_TECHNICAL_SUPPORT);
       });
     });
   });
 
+  //in those following tests, we check if the first redirection is to the userService /login endpoint,
+  // we cannot check the body because at the moment we mock the user service call to /login to redirect us to our app /redirect endpoint with a SUPERADMIN jwt token,
+  //  which would then redirect us to the /api-keys/manage (the superAdmin dashboard)
   describe('Should redirect to login page if the jwt token has not the right roles', () => {
     it('should redirect to login page if an applicant try to directly send a POST request to create keys /api-keys/create', () => {
       cy.request({
@@ -155,7 +153,6 @@ describe('Security for all roles journey ', () => {
         );
       });
     });
-    //end
   });
 
   describe('Should redirect to login page if no jwt token is in the cookies', () => {
@@ -175,8 +172,6 @@ describe('Security for all roles journey ', () => {
         );
       });
     });
-
-    //end
   });
 
   describe('Using malicious data returns an error and does not expose any unexpected information', () => {
@@ -205,6 +200,7 @@ describe('Security for all roles journey ', () => {
       }).then((r) => {
         expect(r.status).to.eq(200);
         expect(r.redirects[0]).to.eq(`302: ${BASE_URL}/api-keys/error`);
+        expect(r.body).to.eq(ERROR_PAGE_BODY_SUPER_ADMIN);
       });
     });
   });
