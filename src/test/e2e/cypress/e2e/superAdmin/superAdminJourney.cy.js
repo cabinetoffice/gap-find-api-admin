@@ -10,7 +10,10 @@ import {
   paginationPreviousItemHasTheRightHref,
 } from '../../utils/superAdminHelpers';
 
-import { checkNavBarItemIsRightForTheUserRole, signOutIsPresent } from '../../utils/helpers';
+import {
+  checkNavBarItemIsRightForTheUserRole,
+  signOutIsPresent,
+} from '../../utils/helpers';
 const today = new Date().toLocaleDateString('en-GB', {
   day: 'numeric',
   month: 'long',
@@ -443,7 +446,7 @@ describe('Super Admin Journey', () => {
     );
   });
 
-  it('should be able to revoke any key', () => {
+  it('should be able to revoke any key from any department', () => {
     cy.setMockTokenForSuperAdmin();
     cy.visit(`${BASE_URL}/api-keys/manage`);
 
@@ -484,6 +487,32 @@ describe('Super Admin Journey', () => {
     cy.get(`[data-cy="admin-dashboard-active-key-count"]`)
       .should('be.visible')
       .should('have.text', '109 active API keys');
+
+    //filter on second department
+    cy.get(`[data-cy="admin-dashboard-filter-Evil Org-checkbox"]`).click();
+    cy.get(`[data-cy="admin-dashboard-filter-Evil Org-checkbox"]`).should(
+      'be.checked'
+    );
+    cy.get(`[data-cy="admin-dashboard-filter-apply-button"]`).click();
+
+    cy.url().should(
+      'eq',
+      `${BASE_URL}/api-keys/manage?selectedDepartments=Evil+Org`
+    );
+    cy.get(`[data-cy="admin-dashboard-filter-Evil Org-checkbox"]`).should(
+      'be.checked'
+    );
+
+    //revoke key from second department
+    cy.get(
+      `[data-cy="admin-dashboard-list-table-row-Revoked-Org1Cypress046-link"]`
+    ).click();
+    cy.url().should('include', `${BASE_URL}/api-keys/revoke/`);
+    cy.get(`[data-cy="revoke-revoke-button"]`).click();
+
+    cy.get(`[data-cy="admin-dashboard-active-key-count"]`)
+      .should('be.visible')
+      .should('have.text', '108 active API keys');
   });
 
   it('Should throw exception when revoking API key', () => {

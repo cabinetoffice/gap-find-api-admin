@@ -11,12 +11,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.SUPER_ADMIN_ROLE;
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
 
@@ -45,7 +48,12 @@ public class ApiKeyService {
     }
 
     public void revokeApiKey(int apiKeyId) {
-        final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        final List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) auth.getAuthorities();
+
+        final GrantAdmin grantAdmin = (GrantAdmin) auth.getPrincipal();
+        final boolean isSuperAdmin = authorities.contains(new SimpleGrantedAuthority(SUPER_ADMIN_ROLE));
+
         GapApiKey apiKey;
         try {
             apiKey = getApiKeyById(apiKeyId);
@@ -54,7 +62,7 @@ public class ApiKeyService {
             return;
         }
 
-        if(grantAdmin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName())) {
+        if(isSuperAdmin || grantAdmin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName())) {
             apiKey.setRevokedBy(grantAdmin.getGapUser().getId());
             apiKey.setRevocationDate(ZonedDateTime.now());
             apiKey.setRevoked(true);
