@@ -60,7 +60,7 @@ describe('Security for all roles journey ', () => {
         expect(r.body).to.eq(ERROR_PAGE_BODY_SUPER_ADMIN);
       });
     });
-    it('should return the error page if a technical_Support try to directly send a GET request to get the /api-keys/create', () => {
+    it('should return the error page if a technical_Support try to directly send a GET request to get the /api-keys/manage', () => {
       cy.request({
         method: 'GET',
         url: `${BASE_URL}/api-keys/manage`,
