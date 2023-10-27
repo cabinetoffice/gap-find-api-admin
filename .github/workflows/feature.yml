@@ -39,6 +39,7 @@ jobs:
           format: "HTML"
           args: >
             --failOnCVSS 7.0
+            --suppress ./api/dependency-check-suppression.xml
             --enableRetired
             --disableOssIndex true
 

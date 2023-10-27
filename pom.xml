@@ -99,6 +99,7 @@
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>
 			<artifactId>apigateway</artifactId>
+			<version>2.21.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.auth0</groupId>
@@ -174,6 +175,7 @@
 				<configuration>
 					<failBuildOnCVSS>7.0</failBuildOnCVSS>
 					<ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
+					<suppressionFile>dependency-check-suppression.xml</suppressionFile>
 				</configuration>
 				<executions>
 					<execution>
