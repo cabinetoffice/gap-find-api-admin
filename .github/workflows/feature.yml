@@ -28,9 +28,6 @@ jobs:
       - name: Build with Maven
         run: mvn package --file pom.xml
 
-      - name: TEST - filespace
-        run: pwd; ls; ls ${{github.workspace}}
-
       - name: Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         env:
@@ -42,7 +39,7 @@ jobs:
           format: "HTML"
           args: >
             --failOnCVSS 7.0
-            --suppress ./api/dependency-check-suppression.xml
+            --suppress dependency-check-suppression.xml
             --enableRetired
             --disableOssIndex true
 
