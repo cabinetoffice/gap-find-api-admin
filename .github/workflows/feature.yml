@@ -28,6 +28,9 @@ jobs:
       - name: Build with Maven
         run: mvn package --file pom.xml
 
+      - name: TEST - filespace
+        run: pwd; ls; ls ${{github.workspace}}
+
       - name: Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         env:
