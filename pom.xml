@@ -99,7 +99,6 @@
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>
 			<artifactId>apigateway</artifactId>
-			<version>${aws.java.sdk.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.auth0</groupId>
