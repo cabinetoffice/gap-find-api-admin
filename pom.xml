@@ -18,7 +18,7 @@
 		<govuk-frontend-version>4.5.0</govuk-frontend-version>
 		<upstream.url>https://github.com/alphagov/govuk-frontend/releases/download/v${govuk-frontend-version}/release-v${govuk-frontend-version}.zip</upstream.url>
 		<destDir>${project.build.outputDirectory}/META-INF/resources/webjars/govuk-frontend/${govuk-frontend-version}</destDir>
-		<aws.java.sdk.version>2.20.45</aws.java.sdk.version>
+		<aws.java.sdk.version>2.21.5</aws.java.sdk.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
