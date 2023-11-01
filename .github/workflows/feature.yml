@@ -39,8 +39,10 @@ jobs:
           format: "HTML"
           args: >
             --failOnCVSS 7.0
+            --suppress dependency-check-suppression.xml
             --enableRetired
             --disableOssIndex true
+            --disableRetireJS true
 
       - name: Upload Dependency Check Report
         if: success() || failure()

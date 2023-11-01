@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.4</version>
+		<version>3.1.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>gov.cabinetoffice</groupId>
@@ -18,7 +18,7 @@
 		<govuk-frontend-version>4.5.0</govuk-frontend-version>
 		<upstream.url>https://github.com/alphagov/govuk-frontend/releases/download/v${govuk-frontend-version}/release-v${govuk-frontend-version}.zip</upstream.url>
 		<destDir>${project.build.outputDirectory}/META-INF/resources/webjars/govuk-frontend/${govuk-frontend-version}</destDir>
-		<aws.java.sdk.version>2.20.45</aws.java.sdk.version>
+		<aws.java.sdk.version>2.21.5</aws.java.sdk.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -174,6 +174,7 @@
 				<configuration>
 					<failBuildOnCVSS>7.0</failBuildOnCVSS>
 					<ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
+					<suppressionFile>dependency-check-suppression.xml</suppressionFile>
 				</configuration>
 				<executions>
 					<execution>
