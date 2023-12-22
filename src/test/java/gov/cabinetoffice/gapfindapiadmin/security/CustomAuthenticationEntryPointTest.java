@@ -1,7 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.security;
 
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,7 @@ class CustomAuthenticationEntryPointTest {
     @InjectMocks
     CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     @Test
-    void commence() throws ServletException, IOException {
+    void commence() throws IOException {
         final AuthenticationException authenticationException = new InsufficientAuthenticationException("Access Denied");
         when(userServiceConfig.getLoginUrl()).thenReturn("url");
         doNothing().when(response).sendRedirect("url");

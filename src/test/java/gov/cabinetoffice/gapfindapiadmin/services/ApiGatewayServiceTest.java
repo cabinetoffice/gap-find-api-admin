@@ -1,7 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
-import gov.cabinetoffice.gapfindapiadmin.controllers.ApiKeyController;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
@@ -17,11 +16,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import software.amazon.awssdk.services.apigateway.ApiGatewayClient;
 import software.amazon.awssdk.services.apigateway.model.*;
-
-import java.security.Principal;
-import java.time.ZonedDateTime;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,7 +26,6 @@ import static org.mockito.Mockito.when;
 class ApiGatewayServiceTest {
 
     private final String API_KEY_NAME = "apikeyName";
-    private final String API_KEY_DESCRIPTION = "apikeyDescription";
     private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder().id(1).name("Funding org").build();
     private final FundingOrganisation fundingOrganisation2 = FundingOrganisation.builder().id(1).name("Funding org2").build();
     private final GapApiKey gapApiKey = GapApiKey.builder()
@@ -42,7 +35,6 @@ class ApiGatewayServiceTest {
             .fundingOrganisation(fundingOrganisation)
             .build();
     private final ApiKey apiKey = ApiKey.builder().id("apiGatewayId").name(API_KEY_NAME).build();
-    private final GetApiKeysResponse getApiKeysResponse = GetApiKeysResponse.builder().items(List.of(apiKey)).build();
     private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
     private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
     private final GrantAdmin grantAdminDifferentDept = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation2).build();
@@ -54,9 +46,6 @@ class ApiGatewayServiceTest {
     ApiGatewayClient apiGatewayClient;
 
     @Mock
-    Principal principal;
-
-    @Mock
     private SecurityContext securityContext;
 
     @Mock
@@ -64,12 +53,6 @@ class ApiGatewayServiceTest {
 
     @Mock
     ApiKeyService apiKeyService;
-
-    @Mock
-    GrantAdminService grantAdminService;
-
-    @Mock
-    ZonedDateTime zonedDateTime;
 
     @InjectMocks
     ApiGatewayService apiGatewayService;
