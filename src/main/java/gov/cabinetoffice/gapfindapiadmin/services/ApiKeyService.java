@@ -62,7 +62,7 @@ public class ApiKeyService {
             return;
         }
 
-        if(isSuperAdmin || grantAdmin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName())) {
+        if (isSuperAdmin || grantAdmin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName())) {
             apiKey.setRevokedBy(grantAdmin.getGapUser().getId());
             apiKey.setRevocationDate(ZonedDateTime.now());
             apiKey.setRevoked(true);

@@ -17,6 +17,7 @@ import java.io.IOException;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final UserServiceConfig userServiceConfig;
+
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         response.sendRedirect(userServiceConfig.getLoginUrl());

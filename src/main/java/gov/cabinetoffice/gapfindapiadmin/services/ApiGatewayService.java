@@ -80,16 +80,16 @@ public class ApiGatewayService {
     }
 
     private String hashString(String hashingValue) throws NoSuchAlgorithmException {
-            final MessageDigest md = MessageDigest.getInstance("SHA-512");
-            md.update(hashingValue.getBytes(StandardCharsets.UTF_8));
-            final byte[] hashed = md.digest();
+        final MessageDigest md = MessageDigest.getInstance("SHA-512");
+        md.update(hashingValue.getBytes(StandardCharsets.UTF_8));
+        final byte[] hashed = md.digest();
 
-            final StringBuilder hashedStringBuilder = new StringBuilder();
-            for (byte b : hashed) {
-                hashedStringBuilder.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
-            }
+        final StringBuilder hashedStringBuilder = new StringBuilder();
+        for (byte b : hashed) {
+            hashedStringBuilder.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
+        }
 
-            return hashedStringBuilder.toString();
+        return hashedStringBuilder.toString();
 
 
     }
