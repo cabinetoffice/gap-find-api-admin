@@ -19,8 +19,8 @@ public class PaginationHelper {
 
     public List<Integer> getNumberOfPages(int totalPages) {
         return totalPages > 0 ? IntStream.rangeClosed(1, totalPages)
-                        .boxed()
-                        .toList()
+                .boxed()
+                .toList()
                 : List.of();
     }
 

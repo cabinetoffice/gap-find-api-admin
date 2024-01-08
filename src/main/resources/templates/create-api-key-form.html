@@ -64,15 +64,17 @@
                                         <span class="govuk-visually-hidden">Error: </span>
                                     </p>
 
-                                    <input th:field="*{keyName}"
-                                           th:value="${keyName}"
-                                           class="govuk-input"
-                                           th:classappend="${#fields.hasErrors('keyName') ? 'govuk-input--error' : ''}"
-                                           id="keyName"
-                                           name="keyName"
-                                           type="text"
-                                           data-cy="create-key-input"
-                                    />
+                                    <label for="keyName">
+                                        <input th:field="*{keyName}"
+                                               th:value="${keyName}"
+                                               class="govuk-input"
+                                               th:classappend="${#fields.hasErrors('keyName') ? 'govuk-input--error' : ''}"
+                                               id="keyName"
+                                               name="keyName"
+                                               type="text"
+                                               data-cy="create-key-input"
+                                        />
+                                    </label>
                                 </div>
                             </div>
                         </fieldset>

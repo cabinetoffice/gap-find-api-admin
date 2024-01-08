@@ -39,7 +39,7 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
     private final UserServiceConfig userServiceConfig;
 
     @Override
-    public void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    public void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         final Cookie customJWTCookie = WebUtils.getCookie(request, userServiceConfig.getCookieName());
         if (isEmpty(customJWTCookie) || isEmpty(customJWTCookie.getValue())) {
             throw new UnauthorizedException("Expected JWT cookie not provided");
