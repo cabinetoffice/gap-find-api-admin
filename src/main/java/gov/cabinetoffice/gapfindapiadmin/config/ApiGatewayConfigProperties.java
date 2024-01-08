@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @NoArgsConstructor
 @Configuration("apiGatewayConfigurationProperties")
-@ConfigurationProperties(prefix = "api")
+@ConfigurationProperties(prefix = "aws")
 public class ApiGatewayConfigProperties {
 
     @NotNull
