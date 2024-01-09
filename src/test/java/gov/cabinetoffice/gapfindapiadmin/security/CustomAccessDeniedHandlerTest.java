@@ -1,6 +1,5 @@
 package gov.cabinetoffice.gapfindapiadmin.security;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,7 @@ class CustomAccessDeniedHandlerTest {
     private HttpServletResponse response;
 
     @Test
-    void testHandleAccessDenied() throws IOException, ServletException {
+    void testHandleAccessDenied() throws IOException {
         final AccessDeniedException accessDeniedException = new AccessDeniedException("Access Denied");
 
         when(request.getContextPath()).thenReturn("/app-context");

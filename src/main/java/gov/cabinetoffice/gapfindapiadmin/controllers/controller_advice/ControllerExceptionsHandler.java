@@ -19,6 +19,7 @@ import java.sql.SQLException;
 public class ControllerExceptionsHandler extends ResponseEntityExceptionHandler {
 
     public static final String ERROR_PAGE_REDIRECT = "redirect:/api-keys/error";
+
     @ExceptionHandler(value = {ApiGatewayException.class})
     public String handleException(ApiGatewayException ex, WebRequest request) {
         return ERROR_PAGE_REDIRECT;

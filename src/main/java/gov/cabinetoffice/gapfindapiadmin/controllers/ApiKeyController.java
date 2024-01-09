@@ -133,7 +133,7 @@ public class ApiKeyController {
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl());
 
         if (!isSuperAdmin()) {
-                model.addObject("apiDocumentationLink", swaggerConfigProperties.getDocumentationLink());
+            model.addObject("apiDocumentationLink", swaggerConfigProperties.getDocumentationLink());
         }
 
         if (isAdmin() || isSuperAdmin()) {
