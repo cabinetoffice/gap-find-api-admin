@@ -4,8 +4,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
@@ -17,9 +19,9 @@ public class RedirectController {
     private final ApiKeyController apiKeyController;
 
     @GetMapping()
-    public RedirectView redirectUser(HttpServletRequest httpServletRequest) {
-        String baseUrl = "https://dev-env.find-a-grant-support-dev.service.cabinetoffice.gov.uk/find/api/admin";
-        log.info("Redirecting user to: {}", baseUrl + apiKeyController.generateRedirectValue());
-        return new RedirectView(baseUrl + apiKeyController.generateRedirectValue());
+    public ModelAndView redirectUser(ModelMap model) {
+        String redirect = "redirect:" + apiKeyController.generateRedirectValue();
+        log.info("Redirecting to: " + redirect);
+        return new ModelAndView(redirect, model);
     }
 }
