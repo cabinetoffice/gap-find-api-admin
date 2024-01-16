@@ -18,7 +18,8 @@ public class RedirectController {
 
     @GetMapping()
     public RedirectView redirectUser(HttpServletRequest httpServletRequest) {
-        log.info("Redirecting user to: {}", httpServletRequest.getContextPath() + apiKeyController.generateRedirectValue());
-        return new RedirectView(httpServletRequest.getContextPath() + apiKeyController.generateRedirectValue());
+        String baseUrl = "https://sandbox-gap.service.cabinetoffice.gov.uk";
+        log.info("Redirecting user to: {}", baseUrl + apiKeyController.generateRedirectValue());
+        return new RedirectView(baseUrl + apiKeyController.generateRedirectValue());
     }
 }
