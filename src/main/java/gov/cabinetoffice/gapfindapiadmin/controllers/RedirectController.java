@@ -18,7 +18,7 @@ public class RedirectController {
 
     @GetMapping()
     public RedirectView redirectUser(HttpServletRequest httpServletRequest) {
-        String baseUrl = "https://sandbox-gap.service.cabinetoffice.gov.uk";
+        String baseUrl = "https://dev-env.find-a-grant-support-dev.service.cabinetoffice.gov.uk/find/api/admin";
         log.info("Redirecting user to: {}", baseUrl + apiKeyController.generateRedirectValue());
         return new RedirectView(baseUrl + apiKeyController.generateRedirectValue());
     }

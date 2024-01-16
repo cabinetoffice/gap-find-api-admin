@@ -56,6 +56,7 @@ public class ApiKeyController {
     @GetMapping
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
     public ModelAndView showKeys() {
+        log.info("Showing API keys page");
         final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final String departmentName = grantAdmin.getFunder().getName();
 
@@ -69,6 +70,7 @@ public class ApiKeyController {
             model.addObject("navBar", generateNavBarDto());
         }
 
+        log.info("Finished showing API keys page");
         return model;
     }
 
