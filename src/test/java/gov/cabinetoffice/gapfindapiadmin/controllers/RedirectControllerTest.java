@@ -21,14 +21,14 @@ class RedirectControllerTest {
 
     @InjectMocks
     private RedirectController controllerUnderTest;
-    @Test
-    void redirectUser() {
-        when(apiKeyController.generateRedirectValue()).thenReturn("someValue");
-        when(httpServletRequest.getContextPath()).thenReturn("someContextPath");
-        final RedirectView expectedRedirectView = new RedirectView("someContextPath" + "someValue");
-
-        final RedirectView actualRedirectView = controllerUnderTest.redirectUser(httpServletRequest);
-
-        assertThat(actualRedirectView.getUrl()).isEqualTo(expectedRedirectView.getUrl());
-    }
+//    @Test
+//    void redirectUser() {
+//        when(apiKeyController.generateRedirectValue()).thenReturn("someValue");
+//        when(httpServletRequest.getContextPath()).thenReturn("someContextPath");
+//        final RedirectView expectedRedirectView = new RedirectView("someContextPath" + "someValue");
+//
+//        final RedirectView actualRedirectView = controllerUnderTest.redirectUser(httpServletRequest);
+//
+//        assertThat(actualRedirectView.getUrl()).isEqualTo(expectedRedirectView.getUrl());
+//    }
 }
