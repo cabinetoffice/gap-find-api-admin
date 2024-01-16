@@ -18,6 +18,7 @@ public class RedirectController {
 
     @GetMapping()
     public RedirectView redirectUser(HttpServletRequest httpServletRequest) {
+        log.info("Redirecting user to: {}", httpServletRequest.getContextPath() + apiKeyController.generateRedirectValue());
         return new RedirectView(httpServletRequest.getContextPath() + apiKeyController.generateRedirectValue());
     }
 }
