@@ -57,6 +57,7 @@ public class ApiKeyController {
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
     public ModelAndView showKeys() {
         log.info("Showing API keys page");
+
         final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final String departmentName = grantAdmin.getFunder().getName();
 
@@ -71,12 +72,15 @@ public class ApiKeyController {
         }
 
         log.info("Finished showing API keys page");
+
         return model;
     }
 
     @GetMapping("/create")
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
     public ModelAndView showCreateKeyForm() {
+        log.info("Showing create page");
+
         final ModelAndView createApiKey = new ModelAndView(CREATE_API_KEY_FORM_PAGE)
                 .addObject("createApiKeyDTO", new CreateApiKeyDTO())
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl())
@@ -86,13 +90,19 @@ public class ApiKeyController {
             createApiKey.addObject("navBar", generateNavBarDto());
         }
 
+        log.info("Finished showing create page");
+
         return createApiKey;
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
     public ModelAndView createKey(final @Valid @ModelAttribute CreateApiKeyDTO createApiKeyDTO, final BindingResult bindingResult) {
+        log.info("Creating API key POST request");
+
         if (apiKeyService.doesApiKeyExist(createApiKeyDTO.getKeyName())) {
+            log.info("API key with name {} already exists, showing error", createApiKeyDTO.getKeyName());
+
             final FieldError duplicateKey = new FieldError("createApiKeyDTO",
                     "keyName",
                     createApiKeyDTO.getKeyName(),
@@ -113,6 +123,8 @@ public class ApiKeyController {
             return model;
         }
 
+        log.info("sending user to new API key page");
+
         final ModelAndView model = new ModelAndView(NEW_API_KEY_PAGE)
                 .addObject("keyValue", apiGatewayService.createApiKeysInAwsAndDb(createApiKeyDTO.getKeyName()))
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl())
@@ -128,6 +140,8 @@ public class ApiKeyController {
     @GetMapping("/revoke/{apiKeyId}")
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT') || hasAuthority('SUPER_ADMIN')")
     public ModelAndView showRevokeApiKeyConfirmation(@PathVariable int apiKeyId) {
+        log.info("Showing revoke API key confirmation page");
+
         final GapApiKey apiKey = apiKeyService.getApiKeyById(apiKeyId);
         final ModelAndView model = new ModelAndView(REVOKE_API_KEY_CONFIRMATION_PAGE)
                 .addObject("apiKey", apiKey)
@@ -142,7 +156,6 @@ public class ApiKeyController {
             model.addObject("navBar", generateNavBarDto());
         }
 
-
         return model;
     }
 
@@ -150,11 +163,15 @@ public class ApiKeyController {
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT') || hasAuthority('SUPER_ADMIN')")
     @Transactional
     public String revokeApiKey(@ModelAttribute GapApiKey apiKey) {
+        log.info("Revoking API key POST request");
+
         try {
             apiKeyService.revokeApiKey(apiKey.getId());
             apiGatewayService.deleteApiKey(apiKeyService.getApiKeyById(apiKey.getId()), isSuperAdmin());
         } catch (Exception e) {
-            log.error("An error occurred", e.getStackTrace());
+            log.error("An error occurred when revoking the apiKey with id: {} with error : {}", apiKey.getId(), e.getMessage());
+
+            e.printStackTrace();
             throw e;
         }
 
@@ -163,6 +180,8 @@ public class ApiKeyController {
 
     @GetMapping("/error")
     public ModelAndView displayError() {
+        log.info("Showing error page");
+
         return new ModelAndView(ERROR_PAGE)
                 .addObject("backButtonUrl", generateRedirectValue());
     }
@@ -171,6 +190,8 @@ public class ApiKeyController {
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ModelAndView displaySuperAdminPage(@RequestParam(value = "selectedDepartments", required = false) List<String> selectedDepartment,
                                               @RequestParam(value = "page", required = false) Optional<Integer> page) {
+        log.info("Showing super admin page");
+
         final List<GapApiKey> allApiKeys = apiKeyService.getApiKeysForSelectedFundingOrganisations(selectedDepartment);
         final int currentPage = page.orElse(1);
         final Page<GapApiKey> apiKeysPage = paginationHelper.getGapApiKeysPage(allApiKeys, currentPage);
@@ -186,6 +207,8 @@ public class ApiKeyController {
     }
 
     protected NavBarDto generateNavBarDto() {
+        log.info("Generating nav bar items");
+
         return NavBarDto.builder()
                 .name(isSuperAdmin() ? "Super admin dashboard" : "Admin dashboard")
                 .link(isSuperAdmin() ? navBarConfigProperties.getSuperAdminDashboardLink() : navBarConfigProperties.getAdminDashboardLink())

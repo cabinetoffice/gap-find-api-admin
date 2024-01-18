@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,6 +30,7 @@ import java.util.regex.Pattern;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthorisationFilter extends OncePerRequestFilter {
 
     public static final String ADMIN_ROLE = "ADMIN";
@@ -50,6 +52,7 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
         final boolean isSuperAdmin = jwtPayload.getRoles().contains(SUPER_ADMIN_ROLE);
         final Pattern pattern = Pattern.compile("\\b" + ADMIN_ROLE + "\\b");
         final boolean isAdmin = pattern.matcher(jwtPayload.getRoles()).find();
+
         if (!jwtPayload.getRoles().contains(TECHNICAL_SUPPORT_ROLE) && !isSuperAdmin) {
             throw new AccessDeniedException("User does not have the required roles to access this resource");
         }

@@ -32,27 +32,41 @@ public class ApiKeyService {
 
 
     public List<GapApiKey> getApiKeysForFundingOrganisation(int fundingOrgId) {
+        log.info("Getting API keys for funding org id: {}", fundingOrgId);
+
         return apiKeyRepository.findByFundingOrganisationId(fundingOrgId);
     }
 
     public void saveApiKey(GapApiKey apiKey) {
+        log.info("Saving API key: {}", apiKey.getName());
+
         apiKeyRepository.save(apiKey);
+
+        log.info("API key saved");
     }
 
     public boolean doesApiKeyExist(String name) {
+        log.info("Checking if API key with name: {} exists", name);
+
         return apiKeyRepository.findByName(name) != null;
     }
 
     public String getApiKeyName(int apiKeyId) {
+        log.info("Getting API key name for id: {}", apiKeyId);
+
         return getApiKeyById(apiKeyId).getName();
     }
 
     public void revokeApiKey(int apiKeyId) {
+        log.info("Revoking API key with id: {} in db", apiKeyId);
+
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         final List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) auth.getAuthorities();
 
         final GrantAdmin grantAdmin = (GrantAdmin) auth.getPrincipal();
         final boolean isSuperAdmin = authorities.contains(new SimpleGrantedAuthority(SUPER_ADMIN_ROLE));
+
+        log.info("User is a super admin: {}", isSuperAdmin);
 
         GapApiKey apiKey;
         try {
@@ -62,28 +76,42 @@ public class ApiKeyService {
             return;
         }
 
+        log.info("API key found: {}", apiKey.getName());
+
         if (isSuperAdmin || grantAdmin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName())) {
             apiKey.setRevokedBy(grantAdmin.getGapUser().getId());
             apiKey.setRevocationDate(ZonedDateTime.now());
             apiKey.setRevoked(true);
             apiKeyRepository.save(apiKey);
+
+            log.info("API key revoked");
+
         } else {
             throw new UnauthorizedException("User is unauthorised to revoke this API key");
         }
     }
 
     public GapApiKey getApiKeyById(int apiKeyId) {
+        log.info("Getting API key for id: {}", apiKeyId);
+
         return apiKeyRepository.findById(apiKeyId)
                 .orElseThrow(() -> new InvalidApiKeyIdException("Invalid API Key Id: " + apiKeyId));
     }
 
 
     public List<GapApiKey> getApiKeysForSelectedFundingOrganisations(List<String> selectedFundingOrgName) {
+
+        if (selectedFundingOrgName == null) {
+            log.info("No filter applied, Getting all API keys");
+        } else {
+            log.info("Getting API keys for funding orgs: {}", selectedFundingOrgName);
+        }
+
         List<GapApiKey> gapApiKeys = ofNullable(selectedFundingOrgName)
                 .map(names -> names.stream()
                         .flatMap(name -> apiKeyRepository.findByFundingOrganisationName(name).stream())
                         .toList())
-                .orElseGet(() -> (List<GapApiKey>) apiKeyRepository.findByOrderByIsRevokedAscCreatedDateAsc());
+                .orElseGet(() -> apiKeyRepository.findByOrderByIsRevokedAscCreatedDateAsc());
 
         return gapApiKeys.stream()
                 .sorted(comparing(GapApiKey::isRevoked))
@@ -91,6 +119,8 @@ public class ApiKeyService {
     }
 
     public Long getActiveKeyCount(List<GapApiKey> gapApiKeys) {
+        log.info("Getting active key count");
+
         return ofNullable(gapApiKeys)
                 .map(keys -> keys.stream()
                         .filter(key -> !key.isRevoked())
@@ -116,6 +146,8 @@ public class ApiKeyService {
     }
 
     public List<String> getFundingOrgForAllApiKeys() {
+        log.info("Getting all the funding org names for all API keys to populate filter");
+
         return apiKeyRepository.findByUniqueFundingOrganisationNames();
     }
 
