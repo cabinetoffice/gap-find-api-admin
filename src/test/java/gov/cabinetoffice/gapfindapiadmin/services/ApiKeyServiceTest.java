@@ -190,11 +190,11 @@ class ApiKeyServiceTest {
 
     @Test
     void getApiKeysForSelectedFundingOrganisations_noneSelected() {
-        when(apiKeyRepository.findAll()).thenReturn(Collections.singletonList(apiKey));
+        when(apiKeyRepository.findByOrderByIsRevokedAscCreatedDateAsc()).thenReturn(Collections.singletonList(apiKey));
 
         final List<GapApiKey> response = serviceUnderTest.getApiKeysForSelectedFundingOrganisations(null);
 
-        verify(apiKeyRepository).findAll();
+        verify(apiKeyRepository).findByOrderByIsRevokedAscCreatedDateAsc();
         assertThat(response).isEqualTo(Collections.singletonList(apiKey));
     }
 

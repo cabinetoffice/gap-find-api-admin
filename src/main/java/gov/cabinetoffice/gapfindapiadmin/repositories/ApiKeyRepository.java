@@ -21,5 +21,8 @@ public interface ApiKeyRepository extends CrudRepository<GapApiKey, Integer> {
 
     List<GapApiKey> findByFundingOrganisationName(String name);
 
+    @Query("select g from GapApiKey g order by g.isRevoked, g.createdDate")
+    List<GapApiKey> findByOrderByIsRevokedAscCreatedDateAsc();
+
 
 }

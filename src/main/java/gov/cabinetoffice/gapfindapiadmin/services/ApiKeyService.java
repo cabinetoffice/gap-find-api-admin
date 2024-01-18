@@ -83,7 +83,7 @@ public class ApiKeyService {
                 .map(names -> names.stream()
                         .flatMap(name -> apiKeyRepository.findByFundingOrganisationName(name).stream())
                         .toList())
-                .orElseGet(() -> (List<GapApiKey>) apiKeyRepository.findAll());
+                .orElseGet(() -> (List<GapApiKey>) apiKeyRepository.findByOrderByIsRevokedAscCreatedDateAsc());
 
         return gapApiKeys.stream()
                 .sorted(comparing(GapApiKey::isRevoked))
