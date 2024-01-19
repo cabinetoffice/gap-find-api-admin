@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Something went wrong</title>
+    <link rel="stylesheet" th:href="@{/webjars/govuk-frontend/4.5.0/govuk-frontend.min.css}"/>
+    <link th:href="@{/styles/navbar.css}" rel="stylesheet" />
+</head>
+
+<body class="govuk-template__body">
+<div th:replace="~{fragments/header :: header(navBar=null, signOutUrl=null, apiDocumentationLink=null)}"></div>
+
+<div class="govuk-width-container">
+    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h1 class="govuk-heading-l" data-cy="error-heading">Something went wrong</h1>
+                <p class="govuk-body" data-cy="error-paragraph">Something went wrong while trying to complete your request.</p>
+                <p class="govuk-body" data-cy="error-paragraph-with-link">
+                    You can <a th:href="@{${backButtonUrl}}" class="govuk-link govuk-link--no-visited-state" data-cy="error-back-link">return to
+                    the API dashboard</a> to try again.
+                </p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
