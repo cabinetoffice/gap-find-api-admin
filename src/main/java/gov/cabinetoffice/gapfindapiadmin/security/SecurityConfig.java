@@ -23,7 +23,6 @@ public class SecurityConfig {
             "/webjars/**",
             "/health",
             "/js/**",
-            "/api-keys/error**",
             "/error"
     };
     private final JwtAuthorisationFilter jwtAuthorisationFilter;

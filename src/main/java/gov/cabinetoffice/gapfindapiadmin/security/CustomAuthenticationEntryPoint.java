@@ -23,6 +23,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         log.info("In CustomAuthenticationEntryPoint");
-        response.sendRedirect(request.getContextPath() + "/api-keys/error");
+        response.sendRedirect(request.getContextPath() + "/error");
     }
 }
