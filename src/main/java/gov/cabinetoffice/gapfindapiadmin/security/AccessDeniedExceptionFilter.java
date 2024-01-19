@@ -20,7 +20,7 @@ public class AccessDeniedExceptionFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (AccessDeniedException e) {
             log.info("In AccessDeniedExceptionFilter");
-            response.sendRedirect(request.getContextPath() + "/api-keys/error");
+            response.sendRedirect(request.getContextPath() + "/error");
         }
     }
 }
