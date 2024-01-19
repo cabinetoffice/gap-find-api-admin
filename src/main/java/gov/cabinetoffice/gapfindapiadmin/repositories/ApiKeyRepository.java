@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface ApiKeyRepository extends CrudRepository<GapApiKey, Integer> {
 
-    List<GapApiKey> findByFundingOrganisationId(Integer id);
+    List<GapApiKey> findByFundingOrganisation_IdOrderByIsRevokedAscCreatedDateAsc(Integer id);
 
     GapApiKey findByName(String name);
 
@@ -19,10 +19,9 @@ public interface ApiKeyRepository extends CrudRepository<GapApiKey, Integer> {
     @Query("select distinct fundingOrganisation.name from GapApiKey")
     List<String> findByUniqueFundingOrganisationNames();
 
-    List<GapApiKey> findByFundingOrganisationName(String name);
-
     @Query("select g from GapApiKey g order by g.isRevoked, g.createdDate")
     List<GapApiKey> findByOrderByIsRevokedAscCreatedDateAsc();
 
+    List<GapApiKey> findByFundingOrganisation_NameOrderByIsRevokedAscCreatedDateAsc(String name);
 
 }

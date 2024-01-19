@@ -84,7 +84,7 @@ class ApiKeyServiceTest {
         final String apiKeyName = "Key Name";
         final List<GapApiKey> expectedApiKeys = List.of(GapApiKey.builder().name(apiKeyName).build());
 
-        when(apiKeyRepository.findByFundingOrganisationId(any(Integer.class))).thenReturn(expectedApiKeys);
+        when(apiKeyRepository.findByFundingOrganisation_IdOrderByIsRevokedAscCreatedDateAsc(any(Integer.class))).thenReturn(expectedApiKeys);
 
         List<GapApiKey> actualApiKeys = serviceUnderTest.getApiKeysForFundingOrganisation(fundingOrgId);
         assertThat(actualApiKeys).isEqualTo(expectedApiKeys);
@@ -201,11 +201,11 @@ class ApiKeyServiceTest {
     @Test
     void getApiKeysForSelectedFundingOrganisations_oneSelected() {
         final List<String> fundingOrgName = Collections.singletonList("test org");
-        when(apiKeyRepository.findByFundingOrganisationName("test org")).thenReturn(List.of(apiKey));
+        when(apiKeyRepository.findByFundingOrganisation_NameOrderByIsRevokedAscCreatedDateAsc("test org")).thenReturn(List.of(apiKey));
 
         final List<GapApiKey> response = serviceUnderTest.getApiKeysForSelectedFundingOrganisations(fundingOrgName);
 
-        verify(apiKeyRepository).findByFundingOrganisationName("test org");
+        verify(apiKeyRepository).findByFundingOrganisation_NameOrderByIsRevokedAscCreatedDateAsc("test org");
         assertThat(response).isEqualTo(Collections.singletonList(apiKey));
     }
 
