@@ -34,7 +34,7 @@ public class ApiKeyService {
     public List<GapApiKey> getApiKeysForFundingOrganisation(int fundingOrgId) {
         log.info("Getting API keys for funding org id: {}", fundingOrgId);
 
-        return apiKeyRepository.findByFundingOrganisationId(fundingOrgId);
+        return apiKeyRepository.findByFundingOrganisation_IdOrderByIsRevokedAscCreatedDateAsc(fundingOrgId);
     }
 
     public void saveApiKey(GapApiKey apiKey) {
@@ -109,7 +109,7 @@ public class ApiKeyService {
 
         List<GapApiKey> gapApiKeys = ofNullable(selectedFundingOrgName)
                 .map(names -> names.stream()
-                        .flatMap(name -> apiKeyRepository.findByFundingOrganisationName(name).stream())
+                        .flatMap(name -> apiKeyRepository.findByFundingOrganisation_NameOrderByIsRevokedAscCreatedDateAsc(name).stream())
                         .toList())
                 .orElseGet(() -> apiKeyRepository.findByOrderByIsRevokedAscCreatedDateAsc());
 
