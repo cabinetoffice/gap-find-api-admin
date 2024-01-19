@@ -10,10 +10,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @EnableWebSecurity
@@ -23,7 +22,9 @@ public class SecurityConfig {
     private static final String[] WHITE_LIST = {
             "/webjars/**",
             "/health",
-            "/js/**"
+            "/js/**",
+            "/api-keys/error**",
+            "/error"
     };
     private final JwtAuthorisationFilter jwtAuthorisationFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPointFilter;
@@ -46,11 +47,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request ->
-                        request.anyRequest()
-                                .authenticated())
+                .authorizeHttpRequests(requests -> requests
+                        .anyRequest().authenticated()
+                )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .addFilterBefore(jwtAuthorisationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new AccessDeniedExceptionFilter(), JwtAuthorisationFilter.class)
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling
                                 .authenticationEntryPoint(authenticationEntryPointFilter)

@@ -33,12 +33,13 @@ class CustomAuthenticationEntryPointTest {
     CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     @Test
     void commence() throws IOException {
+        when(request.getContextPath()).thenReturn("/find/api/admin");
+
         final AuthenticationException authenticationException = new InsufficientAuthenticationException("Access Denied");
-        when(userServiceConfig.getLoginUrl()).thenReturn("url");
-        doNothing().when(response).sendRedirect("url");
+        doNothing().when(response).sendRedirect("/find/api/admin/api-keys/error");
 
         customAuthenticationEntryPoint.commence(request, response, authenticationException);
 
-        verify(response, times(1)).sendRedirect("url");
+        verify(response, times(1)).sendRedirect("/find/api/admin/api-keys/error");
     }
 }
