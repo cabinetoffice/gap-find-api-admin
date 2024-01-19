@@ -17,12 +17,6 @@ import org.springframework.context.annotation.Configuration;
 public class AwsClientConfig {
 
     @NotNull
-    private String secretKey;
-
-    @NotNull
-    private String accessKeyId;
-
-    @NotNull
     private String region;
 
 }
