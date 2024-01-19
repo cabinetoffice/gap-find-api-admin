@@ -36,10 +36,10 @@ class CustomAuthenticationEntryPointTest {
         when(request.getContextPath()).thenReturn("/find/api/admin");
 
         final AuthenticationException authenticationException = new InsufficientAuthenticationException("Access Denied");
-        doNothing().when(response).sendRedirect("/find/api/admin/api-keys/error");
+        doNothing().when(response).sendRedirect("/find/api/admin/error");
 
         customAuthenticationEntryPoint.commence(request, response, authenticationException);
 
-        verify(response, times(1)).sendRedirect("/find/api/admin/api-keys/error");
+        verify(response, times(1)).sendRedirect("/find/api/admin/error");
     }
 }
