@@ -2,10 +2,7 @@ package gov.cabinetoffice.gapfindapiadmin.services;
 
 import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
-import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
-import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
-import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
-import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
+import gov.cabinetoffice.gapfindapiadmin.models.*;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,9 +39,14 @@ class ApiKeyServiceTest {
             .name("Funding org")
             .build();
 
-    private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
-    private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
-    private final GrantAdmin grantAdmin2 = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation2).build();
+    private final JwtPayload jwtPayload = JwtPayload.builder().sub("1234").departmentName("test org")
+            .roles("[]").build();
+    private final JwtPayload jwtPayload2 = JwtPayload.builder().sub("1234").departmentName("Funding org")
+            .roles("[]").build();
+
+    private final TechSupportUser techSupportUser =
+            TechSupportUser.builder().userSub("1234").funder(fundingOrganisation).build();
+
     private final Integer API_KEY_ID = 1;
 
     private final GapApiKey apiKey = GapApiKey.builder()
@@ -70,6 +72,9 @@ class ApiKeyServiceTest {
 
     @Mock
     private ApiKeyRepository apiKeyRepository;
+
+    @Mock
+    private TechSupportUserService techSupportUserService;
 
     @Mock
     private Pageable pageable;
@@ -112,8 +117,9 @@ class ApiKeyServiceTest {
 
     @Test
     void revokeApiKey_returnsExpectedResponse() {
-        setSecurityContext(grantAdmin);
+        setSecurityContext(jwtPayload);
         when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(Optional.ofNullable(apiKey));
+        when(techSupportUserService.getTechSupportUserBySub(jwtPayload.getSub())).thenReturn(techSupportUser);
 
         serviceUnderTest.revokeApiKey(API_KEY_ID);
 
@@ -124,7 +130,7 @@ class ApiKeyServiceTest {
 
     @Test
     void revokeApiKey_throwsInvalidApiKeyIdException() {
-        setSecurityContext(grantAdmin);
+        setSecurityContext(jwtPayload);
         when(apiKeyRepository.findById(API_KEY_ID)).thenThrow(new InvalidApiKeyIdException());
 
         serviceUnderTest.revokeApiKey(API_KEY_ID);
@@ -135,8 +141,9 @@ class ApiKeyServiceTest {
 
     @Test
     void revokeApiKey_throwsUnauthorizedException() {
-        setSecurityContext(grantAdmin2);
+        setSecurityContext(jwtPayload2);
         when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(Optional.ofNullable(apiKey));
+        when(techSupportUserService.getTechSupportUserBySub(jwtPayload.getSub())).thenReturn(techSupportUser);
 
         assertThatThrownBy(() -> serviceUnderTest.revokeApiKey(API_KEY_ID))
                 .isInstanceOf(UnauthorizedException.class)
@@ -262,9 +269,9 @@ class ApiKeyServiceTest {
     }
 
 
-    private void setSecurityContext(GrantAdmin grantAdmin) {
+    private void setSecurityContext(JwtPayload jwtPayload) {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(grantAdmin);
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(jwtPayload);
     }
 }

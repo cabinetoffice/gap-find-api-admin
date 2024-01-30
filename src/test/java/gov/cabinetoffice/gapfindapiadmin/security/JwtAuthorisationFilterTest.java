@@ -4,10 +4,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
-import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
 import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
+import gov.cabinetoffice.gapfindapiadmin.services.TechSupportUserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -64,9 +64,6 @@ class JwtAuthorisationFilterTest {
     @Mock
     private SecurityContext securityContext;
 
-    @Mock
-    private WebUtils webUtils;
-
     @BeforeEach
     void setup() {
         jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, grantAdminService, userServiceConfig);
@@ -80,17 +77,14 @@ class JwtAuthorisationFilterTest {
         when(jwtService.verifyToken(jwt)).thenReturn(decodedJWT);
         when(jwtService.getPayloadFromJwt(decodedJWT)).thenReturn(jwtPayload);
 
-        final GrantAdmin grantAdmin = GrantAdmin.builder().id(1).build();
-        when(grantAdminService.getGrantAdminForUser(jwtPayload.getSub())).thenReturn(grantAdmin);
         SecurityContextHolder.setContext(securityContext);
 
         jwtAuthorisationFilter.doFilterInternal(request, response, filterChain);
 
-        verify(grantAdminService, times(1)).getGrantAdminForUser(jwtPayload.getSub());
         verify(jwtService, times(1)).getPayloadFromJwt(decodedJWT);
         verify(securityContext).setAuthentication(authenticationCaptor.capture());
 
-        assertThat(authenticationCaptor.getValue().getPrincipal()).isEqualTo(grantAdmin);
+        assertThat(authenticationCaptor.getValue().getPrincipal()).isEqualTo(jwtPayload);
     }
 
     @Test

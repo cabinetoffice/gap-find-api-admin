@@ -1,8 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
-import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.models.TechSupportUser;
-import gov.cabinetoffice.gapfindapiadmin.repositories.GrantAdminRepository;
 import gov.cabinetoffice.gapfindapiadmin.repositories.TechSupportUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

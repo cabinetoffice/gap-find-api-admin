@@ -3,7 +3,8 @@ package gov.cabinetoffice.gapfindapiadmin.services;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
-import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
+import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
+import gov.cabinetoffice.gapfindapiadmin.models.TechSupportUser;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
 
+    private final TechSupportUserService techSupportUserService;
 
     public List<GapApiKey> getApiKeysForFundingOrganisation(int fundingOrgId) {
         log.info("Getting API keys for funding org id: {}", fundingOrgId);
@@ -63,7 +65,7 @@ public class ApiKeyService {
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         final List<SimpleGrantedAuthority> authorities = (List<SimpleGrantedAuthority>) auth.getAuthorities();
 
-        final GrantAdmin grantAdmin = (GrantAdmin) auth.getPrincipal();
+        final JwtPayload jwtPayload = (JwtPayload) auth.getPrincipal();
         final boolean isSuperAdmin = authorities.contains(new SimpleGrantedAuthority(SUPER_ADMIN_ROLE));
 
         log.info("User is a super admin: {}", isSuperAdmin);
@@ -78,8 +80,10 @@ public class ApiKeyService {
 
         log.info("API key found: {}", apiKey.getName());
 
-        if (isSuperAdmin || grantAdmin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName())) {
-            apiKey.setRevokedBy(grantAdmin.getGapUser().getId());
+        TechSupportUser techSupportUser = techSupportUserService.getTechSupportUserBySub(jwtPayload.getSub());
+
+        if (isSuperAdmin || jwtPayload.getDepartmentName().equals(apiKey.getFundingOrganisation().getName())) {
+            apiKey.setRevokedBy(techSupportUser.getId());
             apiKey.setRevocationDate(ZonedDateTime.now());
             apiKey.setRevoked(true);
             apiKeyRepository.save(apiKey);
