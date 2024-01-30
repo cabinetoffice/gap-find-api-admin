@@ -7,9 +7,11 @@ import gov.cabinetoffice.gapfindapiadmin.dtos.CreateApiKeyDTO;
 import gov.cabinetoffice.gapfindapiadmin.dtos.NavBarDto;
 import gov.cabinetoffice.gapfindapiadmin.helpers.PaginationHelper;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
-import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
+import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
+import gov.cabinetoffice.gapfindapiadmin.models.TechSupportUser;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
+import gov.cabinetoffice.gapfindapiadmin.services.TechSupportUserService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -48,6 +45,7 @@ public class ApiKeyController {
 
     private final ApiKeyService apiKeyService;
     private final ApiGatewayService apiGatewayService;
+    private final TechSupportUserService techSupportUserService;
     private final PaginationHelper paginationHelper;
     private final UserServiceConfig userServiceConfig;
     private final NavBarConfigProperties navBarConfigProperties;
@@ -58,11 +56,14 @@ public class ApiKeyController {
     public ModelAndView showKeys() {
         log.info("Showing API keys page");
 
-        final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        final String departmentName = grantAdmin.getFunder().getName();
+        final JwtPayload jwtPayload = (JwtPayload) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final String departmentName = jwtPayload.getDepartmentName();
+
+        final TechSupportUser techSupportUser = techSupportUserService.getTechSupportUserBySub(jwtPayload.getSub());
 
         final ModelAndView model = new ModelAndView(ORGANISATION_API_KEYS_PAGE)
-                .addObject("apiKeys", apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId()))
+                .addObject("apiKeys", apiKeyService
+                        .getApiKeysForFundingOrganisation(techSupportUser.getFunder().getId()))
                 .addObject("departmentName", departmentName)
                 .addObject("signOutUrl", userServiceConfig.getLogoutUrl())
                 .addObject("apiDocumentationLink", swaggerConfigProperties.getDocumentationLink());

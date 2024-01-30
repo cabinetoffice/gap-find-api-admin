@@ -3,7 +3,6 @@ package gov.cabinetoffice.gapfindapiadmin.security;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
-import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
 import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
@@ -58,10 +57,14 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
         }
         final List<SimpleGrantedAuthority> simpleGrantedAuthorityList = jwtService.generateSimpleGrantedAuthorityList(isSuperAdmin, isAdmin);
 
-        final GrantAdmin grantAdmin = this.grantAdminService.getGrantAdminForUser(jwtPayload.getSub());
-
-        final Authentication auth = new UsernamePasswordAuthenticationToken(grantAdmin, null,
+//        final GrantAdmin grantAdmin = this.grantAdminService.getGrantAdminForUser(jwtPayload.getSub());
+        final Authentication auth = new UsernamePasswordAuthenticationToken(jwtPayload, null,
                 simpleGrantedAuthorityList);
+
+        // option 1 - If user is not an admin then we create one
+        // option 2 - We create a new user type tech support and link them to a funding org
+
+
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         filterChain.doFilter(request, response);
