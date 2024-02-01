@@ -83,7 +83,7 @@ public class ApiKeyService {
         TechSupportUser techSupportUser = techSupportUserService.getTechSupportUserBySub(jwtPayload.getSub());
 
         if (isSuperAdmin || jwtPayload.getDepartmentName().equals(apiKey.getFundingOrganisation().getName())) {
-            apiKey.setRevokedBy(techSupportUser.getId());
+            apiKey.setRevokedBy(techSupportUser.getUserSub());
             apiKey.setRevocationDate(ZonedDateTime.now());
             apiKey.setRevoked(true);
             apiKeyRepository.save(apiKey);

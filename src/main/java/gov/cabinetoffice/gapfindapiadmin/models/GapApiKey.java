@@ -48,5 +48,5 @@ public class GapApiKey {
     private ZonedDateTime revocationDate;
 
     @Column(name = "revoked_by", nullable = false)
-    private Integer revokedBy;
+    private String revokedBy;
 }
