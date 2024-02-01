@@ -126,10 +126,10 @@ public class ApiGatewayService {
         log.info("deleting Api key from api gateway with id: {}", apiKey.getApiGatewayId());
 
         final JwtPayload jwtPayload = (JwtPayload) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        ofNullable(jwtPayload).filter(admin -> jwtPayload.getDepartmentName()
+        ofNullable(jwtPayload).filter(user -> jwtPayload.getDepartmentName()
                         .equals(apiKey.getFundingOrganisation().getName()) || isSuperAdmin)
                 .ifPresentOrElse(
-                        admin -> {
+                        user -> {
                             apiGatewayClient.deleteApiKey(DeleteApiKeyRequest.builder()
                                     .apiKey(apiKey.getApiGatewayId())
                                     .build());

@@ -5,9 +5,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
-import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
-import gov.cabinetoffice.gapfindapiadmin.services.TechSupportUserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -24,7 +22,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
 
@@ -56,8 +53,6 @@ class JwtAuthorisationFilterTest {
 
     @Mock
     private FilterChain filterChain;
-    @Mock
-    private GrantAdminService grantAdminService;
 
     @Mock
     private UserServiceConfig userServiceConfig;
@@ -66,7 +61,7 @@ class JwtAuthorisationFilterTest {
 
     @BeforeEach
     void setup() {
-        jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, grantAdminService, userServiceConfig);
+        jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, userServiceConfig);
     }
 
     @Test

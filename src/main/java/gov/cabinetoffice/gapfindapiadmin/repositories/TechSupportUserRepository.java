@@ -4,8 +4,10 @@ import gov.cabinetoffice.gapfindapiadmin.models.TechSupportUser;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface TechSupportUserRepository extends CrudRepository<TechSupportUser, Integer> {
 
-    TechSupportUser findByUserSub(String userSub);
+    Optional<TechSupportUser> findByUserSub(String userSub);
 }

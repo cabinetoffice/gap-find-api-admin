@@ -4,7 +4,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
-import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -36,7 +35,6 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
     public static final String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
     public static final String TECHNICAL_SUPPORT_ROLE = "TECHNICAL_SUPPORT";
     private final JwtService jwtService;
-    private final GrantAdminService grantAdminService;
     private final UserServiceConfig userServiceConfig;
 
     @Override

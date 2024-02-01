@@ -1,5 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.services;
 
+import gov.cabinetoffice.gapfindapiadmin.exceptions.UserNotFoundException;
 import gov.cabinetoffice.gapfindapiadmin.models.TechSupportUser;
 import gov.cabinetoffice.gapfindapiadmin.repositories.TechSupportUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ public class TechSupportUserService {
     private final TechSupportUserRepository techSupportUserRepository;
 
     public TechSupportUser getTechSupportUserBySub(String userSub) {
-        return techSupportUserRepository.findByUserSub(userSub);
+        return techSupportUserRepository.findByUserSub(userSub)
+                .orElseThrow(() -> new UserNotFoundException("Tech support not found with sub: ".concat(userSub)));
     }
 }
