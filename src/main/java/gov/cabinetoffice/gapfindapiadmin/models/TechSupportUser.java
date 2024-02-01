@@ -6,27 +6,26 @@ import lombok.*;
 
 
 @Entity
-@Table(name = "grant_admin")
+@Table(name = "tech_support_user")
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GrantAdmin {
+public class TechSupportUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "grant_admin_id")
+    @Column(name = "id")
     private Integer id;
+
+    @Column(name = "user_sub")
+    private String userSub;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "funder_id", referencedColumnName = "funder_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private FundingOrganisation funder;
-
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", referencedColumnName = "gap_user_id")
-    private GapUser gapUser;
 
 }

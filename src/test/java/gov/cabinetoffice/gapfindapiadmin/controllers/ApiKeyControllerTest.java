@@ -8,10 +8,11 @@ import gov.cabinetoffice.gapfindapiadmin.dtos.NavBarDto;
 import gov.cabinetoffice.gapfindapiadmin.helpers.PaginationHelper;
 import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
-import gov.cabinetoffice.gapfindapiadmin.models.GapUser;
-import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
+import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
+import gov.cabinetoffice.gapfindapiadmin.models.TechSupportUser;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiGatewayService;
 import gov.cabinetoffice.gapfindapiadmin.services.ApiKeyService;
+import gov.cabinetoffice.gapfindapiadmin.services.TechSupportUserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,30 +30,26 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
-import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.ADMIN_ROLE;
-import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.SUPER_ADMIN_ROLE;
-import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.TECHNICAL_SUPPORT_ROLE;
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.*;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ApiKeyControllerTest {
 
     private static final Integer API_KEY_ID = 1;
     private final FundingOrganisation fundingOrganisation = FundingOrganisation.builder().id(1).name("testDepartmentName").build();
-    private final GapUser gapUser = GapUser.builder().id(1).userSub("sub").build();
-    private final GrantAdmin grantAdmin = GrantAdmin.builder().gapUser(gapUser).funder(fundingOrganisation).build();
+
+    private final JwtPayload jwtPayload = JwtPayload.builder().sub("1234").departmentName("testDepartmentName")
+            .roles("[]").build();
+
+    private final TechSupportUser techSupportUser =
+            TechSupportUser.builder().userSub("1234").funder(fundingOrganisation).build();
     private final GapApiKey apiKey = GapApiKey.builder()
             .id(API_KEY_ID)
             .apiGatewayId("apiGatewayId")
@@ -64,7 +61,6 @@ class ApiKeyControllerTest {
     private final List<String> departments = List.of("testDepartmentName", "anotherDepartment");
     private final List<GapApiKey> apiKeyList = List.of(apiKey);
     private final List<Integer> pageNumbers = List.of(1);
-    private final NavBarDto navBarDto = NavBarDto.builder().link("link").name("name").build();
     @Mock
     private ApiKeyService apiKeyService;
     @Mock
@@ -85,10 +81,11 @@ class ApiKeyControllerTest {
 
     @Mock
     private SwaggerConfigProperties swaggerConfigProperties;
+
+    @Mock
+    private TechSupportUserService techSupportUserService;
     @InjectMocks
     private ApiKeyController controllerUnderTest;
-
-
     @Test
     void showKeys_expectedResponse_hasNotAdminRole() {
 
@@ -97,7 +94,8 @@ class ApiKeyControllerTest {
 
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
-        when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
+        when(apiKeyService.getApiKeysForFundingOrganisation(techSupportUser.getFunder().getId())).thenReturn(expectedApiKeys);
+        when(techSupportUserService.getTechSupportUserBySub(jwtPayload.getSub())).thenReturn(techSupportUser);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
         when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
@@ -121,7 +119,8 @@ class ApiKeyControllerTest {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(ADMIN_ROLE));
         when(navBarConfigProperties.getAdminDashboardLink()).thenReturn("adminLink");
-        when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
+        when(apiKeyService.getApiKeysForFundingOrganisation(techSupportUser.getFunder().getId())).thenReturn(expectedApiKeys);
+        when(techSupportUserService.getTechSupportUserBySub(jwtPayload.getSub())).thenReturn(techSupportUser);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
         when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
@@ -145,7 +144,8 @@ class ApiKeyControllerTest {
         List<GapApiKey> expectedApiKeys = new ArrayList<>();
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
-        when(apiKeyService.getApiKeysForFundingOrganisation(grantAdmin.getFunder().getId())).thenReturn(expectedApiKeys);
+        when(apiKeyService.getApiKeysForFundingOrganisation(techSupportUser.getFunder().getId())).thenReturn(expectedApiKeys);
+        when(techSupportUserService.getTechSupportUserBySub(jwtPayload.getSub())).thenReturn(techSupportUser);
         when(userServiceConfig.getLogoutUrl()).thenReturn("logoutUrl");
         when(swaggerConfigProperties.getDocumentationLink()).thenReturn("documentationLink");
 
@@ -562,7 +562,7 @@ class ApiKeyControllerTest {
     private Authentication createAuthenticationWithRoles(String role) {
         Collection<GrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority(role));
-        return new UsernamePasswordAuthenticationToken(grantAdmin, null, authorities);
+        return new UsernamePasswordAuthenticationToken(jwtPayload, null, authorities);
     }
 
 }
