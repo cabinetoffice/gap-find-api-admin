@@ -4,8 +4,10 @@ import gov.cabinetoffice.gapfindapiadmin.exceptions.InvalidApiKeyIdException;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
-import gov.cabinetoffice.gapfindapiadmin.models.TechSupportUser;
 import gov.cabinetoffice.gapfindapiadmin.repositories.ApiKeyRepository;
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.SUPER_ADMIN_ROLE;
+import static java.util.Comparator.comparing;
+import static java.util.Optional.ofNullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,10 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-
-import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.SUPER_ADMIN_ROLE;
-import static java.util.Comparator.comparing;
-import static java.util.Optional.ofNullable;
 
 @Service
 @RequiredArgsConstructor
@@ -80,16 +78,13 @@ public class ApiKeyService {
 
         log.info("API key found: {}", apiKey.getName());
 
-        TechSupportUser techSupportUser = techSupportUserService.getTechSupportUserBySub(jwtPayload.getSub());
-
         if (isSuperAdmin || jwtPayload.getDepartmentName().equals(apiKey.getFundingOrganisation().getName())) {
-            apiKey.setRevokedBy(techSupportUser.getUserSub());
+            apiKey.setRevokedBy(jwtPayload.getSub());
             apiKey.setRevocationDate(ZonedDateTime.now());
             apiKey.setRevoked(true);
             apiKeyRepository.save(apiKey);
 
             log.info("API key revoked");
-
         } else {
             throw new UnauthorizedException("User is unauthorised to revoke this API key");
         }
@@ -115,7 +110,7 @@ public class ApiKeyService {
                 .map(names -> names.stream()
                         .flatMap(name -> apiKeyRepository.findByFundingOrganisation_NameOrderByIsRevokedAscCreatedDateAsc(name).stream())
                         .toList())
-                .orElseGet(() -> apiKeyRepository.findByOrderByIsRevokedAscCreatedDateAsc());
+                .orElseGet(apiKeyRepository::findByOrderByIsRevokedAscCreatedDateAsc);
 
         return gapApiKeys.stream()
                 .sorted(comparing(GapApiKey::isRevoked))

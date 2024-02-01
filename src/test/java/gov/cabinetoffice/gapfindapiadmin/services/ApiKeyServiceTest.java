@@ -119,7 +119,6 @@ class ApiKeyServiceTest {
     void revokeApiKey_returnsExpectedResponse() {
         setSecurityContext(jwtPayload);
         when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(Optional.ofNullable(apiKey));
-        when(techSupportUserService.getTechSupportUserBySub(jwtPayload.getSub())).thenReturn(techSupportUser);
 
         serviceUnderTest.revokeApiKey(API_KEY_ID);
 
@@ -143,7 +142,6 @@ class ApiKeyServiceTest {
     void revokeApiKey_throwsUnauthorizedException() {
         setSecurityContext(jwtPayload2);
         when(apiKeyRepository.findById(API_KEY_ID)).thenReturn(Optional.ofNullable(apiKey));
-        when(techSupportUserService.getTechSupportUserBySub(jwtPayload.getSub())).thenReturn(techSupportUser);
 
         assertThatThrownBy(() -> serviceUnderTest.revokeApiKey(API_KEY_ID))
                 .isInstanceOf(UnauthorizedException.class)
