@@ -3,8 +3,9 @@ package gov.cabinetoffice.gapfindapiadmin.services;
 import gov.cabinetoffice.gapfindapiadmin.config.ApiGatewayConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.ApiKeyException;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
+import gov.cabinetoffice.gapfindapiadmin.models.FundingOrganisation;
 import gov.cabinetoffice.gapfindapiadmin.models.GapApiKey;
-import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
+import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,8 +34,10 @@ public class ApiGatewayService {
 
     private final ApiKeyService apiKeyService;
 
+    private final FundingOrganisationService fundingOrganisationService;
+
     public String createApiKeysInAwsAndDb(String keyName) {
-        final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final JwtPayload jwtPayload = (JwtPayload) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         //create the api key in aws api gateway
         final CreateApiKeyResponse apiKey = createApiKeyInAwsApiGateway(keyName);
@@ -44,7 +47,7 @@ public class ApiGatewayService {
         addApiKeyToApiGatewayUsagePlan(apiKey);
 
         // save the api key in the database
-        saveKeyInDatabase(keyName, apiKey, grantAdmin);
+        saveKeyInDatabase(keyName, apiKey, jwtPayload);
 
         return apiKey.value();
     }
@@ -75,14 +78,17 @@ public class ApiGatewayService {
         log.info("Api key added to usage plan");
     }
 
-    protected void saveKeyInDatabase(String keyName, CreateApiKeyResponse response, GrantAdmin grantAdmin) {
+    protected void saveKeyInDatabase(String keyName, CreateApiKeyResponse response, JwtPayload jwtPayload) {
         //TODO add in some error handling here in case it doesn't save to the db for some reason but we manage to save in aws? Could catch any db exceptions and then delete from aws if it exists.
         log.info("Saving api key in database");
+
+        FundingOrganisation fundingOrganisation =
+                fundingOrganisationService.getFundingOrganisationByName(jwtPayload.getDepartmentName());
 
         try {
             final GapApiKey apiKey = GapApiKey.builder()
                     .apiGatewayId(response.id())
-                    .fundingOrganisation(grantAdmin.getFunder())
+                    .fundingOrganisation(fundingOrganisation)
                     .apiKey(hashString(response.value()))
                     .name(keyName)
                     .createdDate(ZonedDateTime.now())
@@ -119,10 +125,11 @@ public class ApiGatewayService {
     public void deleteApiKey(GapApiKey apiKey, boolean isSuperAdmin) {
         log.info("deleting Api key from api gateway with id: {}", apiKey.getApiGatewayId());
 
-        final GrantAdmin grantAdmin = (GrantAdmin) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        ofNullable(grantAdmin).filter(admin -> admin.getFunder().getName().equals(apiKey.getFundingOrganisation().getName()) || isSuperAdmin)
+        final JwtPayload jwtPayload = (JwtPayload) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ofNullable(jwtPayload).filter(user -> jwtPayload.getDepartmentName()
+                        .equals(apiKey.getFundingOrganisation().getName()) || isSuperAdmin)
                 .ifPresentOrElse(
-                        admin -> {
+                        user -> {
                             apiGatewayClient.deleteApiKey(DeleteApiKeyRequest.builder()
                                     .apiKey(apiKey.getApiGatewayId())
                                     .build());

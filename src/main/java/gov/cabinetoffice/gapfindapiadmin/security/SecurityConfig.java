@@ -1,7 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.security;
 
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
-import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,9 +28,9 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint authenticationEntryPointFilter;
 
 
-    public SecurityConfig(final JwtService jwtService, final GrantAdminService grantAdminService, UserServiceConfig userServiceConfig) {
+    public SecurityConfig(final JwtService jwtService, UserServiceConfig userServiceConfig) {
         this.authenticationEntryPointFilter = new CustomAuthenticationEntryPoint(userServiceConfig);
-        this.jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, grantAdminService, userServiceConfig);
+        this.jwtAuthorisationFilter = new JwtAuthorisationFilter(jwtService, userServiceConfig);
     }
 
     @Bean

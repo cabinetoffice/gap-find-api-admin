@@ -3,9 +3,7 @@ package gov.cabinetoffice.gapfindapiadmin.security;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
-import gov.cabinetoffice.gapfindapiadmin.models.GrantAdmin;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
-import gov.cabinetoffice.gapfindapiadmin.services.GrantAdminService;
 import gov.cabinetoffice.gapfindapiadmin.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -37,7 +35,6 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
     public static final String SUPER_ADMIN_ROLE = "SUPER_ADMIN";
     public static final String TECHNICAL_SUPPORT_ROLE = "TECHNICAL_SUPPORT";
     private final JwtService jwtService;
-    private final GrantAdminService grantAdminService;
     private final UserServiceConfig userServiceConfig;
 
     @Override
@@ -58,10 +55,9 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
         }
         final List<SimpleGrantedAuthority> simpleGrantedAuthorityList = jwtService.generateSimpleGrantedAuthorityList(isSuperAdmin, isAdmin);
 
-        final GrantAdmin grantAdmin = this.grantAdminService.getGrantAdminForUser(jwtPayload.getSub());
-
-        final Authentication auth = new UsernamePasswordAuthenticationToken(grantAdmin, null,
+        final Authentication auth = new UsernamePasswordAuthenticationToken(jwtPayload, null,
                 simpleGrantedAuthorityList);
+
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         filterChain.doFilter(request, response);
