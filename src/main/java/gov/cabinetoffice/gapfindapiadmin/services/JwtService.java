@@ -65,6 +65,7 @@ public class JwtService {
 
         if (isSuperAdmin) {
             simpleGrantedAuthorityList = List.of(new SimpleGrantedAuthority(SUPER_ADMIN_ROLE),
+                    new SimpleGrantedAuthority(ADMIN_ROLE),
                     new SimpleGrantedAuthority(TECHNICAL_SUPPORT_ROLE));
         } else if (isAdmin) {
             simpleGrantedAuthorityList = List.of(
