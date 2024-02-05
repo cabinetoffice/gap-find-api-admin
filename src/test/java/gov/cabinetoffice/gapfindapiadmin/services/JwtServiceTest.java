@@ -119,7 +119,7 @@ class JwtServiceTest {
         void testGenerateSimpleGrantedAuthorityListSuperAdmin() {
             final List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(true, false);
 
-            assertThat(result.size()).isEqualTo(1);
+            assertThat(result.size()).isEqualTo(3 );
             assertThat(result.get(0).getAuthority()).isEqualTo(SUPER_ADMIN_ROLE);
         }
 
