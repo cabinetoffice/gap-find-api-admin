@@ -23,6 +23,7 @@ import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -47,13 +48,19 @@ public class JwtAuthorisationFilter extends OncePerRequestFilter {
 
         final JwtPayload jwtPayload = this.jwtService.getPayloadFromJwt(decodedJWT);
         final boolean isSuperAdmin = jwtPayload.getRoles().contains(SUPER_ADMIN_ROLE);
+        final boolean isTechSupport = jwtPayload.getRoles().contains(TECHNICAL_SUPPORT_ROLE);
         final Pattern pattern = Pattern.compile("\\b" + ADMIN_ROLE + "\\b");
         final boolean isAdmin = pattern.matcher(jwtPayload.getRoles()).find();
 
         if (!jwtPayload.getRoles().contains(TECHNICAL_SUPPORT_ROLE) && !isSuperAdmin) {
             throw new AccessDeniedException("User does not have the required roles to access this resource");
         }
-        final List<SimpleGrantedAuthority> simpleGrantedAuthorityList = jwtService.generateSimpleGrantedAuthorityList(isSuperAdmin, isAdmin);
+
+        Map<String, Boolean> rolesMap = Map.of(SUPER_ADMIN_ROLE, isSuperAdmin, ADMIN_ROLE, isAdmin,
+                TECHNICAL_SUPPORT_ROLE, isTechSupport);
+
+        final List<SimpleGrantedAuthority> simpleGrantedAuthorityList =
+                jwtService.generateSimpleGrantedAuthorityList(rolesMap);
 
         final Authentication auth = new UsernamePasswordAuthenticationToken(jwtPayload, null,
                 simpleGrantedAuthorityList);
