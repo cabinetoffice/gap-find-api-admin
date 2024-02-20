@@ -1,5 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
+import gov.cabinetoffice.gapfindapiadmin.config.BasePathConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.config.NavBarConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.config.SwaggerConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
@@ -29,6 +30,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.*;
 
@@ -84,6 +86,10 @@ class ApiKeyControllerTest {
 
     @Mock
     private TechSupportUserService techSupportUserService;
+
+    @Mock
+    private BasePathConfigProperties basePathConfigProperties;
+
     @InjectMocks
     private ApiKeyController controllerUnderTest;
     @Test
@@ -387,13 +393,14 @@ class ApiKeyControllerTest {
     void revokeApiKeyPost_returnsExpectedResponse_TechnicalSupport() {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(TECHNICAL_SUPPORT_ROLE));
+        when(basePathConfigProperties.getPath()).thenReturn("basePath");
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
 
-        final String response = controllerUnderTest.revokeApiKey(apiKey);
+        final RedirectView response = controllerUnderTest.revokeApiKey(apiKey);
 
         verify(apiKeyService).revokeApiKey(apiKey.getId());
         verify(apiGatewayService).deleteApiKey(apiKey, false);
-        assertThat(response).isEqualTo("redirect:/api-keys");
+        assertThat(response.getUrl()).isEqualTo("basePath/api-keys");
     }
 
     @Test
@@ -401,12 +408,13 @@ class ApiKeyControllerTest {
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(createAuthenticationWithRoles(SUPER_ADMIN_ROLE));
         when(apiKeyService.getApiKeyById(API_KEY_ID)).thenReturn(apiKey);
+        when(basePathConfigProperties.getPath()).thenReturn("basePath");
 
-        final String response = controllerUnderTest.revokeApiKey(apiKey);
+        final RedirectView response = controllerUnderTest.revokeApiKey(apiKey);
 
         verify(apiKeyService).revokeApiKey(apiKey.getId());
         verify(apiGatewayService).deleteApiKey(apiKey,true);
-        assertThat(response).isEqualTo("redirect:/api-keys/manage");
+        assertThat(response.getUrl()).isEqualTo("basePath/api-keys/manage");
     }
 
     @Test
