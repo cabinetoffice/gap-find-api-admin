@@ -22,7 +22,7 @@ public class RedirectController {
     @GetMapping()
     public RedirectView redirectUser() {
         String redirect = apiKeyController.generateRedirectValue();
-        log.info("Redirecting to: " + redirect);
+        log.info("Redirecting to: " + basePathConfigProperties.getPath() + redirect);
         return new RedirectView(basePathConfigProperties.getPath()  + redirect);
     }
 }

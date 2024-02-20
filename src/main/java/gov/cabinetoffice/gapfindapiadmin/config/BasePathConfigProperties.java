@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @NoArgsConstructor
 @Configuration("baseConfigurationProperties")
-@ConfigurationProperties(prefix = "aws")
+@ConfigurationProperties(prefix = "base")
 public class BasePathConfigProperties {
 
     @NotNull
