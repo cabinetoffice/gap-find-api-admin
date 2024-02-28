@@ -1,5 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
+import gov.cabinetoffice.gapfindapiadmin.config.BasePathConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.config.NavBarConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.config.SwaggerConfigProperties;
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
@@ -24,6 +25,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +52,7 @@ public class ApiKeyController {
     private final UserServiceConfig userServiceConfig;
     private final NavBarConfigProperties navBarConfigProperties;
     private final SwaggerConfigProperties swaggerConfigProperties;
+    private final BasePathConfigProperties basePathConfigProperties;
 
     @GetMapping
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT')")
@@ -163,7 +166,7 @@ public class ApiKeyController {
     @PostMapping("/revoke")
     @PreAuthorize("hasAuthority('TECHNICAL_SUPPORT') || hasAuthority('SUPER_ADMIN')")
     @Transactional
-    public String revokeApiKey(@ModelAttribute GapApiKey apiKey) {
+    public RedirectView revokeApiKey(@ModelAttribute GapApiKey apiKey) {
         log.info("Revoking API key POST request");
 
         try {
@@ -176,7 +179,8 @@ public class ApiKeyController {
             throw e;
         }
 
-        return "redirect:" + generateRedirectValue();
+        log.info("Redirecting to: " + basePathConfigProperties.getPath() + generateRedirectValue());
+        return new RedirectView(basePathConfigProperties.getPath() + generateRedirectValue());
     }
 
     @GetMapping("/error")

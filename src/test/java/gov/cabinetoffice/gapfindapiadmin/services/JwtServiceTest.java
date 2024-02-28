@@ -6,6 +6,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import gov.cabinetoffice.gapfindapiadmin.config.UserServiceConfig;
 import gov.cabinetoffice.gapfindapiadmin.exceptions.UnauthorizedException;
 import gov.cabinetoffice.gapfindapiadmin.models.JwtPayload;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,13 +24,9 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.SUPER_ADMIN_ROLE;
-import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.TECHNICAL_SUPPORT_ROLE;
+import static gov.cabinetoffice.gapfindapiadmin.security.JwtAuthorisationFilter.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -115,27 +112,51 @@ class JwtServiceTest {
 
     @Nested
     class generateSimpleGrantedAuthorityList{
+
         @Test
         void testGenerateSimpleGrantedAuthorityListSuperAdmin() {
-            final List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(true, false);
+            Map<String, Boolean> rolesMap = Map.of(SUPER_ADMIN_ROLE, true,
+                    ADMIN_ROLE, false, TECHNICAL_SUPPORT_ROLE, false);
+            final List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(rolesMap);
 
-            assertThat(result.size()).isEqualTo(1);
+            assertThat(result.size()).isEqualTo(1 );
             assertThat(result.get(0).getAuthority()).isEqualTo(SUPER_ADMIN_ROLE);
         }
 
         @Test
         void testGenerateSimpleGrantedAuthorityListAdmin() {
-            final List<SimpleGrantedAuthority> expected = List.of(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority(TECHNICAL_SUPPORT_ROLE));
+            Map<String, Boolean> rolesMap = Map.of(SUPER_ADMIN_ROLE, false,
+                    ADMIN_ROLE, true, TECHNICAL_SUPPORT_ROLE, true);
 
-            List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(false, true);
+            final List<SimpleGrantedAuthority> expected = List.of(
+                    new SimpleGrantedAuthority(TECHNICAL_SUPPORT_ROLE), new SimpleGrantedAuthority(ADMIN_ROLE));
+
+            List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(rolesMap);
 
             assertThat(result.size()).isEqualTo(2);
-            assertThat(result).isEqualTo(expected);
+            Assertions.assertTrue(result.containsAll(expected));
+        }
+
+        @Test
+        void testGenerateSimpleGrantedAuthorityListAllRoles() {
+            Map<String, Boolean> rolesMap = Map.of(SUPER_ADMIN_ROLE, true,
+                    ADMIN_ROLE, true, TECHNICAL_SUPPORT_ROLE, true);
+
+            final List<SimpleGrantedAuthority> expected = List.of(
+                    new SimpleGrantedAuthority(SUPER_ADMIN_ROLE),
+                    new SimpleGrantedAuthority(TECHNICAL_SUPPORT_ROLE), new SimpleGrantedAuthority(ADMIN_ROLE));
+
+            List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(rolesMap);
+
+            assertThat(result.size()).isEqualTo(3);
+            Assertions.assertTrue(result.containsAll(expected));
         }
 
         @Test
         void testGenerateSimpleGrantedAuthorityListTechnicalSupport() {
-            final List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(false, false);
+            Map<String, Boolean> rolesMap = Map.of(SUPER_ADMIN_ROLE, false,
+                    ADMIN_ROLE, false, TECHNICAL_SUPPORT_ROLE, true);
+            final List<SimpleGrantedAuthority> result = jwtService.generateSimpleGrantedAuthorityList(rolesMap);
 
             assertThat(result.size()).isEqualTo(1);
             assertThat(result.get(0).getAuthority()).isEqualTo(TECHNICAL_SUPPORT_ROLE);

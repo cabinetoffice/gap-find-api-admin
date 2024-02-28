@@ -1,6 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
-import jakarta.servlet.http.HttpServletRequest;
+import gov.cabinetoffice.gapfindapiadmin.config.BasePathConfigProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,18 +17,21 @@ class RedirectControllerTest {
     private ApiKeyController apiKeyController;
 
     @Mock
-    HttpServletRequest httpServletRequest;
+    private
+    BasePathConfigProperties basePathConfigProperties;
 
     @InjectMocks
     private RedirectController controllerUnderTest;
-//    @Test
-//    void redirectUser() {
-//        when(apiKeyController.generateRedirectValue()).thenReturn("someValue");
-//        when(httpServletRequest.getContextPath()).thenReturn("someContextPath");
-//        final RedirectView expectedRedirectView = new RedirectView("someContextPath" + "someValue");
-//
-//        final RedirectView actualRedirectView = controllerUnderTest.redirectUser(httpServletRequest);
-//
-//        assertThat(actualRedirectView.getUrl()).isEqualTo(expectedRedirectView.getUrl());
-//    }
+
+    @Test
+    void redirectUser() {
+        when(apiKeyController.generateRedirectValue()).thenReturn("someValue");
+        when(basePathConfigProperties.getPath()).thenReturn("somePath");
+
+        final RedirectView expectedRedirectView = new RedirectView("somePath" + "someValue");
+
+        final RedirectView actualRedirectView = controllerUnderTest.redirectUser();
+
+        assertThat(actualRedirectView.getUrl()).isEqualTo(expectedRedirectView.getUrl());
+    }
 }

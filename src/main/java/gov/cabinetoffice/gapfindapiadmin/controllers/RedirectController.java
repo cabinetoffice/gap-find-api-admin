@@ -1,6 +1,6 @@
 package gov.cabinetoffice.gapfindapiadmin.controllers;
 
-import jakarta.servlet.http.HttpServletRequest;
+import gov.cabinetoffice.gapfindapiadmin.config.BasePathConfigProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -17,11 +17,12 @@ import org.springframework.web.servlet.view.RedirectView;
 public class RedirectController {
 
     private final ApiKeyController apiKeyController;
+    private final BasePathConfigProperties basePathConfigProperties;
 
     @GetMapping()
-    public ModelAndView redirectUser(ModelMap model) {
-        String redirect = "redirect:" + apiKeyController.generateRedirectValue();
-        log.info("Redirecting to: " + redirect);
-        return new ModelAndView(redirect, model);
+    public RedirectView redirectUser() {
+        String redirect = apiKeyController.generateRedirectValue();
+        log.info("Redirecting to: " + basePathConfigProperties.getPath() + redirect);
+        return new RedirectView(basePathConfigProperties.getPath()  + redirect);
     }
 }
